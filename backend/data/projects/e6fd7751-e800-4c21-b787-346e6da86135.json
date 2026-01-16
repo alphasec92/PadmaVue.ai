@@ -1,0 +1,26 @@
+{
+  "id": "e6fd7751-e800-4c21-b787-346e6da86135",
+  "name": "test",
+  "description": "",
+  "status": "ingested",
+  "files": [
+    {
+      "original_name": "README.md",
+      "safe_name": "2b7814d3fca2e99e.md",
+      "size": 9870,
+      "hash": "37169b0c858b664ddda5790f4cfdd8750c14759824341e9ab81949051e831399",
+      "mime_type": "text/markdown",
+      "path": "./uploads/e6fd7751-e800-4c21-b787-346e6da86135/2b7814d3fca2e99e.md",
+      "added_at": "2026-01-13T01:04:30.268858"
+    }
+  ],
+  "metadata": {
+    "source": "api_upload",
+    "upload_time": "2026-01-13T01:04:30.261039",
+    "files_count": 1,
+    "errors": null
+  },
+  "created_at": "2026-01-13T01:04:30.261060",
+  "updated_at": "2026-01-13T01:04:30.269578",
+  "_ts": "2026-01-13T01:04:30.269583"
+}

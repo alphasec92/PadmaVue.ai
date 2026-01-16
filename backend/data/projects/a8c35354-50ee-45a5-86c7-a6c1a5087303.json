@@ -1,0 +1,26 @@
+{
+  "id": "a8c35354-50ee-45a5-86c7-a6c1a5087303",
+  "name": "cdsvcsadv",
+  "description": "",
+  "status": "ingested",
+  "files": [
+    {
+      "original_name": "README.md",
+      "safe_name": "2b7814d3fca2e99e.md",
+      "size": 9870,
+      "hash": "37169b0c858b664ddda5790f4cfdd8750c14759824341e9ab81949051e831399",
+      "mime_type": "text/markdown",
+      "path": "./uploads/a8c35354-50ee-45a5-86c7-a6c1a5087303/2b7814d3fca2e99e.md",
+      "added_at": "2026-01-13T02:24:23.866112"
+    }
+  ],
+  "metadata": {
+    "source": "api_upload",
+    "upload_time": "2026-01-13T02:24:23.857140",
+    "files_count": 1,
+    "errors": null
+  },
+  "created_at": "2026-01-13T02:24:23.857177",
+  "updated_at": "2026-01-13T02:24:23.867924",
+  "_ts": "2026-01-13T02:24:23.867931"
+}

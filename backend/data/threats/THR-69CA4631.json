@@ -1,0 +1,43 @@
+{
+  "id": "THR-69CA4631",
+  "category": "Denial of Service",
+  "title": "Resource Exhaustion Vulnerability",
+  "description": "The system's lack of information about its architecture and potential attack vectors makes it susceptible to denial-of-service (DoS) attacks. Attackers could exploit vulnerabilities to consume excessive system resources, leading to service outages and impacting legitimate users.",
+  "affected_component": "All System Components (Server, Database, Network)",
+  "attack_vector": "Exploiting vulnerabilities in the system\u2019s code or infrastructure, sending malicious requests, or leveraging known vulnerabilities to overwhelm the system with traffic.",
+  "dread_score": {
+    "damage": 7,
+    "reproducibility": 8,
+    "exploitability": 6,
+    "affected_users": 9,
+    "discoverability": 7
+  },
+  "overall_risk": 7.4,
+  "severity": "high",
+  "mitigations": [
+    "Implement rate limiting to restrict the number of requests from a single source.",
+    "Utilize a Web Application Firewall (WAF) to filter malicious traffic.",
+    "Employ load balancing to distribute traffic across multiple servers."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-20",
+      "AC-4",
+      "AU-6",
+      "CP-9",
+      "SC-5",
+      "SC-7",
+      "SI-17",
+      "SI-3"
+    ],
+    "OWASP_ASVS": [
+      "V11.1.1",
+      "V11.1.2",
+      "V11.1.3",
+      "V11.1.4"
+    ]
+  },
+  "analysis_id": "9b211958-f9d5-4340-883c-ec253bff3c27",
+  "stored_at": "2026-01-13T01:55:33.478661",
+  "_ts": "2026-01-13T01:55:33.478665"
+}

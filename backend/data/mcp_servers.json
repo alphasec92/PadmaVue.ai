@@ -1,0 +1,70 @@
+[
+  {
+    "id": "7f148204-667b-4a9a-82af-06958c0000b0",
+    "name": "Memory Server",
+    "uri": "stdio://npx?args=-y,@modelcontextprotocol/server-memory",
+    "transport": "http",
+    "auth_type": "none",
+    "auth_credentials": null,
+    "enabled": true,
+    "description": "Persistent memory storage for AI context across sessions",
+    "tags": [
+      "memory",
+      "persistence",
+      "context"
+    ],
+    "created_at": "2026-01-13T01:41:31.363029",
+    "updated_at": "2026-01-13T01:41:31.363029"
+  },
+  {
+    "id": "8de2086f-e7a1-42a4-89e8-df2a42625fe4",
+    "name": "Context7",
+    "uri": "https://mcp.context7.com/mcp",
+    "transport": "http",
+    "auth_type": "none",
+    "auth_credentials": null,
+    "enabled": true,
+    "description": "Up-to-date documentation for popular libraries and frameworks",
+    "tags": [
+      "docs",
+      "documentation",
+      "libraries"
+    ],
+    "created_at": "2026-01-13T01:42:09.696426",
+    "updated_at": "2026-01-13T01:42:09.696426"
+  },
+  {
+    "id": "11526be8-f46e-4c8a-be8a-762e35a893f2",
+    "name": "Context7",
+    "uri": "https://mcp.context7.com/mcp",
+    "transport": "http",
+    "auth_type": "none",
+    "auth_credentials": null,
+    "enabled": true,
+    "description": "Up-to-date documentation for popular libraries and frameworks",
+    "tags": [
+      "docs",
+      "documentation",
+      "libraries"
+    ],
+    "created_at": "2026-01-13T01:42:15.984498",
+    "updated_at": "2026-01-13T01:42:15.984498"
+  },
+  {
+    "id": "bdc7554c-b57f-422a-97b6-08cfbeb8ab1d",
+    "name": "Context7",
+    "uri": "https://mcp.context7.com/mcp",
+    "transport": "http",
+    "auth_type": "none",
+    "auth_credentials": null,
+    "enabled": true,
+    "description": "Up-to-date documentation for popular libraries and frameworks",
+    "tags": [
+      "docs",
+      "documentation",
+      "libraries"
+    ],
+    "created_at": "2026-01-15T04:12:48.563977",
+    "updated_at": "2026-01-15T04:12:48.563977"
+  }
+]

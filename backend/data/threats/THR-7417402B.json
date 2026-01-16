@@ -1,0 +1,44 @@
+{
+  "id": "THR-7417402B",
+  "category": "Repudiation",
+  "title": "Lack of Audit Logging",
+  "description": "Insufficient audit logging makes it difficult to track user activity, identify security breaches, and determine accountability. Without detailed logs, it's nearly impossible to investigate incidents, demonstrate compliance, or identify malicious behavior.  The undocumented backup procedures further complicate incident response.",
+  "affected_component": "All System Components (Servers, Databases, Applications)",
+  "attack_vector": "Malicious actors can operate undetected, covering their tracks and denying responsibility for their actions.",
+  "dread_score": {
+    "damage": 7,
+    "reproducibility": 7,
+    "exploitability": 6,
+    "affected_users": 8,
+    "discoverability": 8
+  },
+  "overall_risk": 7.2,
+  "severity": "high",
+  "mitigations": [
+    "Implement comprehensive audit logging for all critical system events.",
+    "Regularly review audit logs for suspicious activity.",
+    "Establish a documented incident response plan and backup/recovery procedures."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-6",
+      "AU-12",
+      "AU-2",
+      "AU-3",
+      "AU-6",
+      "AU-9",
+      "CP-10",
+      "CP-9"
+    ],
+    "OWASP_ASVS": [
+      "V7.1.1",
+      "V7.1.2",
+      "V7.2.1",
+      "V7.2.2",
+      "V7.3.1"
+    ]
+  },
+  "analysis_id": "9820a02c-e859-45f0-a330-25668f9abea4",
+  "stored_at": "2026-01-13T01:13:00.081597",
+  "_ts": "2026-01-13T01:13:00.081602"
+}

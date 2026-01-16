@@ -1,0 +1,96 @@
+# ===========================================
+# SearXNG - Open Source Search Engine
+# ===========================================
+# 
+# Start with: docker compose -f docker-compose.search.yml up -d
+# Access at: http://localhost:8080
+#
+# SearXNG is a privacy-respecting metasearch engine that aggregates
+# results from multiple search engines. It's the recommended default
+# search provider for SecurityReview.ai's web-grounded responses.
+#
+# Configuration:
+#   Set SEARCH_PROVIDER=searxng in your backend/.env
+#   Set SEARXNG_BASE_URL=http://localhost:8080 (default)
+
+services:
+  searxng:
+    image: searxng/searxng:latest
+    container_name: securityreview-searxng
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./searxng-data:/etc/searxng:rw
+    environment:
+      - SEARXNG_BASE_URL=http://localhost:8080/
+      # Enable JSON format (required for API access)
+      - SEARXNG_SECRET=securityreview-searxng-secret-key
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  searxng-data:
+
+# ===========================================
+# Usage Instructions
+# ===========================================
+#
+# 1. Start SearXNG:
+#    docker compose -f docker-compose.search.yml up -d
+#
+# 2. Wait for startup (~10 seconds):
+#    docker compose -f docker-compose.search.yml logs -f
+#
+# 3. Configure your backend/.env:
+#    SEARCH_PROVIDER=searxng
+#    SEARXNG_BASE_URL=http://localhost:8080
+#
+# 4. IMPORTANT: Enable JSON format in SearXNG
+#    The first time you run, create a settings file:
+#    
+#    mkdir -p searxng-data
+#    cat > searxng-data/settings.yml << 'EOF'
+#    use_default_settings: true
+#    server:
+#      secret_key: "securityreview-searxng-secret-key"
+#      limiter: false
+#    search:
+#      formats:
+#        - html
+#        - json
+#    EOF
+#
+#    Then restart: docker compose -f docker-compose.search.yml restart
+#
+# 5. Test the API:
+#    curl "http://localhost:8080/search?q=test&format=json"
+#
+# 6. Stop SearXNG:
+#    docker compose -f docker-compose.search.yml down
+#
+# ===========================================
+# Troubleshooting
+# ===========================================
+#
+# "JSON format disabled" error:
+#   → Ensure settings.yml includes 'json' in search.formats
+#   → Restart the container after creating/modifying settings.yml
+#
+# Connection refused:
+#   → Check if container is running: docker ps
+#   → Check logs: docker compose -f docker-compose.search.yml logs
+#
+# Slow searches:
+#   → SearXNG aggregates from multiple engines, initial queries may be slow
+#   → Consider reducing the number of enabled engines in settings.yml

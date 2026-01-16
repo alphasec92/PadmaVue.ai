@@ -1,0 +1,42 @@
+{
+  "id": "THR-96FB421C",
+  "category": "Repudiation",
+  "title": "Lack of Audit Logging",
+  "description": "The system\u2019s lack of defined security practices means there is no information on whether audit logging is implemented. Without comprehensive audit logging, it will be impossible to trace actions performed within the system, making it difficult to investigate security incidents, determine accountability, or demonstrate compliance with regulations.",
+  "affected_component": "All system components",
+  "attack_vector": "An attacker can perform actions without any record of them, making it impossible to identify the source of a security breach or hold someone accountable.",
+  "dread_score": {
+    "damage": 6,
+    "reproducibility": 9,
+    "exploitability": 5,
+    "affected_users": 7,
+    "discoverability": 7
+  },
+  "overall_risk": 6.8,
+  "severity": "high",
+  "mitigations": [
+    "Implement comprehensive audit logging for all critical system events (user logins, data modifications, system changes).",
+    "Regularly review audit logs for suspicious activity.",
+    "Establish procedures for log retention and archiving."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-6",
+      "AU-12",
+      "AU-2",
+      "AU-3",
+      "AU-6",
+      "AU-9"
+    ],
+    "OWASP_ASVS": [
+      "V7.1.1",
+      "V7.1.2",
+      "V7.2.1",
+      "V7.2.2",
+      "V7.3.1"
+    ]
+  },
+  "analysis_id": "ceeff1f5-c20a-4ce6-96e7-67fa52d1403b",
+  "stored_at": "2026-01-15T01:52:36.446156",
+  "_ts": "2026-01-15T01:52:36.446163"
+}

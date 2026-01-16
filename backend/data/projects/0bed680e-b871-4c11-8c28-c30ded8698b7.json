@@ -1,0 +1,26 @@
+{
+  "id": "0bed680e-b871-4c11-8c28-c30ded8698b7",
+  "name": "iugiu",
+  "description": "",
+  "status": "ingested",
+  "files": [
+    {
+      "original_name": "README.md",
+      "safe_name": "2b7814d3fca2e99e.md",
+      "size": 9870,
+      "hash": "37169b0c858b664ddda5790f4cfdd8750c14759824341e9ab81949051e831399",
+      "mime_type": "text/markdown",
+      "path": "./uploads/0bed680e-b871-4c11-8c28-c30ded8698b7/2b7814d3fca2e99e.md",
+      "added_at": "2026-01-13T01:44:11.896376"
+    }
+  ],
+  "metadata": {
+    "source": "api_upload",
+    "upload_time": "2026-01-13T01:44:11.891080",
+    "files_count": 1,
+    "errors": null
+  },
+  "created_at": "2026-01-13T01:44:11.891160",
+  "updated_at": "2026-01-13T01:44:11.897539",
+  "_ts": "2026-01-13T01:44:11.897543"
+}

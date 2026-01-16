@@ -1,0 +1,41 @@
+{
+  "id": "THR-72B1077B",
+  "category": "Denial of Service",
+  "title": "Resource Exhaustion via Malicious Requests",
+  "description": "Attackers could flood the system with a large volume of requests, overwhelming its resources and causing a denial of service. This could be amplified through techniques like DDoS attacks.",
+  "affected_component": "Server, Application",
+  "attack_vector": "Large volume of requests designed to exhaust server resources.",
+  "dread_score": {
+    "damage": 6,
+    "reproducibility": 8,
+    "exploitability": 7,
+    "affected_users": 7,
+    "discoverability": 6
+  },
+  "overall_risk": 6.8,
+  "severity": "high",
+  "mitigations": [
+    "Implement rate limiting and throttling mechanisms.",
+    "Utilize a Content Delivery Network (CDN) to distribute traffic.",
+    "Employ DDoS mitigation services."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-20",
+      "AU-6",
+      "CP-9",
+      "SC-5",
+      "SC-7",
+      "SI-17"
+    ],
+    "OWASP_ASVS": [
+      "V11.1.1",
+      "V11.1.2",
+      "V11.1.3",
+      "V11.1.4"
+    ]
+  },
+  "analysis_id": "f2c42bef-de76-4d34-80ea-fbfb9fa74fda",
+  "stored_at": "2026-01-13T01:05:36.484144",
+  "_ts": "2026-01-13T01:05:36.484149"
+}

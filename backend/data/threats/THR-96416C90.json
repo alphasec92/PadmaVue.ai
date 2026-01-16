@@ -1,0 +1,46 @@
+{
+  "id": "THR-96416C90",
+  "category": "Tampering",
+  "title": "SQL Injection Vulnerability in User Input Fields",
+  "description": "The application likely uses user-supplied input directly within SQL queries without proper sanitization or parameterization. Attackers can inject malicious SQL code to manipulate data, bypass authentication, or even execute arbitrary commands on the database server.",
+  "affected_component": "Web Application, Database Server",
+  "attack_vector": "Malicious input injected into forms, URL parameters, or API requests that are then executed as SQL queries.",
+  "dread_score": {
+    "damage": 8,
+    "reproducibility": 7,
+    "exploitability": 8,
+    "affected_users": 7,
+    "discoverability": 7
+  },
+  "overall_risk": 7.4,
+  "severity": "high",
+  "mitigations": [
+    "Implement parameterized queries or prepared statements to prevent SQL injection.",
+    "Use an Object-Relational Mapper (ORM) that handles escaping and sanitization automatically.",
+    "Employ a Web Application Firewall (WAF) to detect and block malicious SQL injection attempts."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-4",
+      "AU-9",
+      "SC-28",
+      "SC-7",
+      "SC-8",
+      "SI-10",
+      "SI-11",
+      "SI-3",
+      "SI-7"
+    ],
+    "OWASP_ASVS": [
+      "V5.1.1",
+      "V5.1.2",
+      "V5.2.1",
+      "V5.2.2",
+      "V5.3.1",
+      "V5.3.2"
+    ]
+  },
+  "analysis_id": "21916cd5-6891-4632-a9b5-548e5aed3ade",
+  "stored_at": "2026-01-13T00:24:11.096239",
+  "_ts": "2026-01-13T00:24:11.096242"
+}

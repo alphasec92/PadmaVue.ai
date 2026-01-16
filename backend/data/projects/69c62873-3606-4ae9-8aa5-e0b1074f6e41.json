@@ -1,0 +1,12 @@
+{
+  "id": "69c62873-3606-4ae9-8aa5-e0b1074f6e41",
+  "name": "Security Review - Test web app...",
+  "description": "System Type: web_app\nDescription: Test web app\nComponents: Not specified\n\nAI/ML: no\n\n\n\nData Types: Not specified\nData Storage: Not specified\nData Flow: Not specified\n\nAuthentication: Not specified\nAuthorization: Not specified\n\nNetwork Exposure: Not specified\nEncryption: Not specified\nSecrets Management: Not specified\n\nCompliance Requirements: None specified\nSecurity Concerns: None specified\nAdditional Context: None",
+  "created_at": "2025-12-15T01:39:33.965490",
+  "source": "architect_form",
+  "architecture_types": [
+    "web_app"
+  ],
+  "methodology": "stride",
+  "_ts": "2025-12-15T01:39:33.965502"
+}

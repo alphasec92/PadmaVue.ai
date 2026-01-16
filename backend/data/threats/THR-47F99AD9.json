@@ -1,0 +1,46 @@
+{
+  "id": "THR-47F99AD9",
+  "category": "Information Disclosure",
+  "title": "Insufficient Data Classification",
+  "description": "Without knowing the sensitivity of the data stored in the centralized database, it's impossible to determine the appropriate level of access control. Sensitive data could be exposed to unauthorized users or systems if access controls are not properly configured. This includes exposing internal system details, user data, or business logic.",
+  "affected_component": "Database Server, Application Servers, Network Infrastructure",
+  "attack_vector": "Unauthorized access to the database due to overly permissive access controls or misconfigured network security.",
+  "dread_score": {
+    "damage": 6,
+    "reproducibility": 7,
+    "exploitability": 6,
+    "affected_users": 7,
+    "discoverability": 8
+  },
+  "overall_risk": 6.8,
+  "severity": "high",
+  "mitigations": [
+    "Conduct a data classification exercise to identify and categorize data based on sensitivity.",
+    "Implement the principle of least privilege, granting users only the access they need to perform their jobs.",
+    "Regularly review and update access controls to ensure they remain appropriate."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-2",
+      "AC-3",
+      "AC-4",
+      "AC-6",
+      "CM-7",
+      "MP-5",
+      "SC-13",
+      "SC-28",
+      "SC-8"
+    ],
+    "OWASP_ASVS": [
+      "V6.1.1",
+      "V6.2.1",
+      "V8.1.1",
+      "V8.2.1",
+      "V8.2.2",
+      "V8.3.1"
+    ]
+  },
+  "analysis_id": "ee461849-e939-48e4-b127-b8eb0d3606b9",
+  "stored_at": "2026-01-15T01:04:57.008498",
+  "_ts": "2026-01-15T01:04:57.008506"
+}

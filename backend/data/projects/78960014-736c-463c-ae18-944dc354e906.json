@@ -1,0 +1,26 @@
+{
+  "id": "78960014-736c-463c-ae18-944dc354e906",
+  "name": "test",
+  "description": "",
+  "status": "ingested",
+  "files": [
+    {
+      "original_name": "cursor_security_reassessment_v2_final_1.md",
+      "safe_name": "65f834da8da3ac2d.md",
+      "size": 94260,
+      "hash": "94678dfc02e869a78469c24573ce1498110100657eb5fe3f4e1d49ace224bf9b",
+      "mime_type": "application/octet-stream",
+      "path": "./uploads/78960014-736c-463c-ae18-944dc354e906/65f834da8da3ac2d.md",
+      "added_at": "2025-12-13T21:46:30.154380"
+    }
+  ],
+  "metadata": {
+    "source": "api_upload",
+    "upload_time": "2025-12-13T21:46:29.355061",
+    "files_count": 1,
+    "errors": null
+  },
+  "created_at": "2025-12-13T21:46:29.355220",
+  "updated_at": "2025-12-13T21:46:30.247706",
+  "_ts": "2025-12-13T21:46:30.247723"
+}

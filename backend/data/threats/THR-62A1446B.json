@@ -1,0 +1,43 @@
+{
+  "id": "THR-62A1446B",
+  "category": "Denial of Service",
+  "title": "Resource Exhaustion via Malicious Input",
+  "description": "The application could be vulnerable to denial-of-service attacks if it doesn't properly validate and sanitize user input. Attackers can submit large or specially crafted requests that consume excessive server resources, leading to performance degradation or complete system crashes.",
+  "affected_component": "Web Server, Application Server, Database Server",
+  "attack_vector": "Malformed requests, oversized file uploads, excessive API calls, or other input that overwhelms system resources.",
+  "dread_score": {
+    "damage": 7,
+    "reproducibility": 8,
+    "exploitability": 7,
+    "affected_users": 8,
+    "discoverability": 6
+  },
+  "overall_risk": 7.2,
+  "severity": "high",
+  "mitigations": [
+    "Implement input validation and sanitization to prevent malicious input.",
+    "Rate limiting to restrict the number of requests from a single source.",
+    "Implement caching mechanisms to reduce the load on the server."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-20",
+      "AU-6",
+      "CP-9",
+      "SC-5",
+      "SC-7",
+      "SI-10",
+      "SI-11",
+      "SI-17"
+    ],
+    "OWASP_ASVS": [
+      "V11.1.1",
+      "V11.1.2",
+      "V11.1.3",
+      "V11.1.4"
+    ]
+  },
+  "analysis_id": "21916cd5-6891-4632-a9b5-548e5aed3ade",
+  "stored_at": "2026-01-13T00:24:11.097096",
+  "_ts": "2026-01-13T00:24:11.097102"
+}

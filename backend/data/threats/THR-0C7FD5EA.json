@@ -1,0 +1,49 @@
+{
+  "id": "THR-0C7FD5EA",
+  "category": "Information Disclosure",
+  "title": "Lack of Data Classification and Access Controls",
+  "description": "Without knowing the data types being handled, it\u2019s impossible to assess the potential impact of a breach.  Furthermore, the absence of robust access controls means sensitive data could be exposed to unauthorized users.  This could lead to data leaks, exposure of confidential information, and potential regulatory violations.",
+  "affected_component": "All Data Storage Components",
+  "attack_vector": "Unauthorized access to data through vulnerabilities in the application or database, or through compromised user accounts.",
+  "dread_score": {
+    "damage": 9,
+    "reproducibility": 7,
+    "exploitability": 6,
+    "affected_users": 9,
+    "discoverability": 8
+  },
+  "overall_risk": 7.8,
+  "severity": "high",
+  "mitigations": [
+    "Implement a data classification scheme to identify and categorize sensitive data.",
+    "Enforce the principle of least privilege, granting users only the access they need to perform their jobs.",
+    "Regularly audit access controls and user permissions."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-2",
+      "AC-3",
+      "AC-4",
+      "AC-6",
+      "AU-2",
+      "AU-3",
+      "AU-6",
+      "CM-7",
+      "MP-5",
+      "SC-13",
+      "SC-28",
+      "SC-8"
+    ],
+    "OWASP_ASVS": [
+      "V6.1.1",
+      "V6.2.1",
+      "V8.1.1",
+      "V8.2.1",
+      "V8.2.2",
+      "V8.3.1"
+    ]
+  },
+  "analysis_id": "bbd2ed94-e301-484a-8a4b-fc8d7e16a96c",
+  "stored_at": "2026-01-13T01:11:51.602344",
+  "_ts": "2026-01-13T01:11:51.602352"
+}

@@ -1,0 +1,45 @@
+{
+  "id": "THR-B64D99C3",
+  "category": "Spoofing",
+  "title": "Weak Authentication Mechanism",
+  "description": "The system lacks detailed information about its authentication mechanisms. Without knowing the specific methods employed (e.g., password complexity, MFA, SSO), attackers can potentially bypass authentication and gain unauthorized access to the system. This could involve brute-force attacks, credential stuffing, or exploiting vulnerabilities in the authentication logic itself.",
+  "affected_component": "Authentication Module",
+  "attack_vector": "Exploiting weak password policies, lack of MFA, or vulnerabilities in the authentication code itself.  Potentially leveraging stolen credentials from other systems.",
+  "dread_score": {
+    "damage": 9,
+    "reproducibility": 8,
+    "exploitability": 7,
+    "affected_users": 10,
+    "discoverability": 6
+  },
+  "overall_risk": 8.0,
+  "severity": "critical",
+  "mitigations": [
+    "Implement Multi-Factor Authentication (MFA) for all users.",
+    "Enforce strong password policies (length, complexity, rotation).",
+    "Regularly review and update authentication protocols and libraries."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-17",
+      "AC-3",
+      "IA-2",
+      "IA-2(1)",
+      "IA-2(2)",
+      "IA-5",
+      "IA-8",
+      "SC-8"
+    ],
+    "OWASP_ASVS": [
+      "V2.1.1",
+      "V2.1.2",
+      "V2.2.1",
+      "V2.3.1",
+      "V2.5.1",
+      "V2.7.1"
+    ]
+  },
+  "analysis_id": "9b211958-f9d5-4340-883c-ec253bff3c27",
+  "stored_at": "2026-01-13T01:55:33.475733",
+  "_ts": "2026-01-13T01:55:33.475748"
+}

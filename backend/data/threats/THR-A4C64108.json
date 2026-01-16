@@ -1,0 +1,48 @@
+{
+  "id": "THR-A4C64108",
+  "category": "Spoofing",
+  "title": "Weak Authentication Mechanism",
+  "description": "The system lacks documented authentication and authorization mechanisms. This creates an opportunity for attackers to impersonate legitimate users, potentially gaining unauthorized access to sensitive data or performing malicious actions. The absence of multi-factor authentication (MFA) and weak password policies exacerbates this risk.",
+  "affected_component": "Authentication Service, User Database",
+  "attack_vector": "Exploitation of vulnerabilities in the authentication service, brute-force attacks against weak passwords, or credential stuffing attacks using leaked credentials from other systems.",
+  "dread_score": {
+    "damage": 9,
+    "reproducibility": 8,
+    "exploitability": 7,
+    "affected_users": 10,
+    "discoverability": 6
+  },
+  "overall_risk": 8.0,
+  "severity": "critical",
+  "mitigations": [
+    "Implement strong password policies (minimum length, complexity, regular rotation).",
+    "Enforce Multi-Factor Authentication (MFA) for all users.",
+    "Regularly audit authentication logs for suspicious activity and compromised credentials."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-17",
+      "AC-3",
+      "AU-2",
+      "AU-3",
+      "AU-6",
+      "IA-2",
+      "IA-2(1)",
+      "IA-2(2)",
+      "IA-5",
+      "IA-8",
+      "SC-8"
+    ],
+    "OWASP_ASVS": [
+      "V2.1.1",
+      "V2.1.2",
+      "V2.2.1",
+      "V2.3.1",
+      "V2.5.1",
+      "V2.7.1"
+    ]
+  },
+  "analysis_id": "cf5c32ac-ba5e-4b3d-be21-bb7828392e9c",
+  "stored_at": "2026-01-15T02:40:11.901401",
+  "_ts": "2026-01-15T02:40:11.901409"
+}

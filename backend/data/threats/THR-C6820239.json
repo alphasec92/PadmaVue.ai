@@ -1,0 +1,46 @@
+{
+  "id": "THR-C6820239",
+  "category": "Tampering",
+  "title": "Unvalidated User Input",
+  "description": "The system\u2019s design doesn\u2019t explicitly state how user input is validated. This creates an opportunity for attackers to inject malicious code (e.g., SQL injection, Cross-Site Scripting) or manipulate data by submitting crafted input.  Without proper input sanitization and validation, the system is vulnerable to data corruption and potential compromise.",
+  "affected_component": "All Web Applications and APIs",
+  "attack_vector": "Submission of malicious input through forms, URLs, or API requests designed to exploit vulnerabilities in the application\u2019s code.",
+  "dread_score": {
+    "damage": 7,
+    "reproducibility": 8,
+    "exploitability": 7,
+    "affected_users": 8,
+    "discoverability": 6
+  },
+  "overall_risk": 7.2,
+  "severity": "high",
+  "mitigations": [
+    "Implement strict input validation and sanitization on all user-supplied data.",
+    "Use parameterized queries or prepared statements to prevent SQL injection.",
+    "Employ a Web Application Firewall (WAF) to filter malicious requests."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-4",
+      "AU-9",
+      "SC-28",
+      "SC-7",
+      "SC-8",
+      "SI-10",
+      "SI-11",
+      "SI-3",
+      "SI-7"
+    ],
+    "OWASP_ASVS": [
+      "V5.1.1",
+      "V5.1.2",
+      "V5.2.1",
+      "V5.2.2",
+      "V5.3.1",
+      "V5.3.2"
+    ]
+  },
+  "analysis_id": "bbd2ed94-e301-484a-8a4b-fc8d7e16a96c",
+  "stored_at": "2026-01-13T01:11:51.607261",
+  "_ts": "2026-01-13T01:11:51.607267"
+}

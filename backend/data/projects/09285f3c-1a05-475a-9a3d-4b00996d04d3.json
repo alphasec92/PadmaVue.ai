@@ -1,0 +1,26 @@
+{
+  "id": "09285f3c-1a05-475a-9a3d-4b00996d04d3",
+  "name": "dfrdy",
+  "description": "",
+  "status": "ingested",
+  "files": [
+    {
+      "original_name": "README.md",
+      "safe_name": "2b7814d3fca2e99e.md",
+      "size": 9870,
+      "hash": "37169b0c858b664ddda5790f4cfdd8750c14759824341e9ab81949051e831399",
+      "mime_type": "text/markdown",
+      "path": "./uploads/09285f3c-1a05-475a-9a3d-4b00996d04d3/2b7814d3fca2e99e.md",
+      "added_at": "2026-01-13T01:40:05.640815"
+    }
+  ],
+  "metadata": {
+    "source": "api_upload",
+    "upload_time": "2026-01-13T01:40:05.636340",
+    "files_count": 1,
+    "errors": null
+  },
+  "created_at": "2026-01-13T01:40:05.636385",
+  "updated_at": "2026-01-13T01:40:05.641879",
+  "_ts": "2026-01-13T01:40:05.641882"
+}

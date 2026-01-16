@@ -1,0 +1,43 @@
+{
+  "id": "THR-3CD0C864",
+  "category": "Elevation of Privilege",
+  "title": "Insufficient Authorization Checks",
+  "description": "The absence of details about the authorization mechanisms makes it difficult to assess the risk of privilege escalation. If authorization checks are not properly implemented, an attacker could potentially gain elevated privileges within the system, allowing them to perform actions they are not authorized to perform, such as modifying system configurations or accessing restricted data.",
+  "affected_component": "Application Server, Database",
+  "attack_vector": "Exploitation of vulnerabilities in the application code that bypass authorization checks, or leveraging vulnerabilities in the operating system or database to gain elevated privileges.",
+  "dread_score": {
+    "damage": 9,
+    "reproducibility": 8,
+    "exploitability": 7,
+    "affected_users": 7,
+    "discoverability": 6
+  },
+  "overall_risk": 7.4,
+  "severity": "high",
+  "mitigations": [
+    "Implement robust authorization checks for all user actions.",
+    "Regularly review and update authorization rules to ensure they are effective.",
+    "Employ a secure coding practice to prevent vulnerabilities that could lead to privilege escalation."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-2",
+      "AC-3",
+      "AC-6",
+      "CM-7",
+      "SC-2",
+      "SI-7"
+    ],
+    "OWASP_ASVS": [
+      "V4.1.1",
+      "V4.1.2",
+      "V4.2.1",
+      "V4.2.2",
+      "V4.3.1",
+      "V4.3.2"
+    ]
+  },
+  "analysis_id": "22c1f01c-396a-4425-b0b0-bffa5a1fd2e4",
+  "stored_at": "2026-01-13T00:16:48.279550",
+  "_ts": "2026-01-13T00:16:48.279553"
+}

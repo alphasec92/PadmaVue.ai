@@ -1,0 +1,26 @@
+# ===========================================
+# SecurityReview.ai - Terraform Variables
+# Copy this file to terraform.tfvars and customize
+# ===========================================
+
+aws_region  = "us-east-1"
+environment = "production"
+app_name    = "securityreview"
+
+# Optional: Custom domain
+# domain_name = "securityreview.example.com"
+
+# ECS Configuration
+backend_cpu           = 512
+backend_memory        = 1024
+frontend_cpu          = 256
+frontend_memory       = 512
+backend_desired_count = 2
+frontend_desired_count = 2
+
+# Optional Features
+enable_waf        = false
+enable_cloudfront = false
+enable_rds        = false
+
+

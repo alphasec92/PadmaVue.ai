@@ -1,0 +1,27 @@
+{
+  "id": "5b729189-b1f7-4618-b7ec-8a21bd599235",
+  "analysis_id": "9ef518b6-fa01-4413-953b-29316482987c",
+  "title": "New Threat",
+  "description": "Describe the threat...",
+  "category": "Information Disclosure",
+  "severity": "medium",
+  "affected_component": "",
+  "attack_vector": "",
+  "mitigations": [],
+  "dread_score": {
+    "damage": 5,
+    "reproducibility": 5,
+    "exploitability": 5,
+    "affected_users": 5,
+    "discoverability": 5
+  },
+  "zone": null,
+  "trust_boundary": null,
+  "stride_category": "I",
+  "status": "identified",
+  "overall_risk": 5.0,
+  "created_at": "2026-01-15T02:34:58.429426",
+  "updated_at": "2026-01-15T02:34:58.429459",
+  "compliance_mappings": {},
+  "_ts": "2026-01-15T02:34:58.429470"
+}

@@ -1,0 +1,46 @@
+{
+  "id": "THR-70148A21",
+  "category": "Tampering",
+  "title": "Unvalidated User Input",
+  "description": "The system doesn't adequately validate user input, making it vulnerable to injection attacks (SQL injection, command injection, XSS). Malicious users can inject code or commands into input fields, potentially compromising the database, executing arbitrary commands on the server, or injecting malicious scripts into the application.",
+  "affected_component": "Web Application, Database Server",
+  "attack_vector": "Directly manipulating input fields in web forms, API requests, or other user-supplied data.",
+  "dread_score": {
+    "damage": 9,
+    "reproducibility": 8,
+    "exploitability": 8,
+    "affected_users": 9,
+    "discoverability": 7
+  },
+  "overall_risk": 8.2,
+  "severity": "critical",
+  "mitigations": [
+    "Implement strict input validation and sanitization on all user-supplied data.",
+    "Use parameterized queries or prepared statements to prevent SQL injection.",
+    "Employ a Web Application Firewall (WAF) to filter malicious requests."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-4",
+      "AU-9",
+      "SC-28",
+      "SC-7",
+      "SC-8",
+      "SI-10",
+      "SI-11",
+      "SI-3",
+      "SI-7"
+    ],
+    "OWASP_ASVS": [
+      "V5.1.1",
+      "V5.1.2",
+      "V5.2.1",
+      "V5.2.2",
+      "V5.3.1",
+      "V5.3.2"
+    ]
+  },
+  "analysis_id": "9820a02c-e859-45f0-a330-25668f9abea4",
+  "stored_at": "2026-01-13T01:13:00.074945",
+  "_ts": "2026-01-13T01:13:00.074955"
+}

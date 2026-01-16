@@ -1,0 +1,48 @@
+{
+  "id": "THR-F3FBA927",
+  "category": "Spoofing",
+  "title": "Weak Authentication Mechanism",
+  "description": "The system lacks detailed information regarding its authentication mechanisms. Without knowing the specific authentication protocols (e.g., MFA, password complexity requirements, session management) and their implementation, attackers can potentially bypass authentication controls through brute-force attacks, credential stuffing, or exploiting vulnerabilities in the authentication logic itself.  The absence of multi-factor authentication (MFA) significantly increases the risk.",
+  "affected_component": "Authentication Service, User Interface",
+  "attack_vector": "Exploiting vulnerabilities in the authentication logic, weak password policies, or lack of MFA.",
+  "dread_score": {
+    "damage": 8,
+    "reproducibility": 9,
+    "exploitability": 7,
+    "affected_users": 10,
+    "discoverability": 6
+  },
+  "overall_risk": 8.0,
+  "severity": "critical",
+  "mitigations": [
+    "Implement Multi-Factor Authentication (MFA) for all user accounts.",
+    "Enforce strong password policies (minimum length, complexity, regular rotation).",
+    "Regularly audit authentication logs for suspicious activity and implement intrusion detection systems (IDS) to monitor authentication attempts."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-17",
+      "AC-3",
+      "AU-2",
+      "AU-3",
+      "AU-6",
+      "IA-2",
+      "IA-2(1)",
+      "IA-2(2)",
+      "IA-5",
+      "IA-8",
+      "SC-8"
+    ],
+    "OWASP_ASVS": [
+      "V2.1.1",
+      "V2.1.2",
+      "V2.2.1",
+      "V2.3.1",
+      "V2.5.1",
+      "V2.7.1"
+    ]
+  },
+  "analysis_id": "e7c4b2fe-eeb6-4b58-864f-816bef6593e7",
+  "stored_at": "2026-01-13T01:58:15.234819",
+  "_ts": "2026-01-13T01:58:15.234822"
+}

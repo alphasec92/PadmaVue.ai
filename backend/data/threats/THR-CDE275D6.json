@@ -1,0 +1,46 @@
+{
+  "id": "THR-CDE275D6",
+  "category": "Tampering",
+  "title": "SQL Injection Vulnerability",
+  "description": "Without knowing the application's data handling practices and input validation, there's a high risk of SQL injection vulnerabilities. An attacker could inject malicious SQL code into input fields, allowing them to manipulate the database, potentially stealing data, modifying records, or even gaining control of the database server.",
+  "affected_component": "Web Application, Database Server",
+  "attack_vector": "Injection of malicious SQL code through vulnerable input fields (e.g., search boxes, login forms) that are not properly sanitized or parameterized.",
+  "dread_score": {
+    "damage": 8,
+    "reproducibility": 9,
+    "exploitability": 7,
+    "affected_users": 9,
+    "discoverability": 7
+  },
+  "overall_risk": 8.0,
+  "severity": "critical",
+  "mitigations": [
+    "Implement parameterized queries or prepared statements to prevent SQL injection.",
+    "Employ input validation and sanitization to filter out malicious characters.",
+    "Regularly update database software to patch known vulnerabilities."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AU-9",
+      "CM-3",
+      "SC-28",
+      "SC-8",
+      "SI-10",
+      "SI-11",
+      "SI-2",
+      "SI-3",
+      "SI-7"
+    ],
+    "OWASP_ASVS": [
+      "V5.1.1",
+      "V5.1.2",
+      "V5.2.1",
+      "V5.2.2",
+      "V5.3.1",
+      "V5.3.2"
+    ]
+  },
+  "analysis_id": "ca5de075-fe97-4827-b1a3-25a253bf21f2",
+  "stored_at": "2026-01-13T02:25:31.755385",
+  "_ts": "2026-01-13T02:25:31.755391"
+}

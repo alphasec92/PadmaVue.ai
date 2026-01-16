@@ -1,0 +1,43 @@
+{
+  "id": "THR-D021C71D",
+  "category": "Repudiation",
+  "title": "Insufficient Audit Logging Hinders Accountability",
+  "description": "Basic logging and monitoring are implemented, but the level of detail and alerting thresholds are undefined. This makes it difficult to track user actions, identify suspicious activity, and establish accountability in case of security incidents or fraud.",
+  "affected_component": "System Logs, Monitoring System",
+  "attack_vector": "Malicious actors can intentionally alter or delete logs to cover their tracks, making it impossible to determine who performed a specific action.",
+  "dread_score": {
+    "damage": 6,
+    "reproducibility": 9,
+    "exploitability": 7,
+    "affected_users": 7,
+    "discoverability": 8
+  },
+  "overall_risk": 7.4,
+  "severity": "high",
+  "mitigations": [
+    "Implement comprehensive audit logging, capturing all relevant user actions and system events.",
+    "Establish clear alerting thresholds and configure monitoring systems to generate alerts for suspicious activity.",
+    "Regularly review audit logs to identify potential security incidents and investigate anomalies."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-6",
+      "AU-12",
+      "AU-2",
+      "AU-3",
+      "AU-6",
+      "AU-9",
+      "SI-4"
+    ],
+    "OWASP_ASVS": [
+      "V7.1.1",
+      "V7.1.2",
+      "V7.2.1",
+      "V7.2.2",
+      "V7.3.1"
+    ]
+  },
+  "analysis_id": "023cd3e4-36b2-46e8-b7e1-03a54a3164e8",
+  "stored_at": "2026-01-13T01:41:07.146477",
+  "_ts": "2026-01-13T01:41:07.146484"
+}

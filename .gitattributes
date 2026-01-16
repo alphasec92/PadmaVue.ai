@@ -1,2 +1,41 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+# Ensure all files end with LF (Unix style) - critical for cross-platform development
+* text eol=lf
+
+# Binary files
+*.node binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.zip binary
+*.tar binary
+*.tar.gz binary
+
+# Shell scripts should always have LF
+*.sh eol=lf
+*.bash eol=lf
+
+# Windows scripts can have CRLF
+*.bat eol=crlf
+*.cmd eol=crlf
+*.ps1 eol=crlf
+
+# Python files should have LF
+*.py eol=lf
+
+# JavaScript/TypeScript files should have LF
+*.js eol=lf
+*.jsx eol=lf
+*.ts eol=lf
+*.tsx eol=lf
+
+# YAML and JSON should have LF
+*.yml eol=lf
+*.yaml eol=lf
+*.json eol=lf
+
+# Markdown should have LF
+*.md eol=lf

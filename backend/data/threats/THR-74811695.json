@@ -1,0 +1,45 @@
+{
+  "id": "THR-74811695",
+  "category": "Information Disclosure",
+  "title": "Lack of Data Classification",
+  "description": "Without knowing the sensitivity of the data stored and processed by the system, it's impossible to accurately assess the risk of information disclosure. Sensitive data could be exposed through vulnerabilities, misconfigurations, or insider threats, leading to regulatory breaches and reputational damage.",
+  "affected_component": "All Data Storage and Processing Components",
+  "attack_vector": "Exploiting vulnerabilities in the system\u2019s code or infrastructure, misconfigured access controls, or malicious insiders gaining unauthorized access to sensitive data.",
+  "dread_score": {
+    "damage": 7,
+    "reproducibility": 6,
+    "exploitability": 6,
+    "affected_users": 9,
+    "discoverability": 7
+  },
+  "overall_risk": 7.0,
+  "severity": "high",
+  "mitigations": [
+    "Conduct a data classification exercise to identify and categorize data based on sensitivity.",
+    "Implement appropriate access controls based on data classification.",
+    "Encrypt sensitive data at rest and in transit."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-2",
+      "AC-3",
+      "AC-4",
+      "AC-6",
+      "MP-5",
+      "SC-13",
+      "SC-28",
+      "SC-8"
+    ],
+    "OWASP_ASVS": [
+      "V6.1.1",
+      "V6.2.1",
+      "V8.1.1",
+      "V8.2.1",
+      "V8.2.2",
+      "V8.3.1"
+    ]
+  },
+  "analysis_id": "9b211958-f9d5-4340-883c-ec253bff3c27",
+  "stored_at": "2026-01-13T01:55:33.480075",
+  "_ts": "2026-01-13T01:55:33.480080"
+}

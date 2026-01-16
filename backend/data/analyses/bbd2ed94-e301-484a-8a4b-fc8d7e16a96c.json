@@ -1,0 +1,958 @@
+{
+  "id": "bbd2ed94-e301-484a-8a4b-fc8d7e16a96c",
+  "project_id": "5ce86c3c-c160-4161-bc96-8676a214986a",
+  "methodology": "stride",
+  "status": "failed",
+  "threats": [
+    {
+      "id": "THR-0C7FD5EA",
+      "category": "Information Disclosure",
+      "title": "Lack of Data Classification and Access Controls",
+      "description": "Without knowing the data types being handled, it\u2019s impossible to assess the potential impact of a breach.  Furthermore, the absence of robust access controls means sensitive data could be exposed to unauthorized users.  This could lead to data leaks, exposure of confidential information, and potential regulatory violations.",
+      "affected_component": "All Data Storage Components",
+      "attack_vector": "Unauthorized access to data through vulnerabilities in the application or database, or through compromised user accounts.",
+      "dread_score": {
+        "damage": 9,
+        "reproducibility": 7,
+        "exploitability": 6,
+        "affected_users": 9,
+        "discoverability": 8
+      },
+      "overall_risk": 7.8,
+      "severity": "high",
+      "mitigations": [
+        "Implement a data classification scheme to identify and categorize sensitive data.",
+        "Enforce the principle of least privilege, granting users only the access they need to perform their jobs.",
+        "Regularly audit access controls and user permissions."
+      ],
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AC-2",
+          "AC-3",
+          "AC-4",
+          "AC-6",
+          "AU-2",
+          "AU-3",
+          "AU-6",
+          "CM-7",
+          "MP-5",
+          "SC-13",
+          "SC-28",
+          "SC-8"
+        ],
+        "OWASP_ASVS": [
+          "V6.1.1",
+          "V6.2.1",
+          "V8.1.1",
+          "V8.2.1",
+          "V8.2.2",
+          "V8.3.1"
+        ]
+      }
+    },
+    {
+      "id": "THR-52DDE3F2",
+      "category": "Elevation of Privilege",
+      "title": "Default Configurations and Unpatched Vulnerabilities",
+      "description": "The system is running with default configurations and lacks a comprehensive security program. This increases the risk of attackers exploiting known vulnerabilities or misconfigurations to gain elevated privileges, potentially leading to complete system compromise. The lack of regular patching further amplifies this risk.",
+      "affected_component": "All System Components",
+      "attack_vector": "Exploitation of known vulnerabilities in software components, leveraging default credentials, or misconfigured permissions.",
+      "dread_score": {
+        "damage": 9,
+        "reproducibility": 8,
+        "exploitability": 7,
+        "affected_users": 8,
+        "discoverability": 7
+      },
+      "overall_risk": 7.8,
+      "severity": "high",
+      "mitigations": [
+        "Conduct regular vulnerability scans and penetration tests.",
+        "Implement a robust patch management process to promptly apply security updates.",
+        "Review and harden default configurations to remove unnecessary services and features."
+      ],
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AC-2",
+          "AC-3",
+          "AC-6",
+          "CM-3",
+          "CM-7",
+          "SC-2",
+          "SI-2",
+          "SI-7"
+        ],
+        "OWASP_ASVS": [
+          "V4.1.1",
+          "V4.1.2",
+          "V4.2.1",
+          "V4.2.2",
+          "V4.3.1",
+          "V4.3.2"
+        ]
+      }
+    },
+    {
+      "id": "THR-9A159045",
+      "category": "Spoofing",
+      "title": "Weak Authentication Mechanism",
+      "description": "The system lacks detailed information about its authentication mechanisms. This could lead to attackers bypassing authentication controls through brute-force attacks, credential stuffing, or exploiting vulnerabilities in the authentication process itself.  Without knowing the authentication protocols used (e.g., basic authentication, OAuth), the potential for compromise is significant.",
+      "affected_component": "User Authentication Service",
+      "attack_vector": "Exploitation of vulnerabilities in the authentication service, brute-force attacks targeting weak passwords, or credential theft via phishing.",
+      "dread_score": {
+        "damage": 8,
+        "reproducibility": 7,
+        "exploitability": 6,
+        "affected_users": 9,
+        "discoverability": 7
+      },
+      "overall_risk": 7.4,
+      "severity": "high",
+      "mitigations": [
+        "Implement Multi-Factor Authentication (MFA) for all user accounts.",
+        "Enforce strong password policies (minimum length, complexity, regular password changes).",
+        "Regularly audit authentication logs for suspicious activity and implement intrusion detection systems."
+      ],
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AC-17",
+          "AC-3",
+          "AU-2",
+          "AU-3",
+          "AU-6",
+          "IA-2",
+          "IA-2(1)",
+          "IA-2(2)",
+          "IA-5",
+          "IA-8",
+          "SC-8"
+        ],
+        "OWASP_ASVS": [
+          "V2.1.1",
+          "V2.1.2",
+          "V2.2.1",
+          "V2.3.1",
+          "V2.5.1",
+          "V2.7.1"
+        ]
+      }
+    },
+    {
+      "id": "THR-619E16D4",
+      "category": "Denial of Service",
+      "title": "Resource Exhaustion via Malicious Requests",
+      "description": "The system's architecture is unknown, but without safeguards, it\u2019s vulnerable to denial-of-service attacks. An attacker could flood the system with requests, overwhelming its resources and rendering it unavailable to legitimate users. The lack of rate limiting or traffic shaping mechanisms exacerbates this risk.",
+      "affected_component": "Web Servers, Application Servers, Database Servers",
+      "attack_vector": "Distributed Denial of Service (DDoS) attacks, overwhelming the system with a high volume of requests.",
+      "dread_score": {
+        "damage": 6,
+        "reproducibility": 9,
+        "exploitability": 7,
+        "affected_users": 7,
+        "discoverability": 8
+      },
+      "overall_risk": 7.4,
+      "severity": "high",
+      "mitigations": [
+        "Implement rate limiting to restrict the number of requests from a single source.",
+        "Utilize a Content Delivery Network (CDN) to distribute traffic and mitigate DDoS attacks.",
+        "Employ a Web Application Firewall (WAF) to filter malicious traffic."
+      ],
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AC-20",
+          "AC-4",
+          "AU-6",
+          "CP-9",
+          "SC-5",
+          "SC-7",
+          "SI-17",
+          "SI-3"
+        ],
+        "OWASP_ASVS": [
+          "V11.1.1",
+          "V11.1.2",
+          "V11.1.3",
+          "V11.1.4"
+        ]
+      }
+    },
+    {
+      "id": "THR-C6820239",
+      "category": "Tampering",
+      "title": "Unvalidated User Input",
+      "description": "The system\u2019s design doesn\u2019t explicitly state how user input is validated. This creates an opportunity for attackers to inject malicious code (e.g., SQL injection, Cross-Site Scripting) or manipulate data by submitting crafted input.  Without proper input sanitization and validation, the system is vulnerable to data corruption and potential compromise.",
+      "affected_component": "All Web Applications and APIs",
+      "attack_vector": "Submission of malicious input through forms, URLs, or API requests designed to exploit vulnerabilities in the application\u2019s code.",
+      "dread_score": {
+        "damage": 7,
+        "reproducibility": 8,
+        "exploitability": 7,
+        "affected_users": 8,
+        "discoverability": 6
+      },
+      "overall_risk": 7.2,
+      "severity": "high",
+      "mitigations": [
+        "Implement strict input validation and sanitization on all user-supplied data.",
+        "Use parameterized queries or prepared statements to prevent SQL injection.",
+        "Employ a Web Application Firewall (WAF) to filter malicious requests."
+      ],
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AC-4",
+          "AU-9",
+          "SC-28",
+          "SC-7",
+          "SC-8",
+          "SI-10",
+          "SI-11",
+          "SI-3",
+          "SI-7"
+        ],
+        "OWASP_ASVS": [
+          "V5.1.1",
+          "V5.1.2",
+          "V5.2.1",
+          "V5.2.2",
+          "V5.3.1",
+          "V5.3.2"
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "total_threats": 5,
+    "by_severity": {
+      "critical": 0,
+      "high": 5,
+      "medium": 0,
+      "low": 0
+    },
+    "by_category": {
+      "Information Disclosure": 1,
+      "Elevation of Privilege": 1,
+      "Spoofing": 1,
+      "Denial of Service": 1,
+      "Tampering": 1
+    },
+    "average_risk": 7.52,
+    "errors": []
+  },
+  "compliance_summary": {
+    "mapped_threats": [
+      {
+        "id": "THR-0C7FD5EA",
+        "category": "Information Disclosure",
+        "title": "Lack of Data Classification and Access Controls",
+        "description": "Without knowing the data types being handled, it\u2019s impossible to assess the potential impact of a breach.  Furthermore, the absence of robust access controls means sensitive data could be exposed to unauthorized users.  This could lead to data leaks, exposure of confidential information, and potential regulatory violations.",
+        "affected_component": "All Data Storage Components",
+        "attack_vector": "Unauthorized access to data through vulnerabilities in the application or database, or through compromised user accounts.",
+        "dread_score": {
+          "damage": 9,
+          "reproducibility": 7,
+          "exploitability": 6,
+          "affected_users": 9,
+          "discoverability": 8
+        },
+        "overall_risk": 7.8,
+        "risk_level": "high",
+        "severity": "high",
+        "mitigations": [
+          "Implement a data classification scheme to identify and categorize sensitive data.",
+          "Enforce the principle of least privilege, granting users only the access they need to perform their jobs.",
+          "Regularly audit access controls and user permissions."
+        ],
+        "compliance_mappings": {
+          "NIST_800_53": [
+            "AC-2",
+            "AC-3",
+            "AC-4",
+            "AC-6",
+            "AU-2",
+            "AU-3",
+            "AU-6",
+            "CM-7",
+            "MP-5",
+            "SC-13",
+            "SC-28",
+            "SC-8"
+          ],
+          "OWASP_ASVS": [
+            "V6.1.1",
+            "V6.2.1",
+            "V8.1.1",
+            "V8.2.1",
+            "V8.2.2",
+            "V8.3.1"
+          ]
+        }
+      },
+      {
+        "id": "THR-52DDE3F2",
+        "category": "Elevation of Privilege",
+        "title": "Default Configurations and Unpatched Vulnerabilities",
+        "description": "The system is running with default configurations and lacks a comprehensive security program. This increases the risk of attackers exploiting known vulnerabilities or misconfigurations to gain elevated privileges, potentially leading to complete system compromise. The lack of regular patching further amplifies this risk.",
+        "affected_component": "All System Components",
+        "attack_vector": "Exploitation of known vulnerabilities in software components, leveraging default credentials, or misconfigured permissions.",
+        "dread_score": {
+          "damage": 9,
+          "reproducibility": 8,
+          "exploitability": 7,
+          "affected_users": 8,
+          "discoverability": 7
+        },
+        "overall_risk": 7.8,
+        "risk_level": "high",
+        "severity": "high",
+        "mitigations": [
+          "Conduct regular vulnerability scans and penetration tests.",
+          "Implement a robust patch management process to promptly apply security updates.",
+          "Review and harden default configurations to remove unnecessary services and features."
+        ],
+        "compliance_mappings": {
+          "NIST_800_53": [
+            "AC-2",
+            "AC-3",
+            "AC-6",
+            "CM-3",
+            "CM-7",
+            "SC-2",
+            "SI-2",
+            "SI-7"
+          ],
+          "OWASP_ASVS": [
+            "V4.1.1",
+            "V4.1.2",
+            "V4.2.1",
+            "V4.2.2",
+            "V4.3.1",
+            "V4.3.2"
+          ]
+        }
+      },
+      {
+        "id": "THR-9A159045",
+        "category": "Spoofing",
+        "title": "Weak Authentication Mechanism",
+        "description": "The system lacks detailed information about its authentication mechanisms. This could lead to attackers bypassing authentication controls through brute-force attacks, credential stuffing, or exploiting vulnerabilities in the authentication process itself.  Without knowing the authentication protocols used (e.g., basic authentication, OAuth), the potential for compromise is significant.",
+        "affected_component": "User Authentication Service",
+        "attack_vector": "Exploitation of vulnerabilities in the authentication service, brute-force attacks targeting weak passwords, or credential theft via phishing.",
+        "dread_score": {
+          "damage": 8,
+          "reproducibility": 7,
+          "exploitability": 6,
+          "affected_users": 9,
+          "discoverability": 7
+        },
+        "overall_risk": 7.4,
+        "risk_level": "high",
+        "severity": "high",
+        "mitigations": [
+          "Implement Multi-Factor Authentication (MFA) for all user accounts.",
+          "Enforce strong password policies (minimum length, complexity, regular password changes).",
+          "Regularly audit authentication logs for suspicious activity and implement intrusion detection systems."
+        ],
+        "compliance_mappings": {
+          "NIST_800_53": [
+            "AC-17",
+            "AC-3",
+            "AU-2",
+            "AU-3",
+            "AU-6",
+            "IA-2",
+            "IA-2(1)",
+            "IA-2(2)",
+            "IA-5",
+            "IA-8",
+            "SC-8"
+          ],
+          "OWASP_ASVS": [
+            "V2.1.1",
+            "V2.1.2",
+            "V2.2.1",
+            "V2.3.1",
+            "V2.5.1",
+            "V2.7.1"
+          ]
+        }
+      },
+      {
+        "id": "THR-619E16D4",
+        "category": "Denial of Service",
+        "title": "Resource Exhaustion via Malicious Requests",
+        "description": "The system's architecture is unknown, but without safeguards, it\u2019s vulnerable to denial-of-service attacks. An attacker could flood the system with requests, overwhelming its resources and rendering it unavailable to legitimate users. The lack of rate limiting or traffic shaping mechanisms exacerbates this risk.",
+        "affected_component": "Web Servers, Application Servers, Database Servers",
+        "attack_vector": "Distributed Denial of Service (DDoS) attacks, overwhelming the system with a high volume of requests.",
+        "dread_score": {
+          "damage": 6,
+          "reproducibility": 9,
+          "exploitability": 7,
+          "affected_users": 7,
+          "discoverability": 8
+        },
+        "overall_risk": 7.4,
+        "risk_level": "high",
+        "severity": "high",
+        "mitigations": [
+          "Implement rate limiting to restrict the number of requests from a single source.",
+          "Utilize a Content Delivery Network (CDN) to distribute traffic and mitigate DDoS attacks.",
+          "Employ a Web Application Firewall (WAF) to filter malicious traffic."
+        ],
+        "compliance_mappings": {
+          "NIST_800_53": [
+            "AC-20",
+            "AC-4",
+            "AU-6",
+            "CP-9",
+            "SC-5",
+            "SC-7",
+            "SI-17",
+            "SI-3"
+          ],
+          "OWASP_ASVS": [
+            "V11.1.1",
+            "V11.1.2",
+            "V11.1.3",
+            "V11.1.4"
+          ]
+        }
+      },
+      {
+        "id": "THR-C6820239",
+        "category": "Tampering",
+        "title": "Unvalidated User Input",
+        "description": "The system\u2019s design doesn\u2019t explicitly state how user input is validated. This creates an opportunity for attackers to inject malicious code (e.g., SQL injection, Cross-Site Scripting) or manipulate data by submitting crafted input.  Without proper input sanitization and validation, the system is vulnerable to data corruption and potential compromise.",
+        "affected_component": "All Web Applications and APIs",
+        "attack_vector": "Submission of malicious input through forms, URLs, or API requests designed to exploit vulnerabilities in the application\u2019s code.",
+        "dread_score": {
+          "damage": 7,
+          "reproducibility": 8,
+          "exploitability": 7,
+          "affected_users": 8,
+          "discoverability": 6
+        },
+        "overall_risk": 7.2,
+        "risk_level": "high",
+        "severity": "high",
+        "mitigations": [
+          "Implement strict input validation and sanitization on all user-supplied data.",
+          "Use parameterized queries or prepared statements to prevent SQL injection.",
+          "Employ a Web Application Firewall (WAF) to filter malicious requests."
+        ],
+        "compliance_mappings": {
+          "NIST_800_53": [
+            "AC-4",
+            "AU-9",
+            "SC-28",
+            "SC-7",
+            "SC-8",
+            "SI-10",
+            "SI-11",
+            "SI-3",
+            "SI-7"
+          ],
+          "OWASP_ASVS": [
+            "V5.1.1",
+            "V5.1.2",
+            "V5.2.1",
+            "V5.2.2",
+            "V5.3.1",
+            "V5.3.2"
+          ]
+        }
+      }
+    ],
+    "overall_score": 75,
+    "nist_800_53": {
+      "controls": [
+        "CM-3",
+        "AU-2",
+        "SC-8",
+        "AC-20",
+        "IA-8",
+        "SC-2",
+        "AC-6",
+        "SC-7",
+        "SI-11",
+        "MP-5",
+        "SC-28",
+        "IA-5",
+        "SC-13",
+        "SC-5",
+        "SI-10",
+        "AU-3",
+        "SI-3",
+        "AC-4",
+        "AC-2",
+        "SI-7",
+        "IA-2(1)",
+        "AC-3",
+        "CP-9",
+        "AU-6",
+        "IA-2",
+        "IA-2(2)",
+        "AU-9",
+        "SI-2",
+        "CM-7",
+        "SI-17",
+        "AC-17"
+      ],
+      "by_family": {
+        "AC": [
+          "AC-20",
+          "AC-6",
+          "AC-4",
+          "AC-2",
+          "AC-3",
+          "AC-17"
+        ],
+        "AU": [
+          "AU-2",
+          "AU-3",
+          "AU-6",
+          "AU-9"
+        ],
+        "IA": [
+          "IA-8",
+          "IA-5",
+          "IA-2(1)",
+          "IA-2",
+          "IA-2(2)"
+        ],
+        "SC": [
+          "SC-8",
+          "SC-2",
+          "SC-7",
+          "SC-28",
+          "SC-13",
+          "SC-5"
+        ],
+        "SI": [
+          "SI-11",
+          "SI-10",
+          "SI-3",
+          "SI-7",
+          "SI-2",
+          "SI-17"
+        ]
+      },
+      "coverage": {
+        "AC": "partial",
+        "AU": "full",
+        "IA": "minimal"
+      }
+    },
+    "owasp_asvs": {
+      "controls": [
+        "V11.1.3",
+        "V5.2.2",
+        "V2.1.1",
+        "V6.2.1",
+        "V8.2.2",
+        "V4.2.2",
+        "V11.1.4",
+        "V4.3.2",
+        "V11.1.1",
+        "V6.1.1",
+        "V8.2.1",
+        "V4.3.1",
+        "V5.1.1",
+        "V11.1.2",
+        "V2.3.1",
+        "V4.1.2",
+        "V5.1.2",
+        "V2.7.1",
+        "V8.3.1",
+        "V5.3.1",
+        "V2.1.2",
+        "V5.2.1",
+        "V2.5.1",
+        "V4.1.1",
+        "V4.2.1",
+        "V5.3.2",
+        "V2.2.1",
+        "V8.1.1"
+      ],
+      "by_chapter": {
+        "V2": [
+          "V2.1.1",
+          "V2.3.1",
+          "V2.7.1",
+          "V2.1.2",
+          "V2.5.1",
+          "V2.2.1"
+        ],
+        "V4": [
+          "V4.2.2",
+          "V4.3.2",
+          "V4.3.1",
+          "V4.1.2",
+          "V4.1.1",
+          "V4.2.1"
+        ],
+        "V5": [
+          "V5.2.2",
+          "V5.1.1",
+          "V5.1.2",
+          "V5.3.1",
+          "V5.2.1",
+          "V5.3.2"
+        ],
+        "V6": [
+          "V6.2.1",
+          "V6.1.1"
+        ],
+        "V8": [
+          "V8.2.2",
+          "V8.2.1",
+          "V8.3.1",
+          "V8.1.1"
+        ],
+        "V11": [
+          "V11.1.3",
+          "V11.1.4",
+          "V11.1.1",
+          "V11.1.2"
+        ]
+      },
+      "coverage": {
+        "V2": "full",
+        "V3": "partial"
+      }
+    },
+    "gaps": [
+      "Lack of comprehensive data classification and access control implementation",
+      "Insufficient vulnerability management and patching"
+    ],
+    "priorities": [
+      "High - Information Disclosure & Elevation of Privilege",
+      "Medium - Spoofing & Denial of Service"
+    ]
+  },
+  "agent_logs": [
+    {
+      "timestamp": "2026-01-13T01:11:51.610408",
+      "agent": "orchestrator",
+      "action": "analysis_complete",
+      "data": {
+        "threats_count": 5,
+        "methodology": "stride",
+        "summary": {
+          "total_threats": 5,
+          "by_severity": {
+            "critical": 0,
+            "high": 5,
+            "medium": 0,
+            "low": 0
+          },
+          "by_category": {
+            "Information Disclosure": 1,
+            "Elevation of Privilege": 1,
+            "Spoofing": 1,
+            "Denial of Service": 1,
+            "Tampering": 1
+          },
+          "average_risk": 7.52,
+          "errors": []
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "error": "ReportRepository.create() got an unexpected keyword argument 'format'"
+  },
+  "dfd_mermaid": "flowchart TB\n\n    %% Styling\n    classDef external fill:#e1f5fe,stroke:#0277bd,stroke-width:2px\n    classDef process fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px\n    classDef datastore fill:#fff3e0,stroke:#ef6c00,stroke-width:2px\n    classDef threat fill:#ffebee,stroke:#c62828,stroke-width:3px\n\n    subgraph External[\"External Entities\"]\n        user[(\"\ud83d\udc64 User\")]\n        admin[(\"\ud83d\udc54 Admin\")]\n        external_api[(\"\ud83c\udf10 External API\")]\n    end\n\n    subgraph TrustBoundary[\"Trust Boundary\"]\n        subgraph Frontend[\"Frontend Layer\"]\n            web_app[\"\ud83d\udda5\ufe0f Web Application\"]\n        end\n\n        subgraph Backend[\"Backend Layer\"]\n            api_gateway[\"\ud83d\udeaa API Gateway\"]\n            auth_service[\"\ud83d\udd10 Auth Service\"]\n            core_api[\"\u2699\ufe0f Core API\"]\n        end\n\n        subgraph Data[\"Data Layer\"]\n            database[(\"\ud83d\udcbe Database\")]\n            cache[(\"\u26a1 Cache\")]\n        end\n    end\n\n    %% Data Flows\n    user -->|\"\ud83d\udd12 HTTPS\"| web_app\n    admin -->|\"\ud83d\udd12 HTTPS + MFA\"| web_app\n    web_app -->|\"\ud83d\udd12 API Calls\"| api_gateway\n    api_gateway -->|\"\ud83d\udd12 Auth Check\"| auth_service\n    api_gateway -->|\"\ud83d\udd12 Business Logic\"| core_api\n    auth_service -->|\"\ud83d\udd12 User Data\"| database\n    core_api -->|\"\ud83d\udd12 CRUD\"| database\n    core_api -->|\"\u26a0\ufe0f Session\"| cache\n    core_api -->|\"\ud83d\udd12 External Call\"| external_api\n\n    %% Apply Styles\n    class user,admin,external_api external\n    class web_app,api_gateway,auth_service,core_api process\n    class database,cache datastore\n    class web_app,api_gateway,auth_service,core_api,database threat",
+  "devsecops_rules": {
+    "checkov": {
+      "custom_policies": [
+        {
+          "id": "CKV_CUSTOM_1",
+          "name": "check_information_disclosure_1",
+          "description": "Lack of Data Classification and Access Controls",
+          "severity": "HIGH",
+          "category": "Security",
+          "resource_types": [
+            "aws_s3_bucket",
+            "aws_ebs_volume"
+          ],
+          "guideline": "Implement a data classification scheme to identify and categorize sensitive data.",
+          "check": "ensure_secure_information_disclosure"
+        },
+        {
+          "id": "CKV_CUSTOM_2",
+          "name": "check_elevation_of_privilege_2",
+          "description": "Default Configurations and Unpatched Vulnerabilities",
+          "severity": "HIGH",
+          "category": "Security",
+          "resource_types": [
+            "aws_instance",
+            "aws_security_group"
+          ],
+          "guideline": "Conduct regular vulnerability scans and penetration tests.",
+          "check": "ensure_secure_elevation_of_privilege"
+        },
+        {
+          "id": "CKV_CUSTOM_3",
+          "name": "check_spoofing_3",
+          "description": "Weak Authentication Mechanism",
+          "severity": "HIGH",
+          "category": "Security",
+          "resource_types": [
+            "aws_api_gateway_rest_api",
+            "aws_cognito_user_pool"
+          ],
+          "guideline": "Implement Multi-Factor Authentication (MFA) for all user accounts.",
+          "check": "ensure_authentication_enabled"
+        },
+        {
+          "id": "CKV_CUSTOM_4",
+          "name": "check_denial_of_service_4",
+          "description": "Resource Exhaustion via Malicious Requests",
+          "severity": "HIGH",
+          "category": "Security",
+          "resource_types": [
+            "aws_rds_instance",
+            "aws_dynamodb_table"
+          ],
+          "guideline": "Implement rate limiting to restrict the number of requests from a single source.",
+          "check": "ensure_secure_denial_of_service"
+        },
+        {
+          "id": "CKV_CUSTOM_5",
+          "name": "check_tampering_5",
+          "description": "Unvalidated User Input",
+          "severity": "HIGH",
+          "category": "Security",
+          "resource_types": [
+            "aws_api_gateway_rest_api",
+            "aws_lambda_function"
+          ],
+          "guideline": "Implement strict input validation and sanitization on all user-supplied data.",
+          "check": "ensure_secure_tampering"
+        }
+      ],
+      "config_file": "{\n  \"soft-fail-on\": [],\n  \"skip-check\": [],\n  \"custom-policies-dir\": \"./custom_policies\",\n  \"external-modules-download-path\": \".external_modules\"\n}"
+    },
+    "tfsec": {
+      "custom_rules": [
+        {
+          "id": "CUSTOM001",
+          "description": "Lack of Data Classification and Access Controls",
+          "impact": "Without knowing the data types being handled, it\u2019s impossible to assess the potential impact of a breach.  Furthermore, the absence of robust access controls means sensitive data could be exposed to unauthorized users.  This could lead to data leaks, exposure of confidential information, and potential regulatory violations.",
+          "resolution": "Implement a data classification scheme to identify and categorize sensitive data.",
+          "severity": "HIGH",
+          "provider": "aws",
+          "resource_type": "aws_security_group",
+          "attribute": "ingress",
+          "check": {
+            "attribute": "encrypted",
+            "equals": true
+          }
+        },
+        {
+          "id": "CUSTOM002",
+          "description": "Default Configurations and Unpatched Vulnerabilities",
+          "impact": "The system is running with default configurations and lacks a comprehensive security program. This increases the risk of attackers exploiting known vulnerabilities or misconfigurations to gain elevated privileges, potentially leading to complete system compromise. The lack of regular patching further amplifies this risk.",
+          "resolution": "Conduct regular vulnerability scans and penetration tests.",
+          "severity": "HIGH",
+          "provider": "aws",
+          "resource_type": "aws_security_group",
+          "attribute": "ingress",
+          "check": {
+            "attribute": "cidr_blocks",
+            "not_contains": "0.0.0.0/0"
+          }
+        },
+        {
+          "id": "CUSTOM003",
+          "description": "Weak Authentication Mechanism",
+          "impact": "The system lacks detailed information about its authentication mechanisms. This could lead to attackers bypassing authentication controls through brute-force attacks, credential stuffing, or exploiting vulnerabilities in the authentication process itself.  Without knowing the authentication protocols used (e.g., basic authentication, OAuth), the potential for compromise is significant.",
+          "resolution": "Implement Multi-Factor Authentication (MFA) for all user accounts.",
+          "severity": "HIGH",
+          "provider": "aws",
+          "resource_type": "aws_security_group",
+          "attribute": "ingress",
+          "check": {
+            "attribute": "description",
+            "not_empty": true
+          }
+        },
+        {
+          "id": "CUSTOM004",
+          "description": "Resource Exhaustion via Malicious Requests",
+          "impact": "The system's architecture is unknown, but without safeguards, it\u2019s vulnerable to denial-of-service attacks. An attacker could flood the system with requests, overwhelming its resources and rendering it unavailable to legitimate users. The lack of rate limiting or traffic shaping mechanisms exacerbates this risk.",
+          "resolution": "Implement rate limiting to restrict the number of requests from a single source.",
+          "severity": "HIGH",
+          "provider": "aws",
+          "resource_type": "aws_security_group",
+          "attribute": "ingress",
+          "check": {
+            "attribute": "description",
+            "not_empty": true
+          }
+        },
+        {
+          "id": "CUSTOM005",
+          "description": "Unvalidated User Input",
+          "impact": "The system\u2019s design doesn\u2019t explicitly state how user input is validated. This creates an opportunity for attackers to inject malicious code (e.g., SQL injection, Cross-Site Scripting) or manipulate data by submitting crafted input.  Without proper input sanitization and validation, the system is vulnerable to data corruption and potential compromise.",
+          "resolution": "Implement strict input validation and sanitization on all user-supplied data.",
+          "severity": "HIGH",
+          "provider": "aws",
+          "resource_type": "aws_security_group",
+          "attribute": "ingress",
+          "check": {
+            "attribute": "description",
+            "not_empty": true
+          }
+        }
+      ],
+      "config_file": "{\n  \"minimum_severity\": \"LOW\",\n  \"exclude\": [],\n  \"custom_check_dir\": \"./tfsec_rules\"\n}"
+    },
+    "semgrep": {
+      "rules": [
+        {
+          "id": "security-custom-1",
+          "message": "Lack of Data Classification and Access Controls",
+          "severity": "ERROR",
+          "languages": [
+            "python",
+            "javascript",
+            "typescript"
+          ],
+          "metadata": {
+            "category": "security",
+            "threat_category": "Information Disclosure",
+            "confidence": "HIGH",
+            "cwe": "CWE-200",
+            "owasp": "A01:2021"
+          },
+          "patterns": [
+            {
+              "pattern": "print($SENSITIVE)"
+            },
+            {
+              "pattern": "console.log($SENSITIVE)"
+            }
+          ]
+        },
+        {
+          "id": "security-custom-2",
+          "message": "Default Configurations and Unpatched Vulnerabilities",
+          "severity": "ERROR",
+          "languages": [
+            "python",
+            "javascript",
+            "typescript"
+          ],
+          "metadata": {
+            "category": "security",
+            "threat_category": "Elevation of Privilege",
+            "confidence": "HIGH",
+            "cwe": "CWE-269",
+            "owasp": "A01:2021"
+          },
+          "patterns": [
+            {
+              "pattern": "eval($X)"
+            },
+            {
+              "pattern": "exec($X)"
+            }
+          ]
+        },
+        {
+          "id": "security-custom-3",
+          "message": "Weak Authentication Mechanism",
+          "severity": "ERROR",
+          "languages": [
+            "python",
+            "javascript",
+            "typescript"
+          ],
+          "metadata": {
+            "category": "security",
+            "threat_category": "Spoofing",
+            "confidence": "HIGH",
+            "cwe": "CWE-287",
+            "owasp": "A07:2021"
+          },
+          "patterns": [
+            {
+              "pattern": "password = \"...\""
+            },
+            {
+              "pattern": "secret = \"...\""
+            },
+            {
+              "pattern": "api_key = \"...\""
+            }
+          ]
+        },
+        {
+          "id": "security-custom-4",
+          "message": "Resource Exhaustion via Malicious Requests",
+          "severity": "ERROR",
+          "languages": [
+            "python",
+            "javascript",
+            "typescript"
+          ],
+          "metadata": {
+            "category": "security",
+            "threat_category": "Denial of Service",
+            "confidence": "HIGH",
+            "cwe": "CWE-400",
+            "owasp": "A05:2021"
+          },
+          "patterns": [
+            {
+              "pattern": "eval($X)"
+            },
+            {
+              "pattern": "exec($X)"
+            }
+          ]
+        },
+        {
+          "id": "security-custom-5",
+          "message": "Unvalidated User Input",
+          "severity": "ERROR",
+          "languages": [
+            "python",
+            "javascript",
+            "typescript"
+          ],
+          "metadata": {
+            "category": "security",
+            "threat_category": "Tampering",
+            "confidence": "HIGH",
+            "cwe": "CWE-89",
+            "owasp": "A03:2021"
+          },
+          "patterns": [
+            {
+              "pattern": "cursor.execute($QUERY)",
+              "pattern-not": "cursor.execute($QUERY, $PARAMS)"
+            }
+          ],
+          "fix": "cursor.execute($QUERY, (params,))"
+        }
+      ],
+      "config_file": "rules:\n- id: security-custom-1\n  languages:\n  - python\n  - javascript\n  - typescript\n  message: Lack of Data Classification and Access Controls\n  metadata:\n    category: security\n    confidence: HIGH\n    cwe: CWE-200\n    owasp: A01:2021\n    threat_category: Information Disclosure\n  patterns:\n  - pattern: print($SENSITIVE)\n  - pattern: console.log($SENSITIVE)\n  severity: ERROR\n- id: security-custom-2\n  languages:\n  - python\n  - javascript\n  - typescript\n  message: Default Configurations and Unpatched Vulnerabilities\n  metadata:\n    category: security\n    confidence: HIGH\n    cwe: CWE-269\n    owasp: A01:2021\n    threat_category: Elevation of Privilege\n  patterns:\n  - pattern: eval($X)\n  - pattern: exec($X)\n  severity: ERROR\n- id: security-custom-3\n  languages:\n  - python\n  - javascript\n  - typescript\n  message: Weak Authentication Mechanism\n  metadata:\n    category: security\n    confidence: HIGH\n    cwe: CWE-287\n    owasp: A07:2021\n    threat_category: Spoofing\n  patterns:\n  - pattern: password = \"...\"\n  - pattern: secret = \"...\"\n  - pattern: api_key = \"...\"\n  severity: ERROR\n- id: security-custom-4\n  languages:\n  - python\n  - javascript\n  - typescript\n  message: Resource Exhaustion via Malicious Requests\n  metadata:\n    category: security\n    confidence: HIGH\n    cwe: CWE-400\n    owasp: A05:2021\n    threat_category: Denial of Service\n  patterns:\n  - pattern: eval($X)\n  - pattern: exec($X)\n  severity: ERROR\n- fix: cursor.execute($QUERY, (params,))\n  id: security-custom-5\n  languages:\n  - python\n  - javascript\n  - typescript\n  message: Unvalidated User Input\n  metadata:\n    category: security\n    confidence: HIGH\n    cwe: CWE-89\n    owasp: A03:2021\n    threat_category: Tampering\n  patterns:\n  - pattern: cursor.execute($QUERY)\n    pattern-not: cursor.execute($QUERY, $PARAMS)\n  severity: ERROR\n"
+    },
+    "summary": {
+      "total_rules": 15,
+      "by_tool": {
+        "checkov": 5,
+        "tfsec": 5,
+        "semgrep": 5
+      }
+    }
+  },
+  "pasta_stages": null,
+  "source_data": null,
+  "created_at": "2026-01-13T01:10:50.535061",
+  "completed_at": "2026-01-13T01:11:51.608000",
+  "_ts": "2026-01-13T01:11:51.614094"
+}

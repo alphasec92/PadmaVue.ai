@@ -1,0 +1,26 @@
+{
+  "id": "a5a82db4-cd2d-43ff-9e8c-a61c400d50b5",
+  "name": "gfgdfgafs",
+  "description": "sgvafgaf",
+  "status": "ingested",
+  "files": [
+    {
+      "original_name": "Claude.pdf",
+      "safe_name": "0615570f9ea13694.pdf",
+      "size": 1205590,
+      "hash": "8b9144260622f45a2d66ed839b8c770ce5048748d55f71071965736863e0ac8b",
+      "mime_type": "application/pdf",
+      "path": "./uploads/a5a82db4-cd2d-43ff-9e8c-a61c400d50b5/0615570f9ea13694.pdf",
+      "added_at": "2025-12-14T23:57:08.552894"
+    }
+  ],
+  "metadata": {
+    "source": "api_upload",
+    "upload_time": "2025-12-14T23:57:08.545091",
+    "files_count": 1,
+    "errors": null
+  },
+  "created_at": "2025-12-14T23:57:08.545422",
+  "updated_at": "2025-12-14T23:57:08.553805",
+  "_ts": "2025-12-14T23:57:08.553809"
+}

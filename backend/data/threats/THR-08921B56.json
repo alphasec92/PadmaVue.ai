@@ -1,0 +1,45 @@
+{
+  "id": "THR-08921B56",
+  "category": "Information Disclosure",
+  "title": "Lack of Data Classification Leads to Data Leakage",
+  "description": "The absence of data classification information means the system doesn't know what data it\u2019s protecting. This creates a significant risk of exposing sensitive data to unauthorized users or systems, especially if data is transmitted without proper encryption or access controls.",
+  "affected_component": "All System Components (Data Storage, Network Transmission)",
+  "attack_vector": "Unencrypted data transmission, misconfigured access controls, vulnerabilities in application code exposing sensitive data.",
+  "dread_score": {
+    "damage": 7,
+    "reproducibility": 8,
+    "exploitability": 6,
+    "affected_users": 9,
+    "discoverability": 7
+  },
+  "overall_risk": 7.4,
+  "severity": "high",
+  "mitigations": [
+    "Implement a data classification scheme to categorize data based on its sensitivity.",
+    "Enforce encryption for all sensitive data at rest and in transit.",
+    "Implement strict access controls based on the data classification scheme."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-2",
+      "AC-3",
+      "AC-4",
+      "AC-6",
+      "MP-5",
+      "SC-13",
+      "SC-28",
+      "SC-8"
+    ],
+    "OWASP_ASVS": [
+      "V6.1.1",
+      "V6.2.1",
+      "V8.1.1",
+      "V8.2.1",
+      "V8.2.2",
+      "V8.3.1"
+    ]
+  },
+  "analysis_id": "023cd3e4-36b2-46e8-b7e1-03a54a3164e8",
+  "stored_at": "2026-01-13T01:41:07.147194",
+  "_ts": "2026-01-13T01:41:07.147197"
+}

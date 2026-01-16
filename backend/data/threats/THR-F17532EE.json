@@ -1,0 +1,45 @@
+{
+  "id": "THR-F17532EE",
+  "category": "Elevation of Privilege",
+  "title": "Default Configurations & Unpatched Vulnerabilities",
+  "description": "Using default configurations and a lack of regular patching creates a significant vulnerability. Attackers could exploit known vulnerabilities or misconfigurations to gain elevated privileges and potentially take control of the system.",
+  "affected_component": "Operating System, Application Servers, Databases",
+  "attack_vector": "Exploiting known vulnerabilities in the underlying software, leveraging default credentials, or misconfigured permissions.",
+  "dread_score": {
+    "damage": 9,
+    "reproducibility": 8,
+    "exploitability": 7,
+    "affected_users": 10,
+    "discoverability": 7
+  },
+  "overall_risk": 8.2,
+  "severity": "critical",
+  "mitigations": [
+    "Conduct a thorough vulnerability assessment and penetration testing.",
+    "Implement a robust patch management process.",
+    "Harden system configurations by disabling unnecessary services and ports."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-2",
+      "AC-3",
+      "AC-6",
+      "CM-3",
+      "CM-7",
+      "SC-2",
+      "SI-2",
+      "SI-7"
+    ],
+    "OWASP_ASVS": [
+      "V4.1.1",
+      "V4.1.2",
+      "V4.2.1",
+      "V4.2.2",
+      "V4.3.1",
+      "V4.3.2"
+    ]
+  },
+  "analysis_id": "d7b62d4d-4403-4aed-af93-77a88d2ff518",
+  "stored_at": "2026-01-13T01:45:13.823685",
+  "_ts": "2026-01-13T01:45:13.823696"
+}

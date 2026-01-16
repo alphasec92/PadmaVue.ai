@@ -1,0 +1,74 @@
+# ===========================================
+# SecurityReview.ai Backend Dependencies
+# Updated: December 2024
+# ===========================================
+
+# Web Framework
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+python-multipart>=0.0.18
+
+# Configuration & Validation
+pydantic>=2.10.0
+pydantic-settings>=2.6.0
+python-dotenv>=1.0.1
+
+# LLM Providers
+openai>=1.57.0
+anthropic>=0.40.0
+google-generativeai>=0.8.0
+boto3>=1.35.0
+
+# LangGraph / LangChain
+langgraph>=0.2.0
+langchain>=0.3.0
+langchain-core>=0.3.0
+langchain-community>=0.3.0
+
+# Vector Database
+qdrant-client>=1.12.0
+
+# Graph Database
+neo4j>=5.26.0
+
+# Document Processing
+unstructured>=0.16.0
+python-magic>=0.4.27
+pdfminer.six>=20231228
+python-docx>=1.1.2
+
+# PDF Generation
+reportlab>=4.2.0
+weasyprint>=62.0; sys_platform != 'win32'  # WeasyPrint has dependencies that are complex on Windows
+
+# Logging & Monitoring
+structlog>=24.4.0
+
+# HTTP Client
+httpx>=0.28.0
+
+# Model Context Protocol (MCP)
+mcp>=1.0.0
+
+# Async & Retry
+tenacity>=9.0.0
+aiofiles>=24.1.0
+
+# Security
+passlib[bcrypt]>=1.7.4
+python-jose[cryptography]>=3.3.0
+cryptography>=44.0.0
+
+# Input Validation
+bleach>=6.2.0
+email-validator>=2.2.0
+
+# Testing
+pytest>=8.3.0
+pytest-asyncio>=0.24.0
+pytest-cov>=6.0.0
+
+# Development only (comment out in production)
+# black>=24.10.0
+# ruff>=0.8.0
+# mypy>=1.13.0

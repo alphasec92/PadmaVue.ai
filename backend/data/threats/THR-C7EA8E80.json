@@ -1,0 +1,46 @@
+{
+  "id": "THR-C7EA8E80",
+  "category": "Tampering",
+  "title": "Data Injection via Unvalidated Input",
+  "description": "Without knowing the system's input validation procedures, attackers could inject malicious code or data into input fields, leading to data corruption or system compromise. This is particularly concerning if the system processes user-supplied data without proper sanitization or escaping.",
+  "affected_component": "All Input Fields (e.g., forms, APIs)",
+  "attack_vector": "SQL injection, Cross-Site Scripting (XSS), Command Injection \u2013 exploiting vulnerabilities in how the system handles user input.",
+  "dread_score": {
+    "damage": 8,
+    "reproducibility": 7,
+    "exploitability": 7,
+    "affected_users": 9,
+    "discoverability": 6
+  },
+  "overall_risk": 7.4,
+  "severity": "high",
+  "mitigations": [
+    "Implement strict input validation and sanitization for all user inputs.",
+    "Use parameterized queries or prepared statements to prevent SQL injection.",
+    "Employ a Web Application Firewall (WAF) to filter malicious requests."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-4",
+      "AU-9",
+      "SC-28",
+      "SC-7",
+      "SC-8",
+      "SI-10",
+      "SI-11",
+      "SI-3",
+      "SI-7"
+    ],
+    "OWASP_ASVS": [
+      "V5.1.1",
+      "V5.1.2",
+      "V5.2.1",
+      "V5.2.2",
+      "V5.3.1",
+      "V5.3.2"
+    ]
+  },
+  "analysis_id": "c8d9a5aa-b85e-408d-805a-bc60033aa3d1",
+  "stored_at": "2026-01-15T01:55:14.845866",
+  "_ts": "2026-01-15T01:55:14.845873"
+}

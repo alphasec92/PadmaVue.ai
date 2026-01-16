@@ -1,0 +1,939 @@
+{
+  "id": "85f1e7b3-dcc2-4fe6-a29d-5742ca71ccf7",
+  "project_id": "4752fb4e-2985-498d-bf4d-8cdb75f0db27",
+  "methodology": "stride",
+  "status": "failed",
+  "threats": [
+    {
+      "id": "THR-FC174024",
+      "category": "Information Disclosure",
+      "title": "Unsecured Data Storage",
+      "description": "The lack of information regarding data classification and protection measures raises concerns about the security of stored data. If sensitive data is not properly encrypted or access-controlled, it could be exposed through data breaches, insider threats, or vulnerabilities in the system.",
+      "affected_component": "Database, File Storage",
+      "attack_vector": "Data breaches, unauthorized access, insider threats, vulnerabilities in storage systems.",
+      "dread_score": {
+        "damage": 9,
+        "reproducibility": 8,
+        "exploitability": 7,
+        "affected_users": 10,
+        "discoverability": 7
+      },
+      "overall_risk": 8.2,
+      "severity": "critical",
+      "mitigations": [
+        "Implement data encryption at rest and in transit.",
+        "Apply the principle of least privilege to restrict data access.",
+        "Regularly assess and update data classification policies."
+      ],
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AC-3",
+          "AC-4",
+          "AC-6",
+          "CM-7",
+          "MP-5",
+          "SC-13",
+          "SC-28",
+          "SC-8"
+        ],
+        "OWASP_ASVS": [
+          "V6.1.1",
+          "V6.2.1",
+          "V8.1.1",
+          "V8.2.1",
+          "V8.2.2",
+          "V8.3.1"
+        ]
+      }
+    },
+    {
+      "id": "THR-BA8A1C8D",
+      "category": "Spoofing",
+      "title": "Weak Authentication Mechanism",
+      "description": "The system lacks details regarding its authentication mechanisms. Without knowing the specific protocols, MFA implementation, or password policies, attackers could potentially impersonate legitimate users through brute-force attacks, credential stuffing, or phishing campaigns. The absence of strong authentication significantly increases the risk of unauthorized access.",
+      "affected_component": "User Authentication Service, Web Application",
+      "attack_vector": "Brute-force attacks, credential stuffing, phishing, weak password policies, lack of MFA.",
+      "dread_score": {
+        "damage": 8,
+        "reproducibility": 9,
+        "exploitability": 7,
+        "affected_users": 10,
+        "discoverability": 6
+      },
+      "overall_risk": 8.0,
+      "severity": "critical",
+      "mitigations": [
+        "Implement Multi-Factor Authentication (MFA) for all users.",
+        "Enforce strong password policies (length, complexity, rotation).",
+        "Utilize a robust authentication service with rate limiting and account lockout mechanisms."
+      ],
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AC-17",
+          "AC-3",
+          "IA-2",
+          "IA-2(1)",
+          "IA-2(2)",
+          "IA-5",
+          "IA-8",
+          "SC-5",
+          "SC-7",
+          "SC-8"
+        ],
+        "OWASP_ASVS": [
+          "V2.1.1",
+          "V2.1.2",
+          "V2.2.1",
+          "V2.3.1",
+          "V2.5.1",
+          "V2.7.1"
+        ]
+      }
+    },
+    {
+      "id": "THR-D6DAA6C5",
+      "category": "Tampering",
+      "title": "Unvalidated User Input",
+      "description": "The system\u2019s description lacks details on how user input is handled. Without proper validation and sanitization, attackers could inject malicious code (SQL injection, XSS) or manipulate data, leading to data corruption, unauthorized modifications, or system compromise.  This is exacerbated by the lack of information on data classification.",
+      "affected_component": "Web Application, Database",
+      "attack_vector": "SQL Injection, Cross-Site Scripting (XSS), Command Injection, Malicious File Uploads.",
+      "dread_score": {
+        "damage": 9,
+        "reproducibility": 8,
+        "exploitability": 7,
+        "affected_users": 9,
+        "discoverability": 7
+      },
+      "overall_risk": 8.0,
+      "severity": "critical",
+      "mitigations": [
+        "Implement strict input validation and sanitization for all user-supplied data.",
+        "Use parameterized queries or prepared statements to prevent SQL injection.",
+        "Employ a Web Application Firewall (WAF) to filter malicious requests."
+      ],
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AC-4",
+          "AU-9",
+          "SC-28",
+          "SC-7",
+          "SC-8",
+          "SI-10",
+          "SI-11",
+          "SI-3",
+          "SI-7"
+        ],
+        "OWASP_ASVS": [
+          "V5.1.1",
+          "V5.1.2",
+          "V5.2.1",
+          "V5.2.2",
+          "V5.3.1",
+          "V5.3.2"
+        ]
+      }
+    },
+    {
+      "id": "THR-F13652FA",
+      "category": "Elevation of Privilege",
+      "title": "Missing Role-Based Access Control (RBAC)",
+      "description": "Without details on RBAC implementation, users could potentially gain unauthorized access to sensitive resources or escalate their privileges.  This is compounded by the lack of information on authentication mechanisms.",
+      "affected_component": "Application Servers, Database Servers, System Services",
+      "attack_vector": "Exploiting vulnerabilities in the system to gain elevated privileges, misconfigured permissions.",
+      "dread_score": {
+        "damage": 8,
+        "reproducibility": 7,
+        "exploitability": 6,
+        "affected_users": 9,
+        "discoverability": 6
+      },
+      "overall_risk": 7.2,
+      "severity": "high",
+      "mitigations": [
+        "Implement a robust RBAC system to control user access to resources.",
+        "Regularly review and update user permissions.",
+        "Utilize privilege separation techniques to minimize the impact of a compromised account."
+      ],
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AC-2",
+          "AC-3",
+          "AC-6",
+          "CM-7",
+          "SC-2",
+          "SI-7"
+        ],
+        "OWASP_ASVS": [
+          "V4.1.1",
+          "V4.1.2",
+          "V4.2.1",
+          "V4.2.2",
+          "V4.3.1",
+          "V4.3.2"
+        ]
+      }
+    },
+    {
+      "id": "THR-DAC91BC2",
+      "category": "Repudiation",
+      "title": "Lack of Audit Logging",
+      "description": "The system\u2019s description doesn\u2019t specify the level of audit logging. Without comprehensive logging of user actions, system events, and data modifications, it becomes impossible to track down malicious activity, investigate security incidents, or determine accountability. This significantly hinders forensic investigations and compliance efforts.",
+      "affected_component": "System Logs, Application Servers",
+      "attack_vector": "Unauthorized access, data manipulation, system compromise \u2013 actions cannot be traced back to the perpetrator.",
+      "dread_score": {
+        "damage": 6,
+        "reproducibility": 7,
+        "exploitability": 6,
+        "affected_users": 8,
+        "discoverability": 8
+      },
+      "overall_risk": 7.0,
+      "severity": "high",
+      "mitigations": [
+        "Implement comprehensive audit logging for all critical system events.",
+        "Securely store audit logs and regularly review them for suspicious activity.",
+        "Integrate audit logs with a Security Information and Event Management (SIEM) system."
+      ],
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AC-6",
+          "AU-12",
+          "AU-2",
+          "AU-3",
+          "AU-6",
+          "AU-9"
+        ],
+        "OWASP_ASVS": [
+          "V7.1.1",
+          "V7.1.2",
+          "V7.2.1",
+          "V7.2.2",
+          "V7.3.1"
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "total_threats": 5,
+    "by_severity": {
+      "critical": 3,
+      "high": 2,
+      "medium": 0,
+      "low": 0
+    },
+    "by_category": {
+      "Information Disclosure": 1,
+      "Spoofing": 1,
+      "Tampering": 1,
+      "Elevation of Privilege": 1,
+      "Repudiation": 1
+    },
+    "average_risk": 7.68,
+    "errors": []
+  },
+  "compliance_summary": {
+    "mapped_threats": [
+      {
+        "id": "THR-FC174024",
+        "category": "Information Disclosure",
+        "title": "Unsecured Data Storage",
+        "description": "The lack of information regarding data classification and protection measures raises concerns about the security of stored data. If sensitive data is not properly encrypted or access-controlled, it could be exposed through data breaches, insider threats, or vulnerabilities in the system.",
+        "affected_component": "Database, File Storage",
+        "attack_vector": "Data breaches, unauthorized access, insider threats, vulnerabilities in storage systems.",
+        "dread_score": {
+          "damage": 9,
+          "reproducibility": 8,
+          "exploitability": 7,
+          "affected_users": 10,
+          "discoverability": 7
+        },
+        "overall_risk": 8.2,
+        "risk_level": "critical",
+        "severity": "critical",
+        "mitigations": [
+          "Implement data encryption at rest and in transit.",
+          "Apply the principle of least privilege to restrict data access.",
+          "Regularly assess and update data classification policies."
+        ],
+        "compliance_mappings": {
+          "NIST_800_53": [
+            "AC-3",
+            "AC-4",
+            "AC-6",
+            "CM-7",
+            "MP-5",
+            "SC-13",
+            "SC-28",
+            "SC-8"
+          ],
+          "OWASP_ASVS": [
+            "V6.1.1",
+            "V6.2.1",
+            "V8.1.1",
+            "V8.2.1",
+            "V8.2.2",
+            "V8.3.1"
+          ]
+        }
+      },
+      {
+        "id": "THR-BA8A1C8D",
+        "category": "Spoofing",
+        "title": "Weak Authentication Mechanism",
+        "description": "The system lacks details regarding its authentication mechanisms. Without knowing the specific protocols, MFA implementation, or password policies, attackers could potentially impersonate legitimate users through brute-force attacks, credential stuffing, or phishing campaigns. The absence of strong authentication significantly increases the risk of unauthorized access.",
+        "affected_component": "User Authentication Service, Web Application",
+        "attack_vector": "Brute-force attacks, credential stuffing, phishing, weak password policies, lack of MFA.",
+        "dread_score": {
+          "damage": 8,
+          "reproducibility": 9,
+          "exploitability": 7,
+          "affected_users": 10,
+          "discoverability": 6
+        },
+        "overall_risk": 8.0,
+        "risk_level": "critical",
+        "severity": "critical",
+        "mitigations": [
+          "Implement Multi-Factor Authentication (MFA) for all users.",
+          "Enforce strong password policies (length, complexity, rotation).",
+          "Utilize a robust authentication service with rate limiting and account lockout mechanisms."
+        ],
+        "compliance_mappings": {
+          "NIST_800_53": [
+            "AC-17",
+            "AC-3",
+            "IA-2",
+            "IA-2(1)",
+            "IA-2(2)",
+            "IA-5",
+            "IA-8",
+            "SC-5",
+            "SC-7",
+            "SC-8"
+          ],
+          "OWASP_ASVS": [
+            "V2.1.1",
+            "V2.1.2",
+            "V2.2.1",
+            "V2.3.1",
+            "V2.5.1",
+            "V2.7.1"
+          ]
+        }
+      },
+      {
+        "id": "THR-D6DAA6C5",
+        "category": "Tampering",
+        "title": "Unvalidated User Input",
+        "description": "The system\u2019s description lacks details on how user input is handled. Without proper validation and sanitization, attackers could inject malicious code (SQL injection, XSS) or manipulate data, leading to data corruption, unauthorized modifications, or system compromise.  This is exacerbated by the lack of information on data classification.",
+        "affected_component": "Web Application, Database",
+        "attack_vector": "SQL Injection, Cross-Site Scripting (XSS), Command Injection, Malicious File Uploads.",
+        "dread_score": {
+          "damage": 9,
+          "reproducibility": 8,
+          "exploitability": 7,
+          "affected_users": 9,
+          "discoverability": 7
+        },
+        "overall_risk": 8.0,
+        "risk_level": "critical",
+        "severity": "critical",
+        "mitigations": [
+          "Implement strict input validation and sanitization for all user-supplied data.",
+          "Use parameterized queries or prepared statements to prevent SQL injection.",
+          "Employ a Web Application Firewall (WAF) to filter malicious requests."
+        ],
+        "compliance_mappings": {
+          "NIST_800_53": [
+            "AC-4",
+            "AU-9",
+            "SC-28",
+            "SC-7",
+            "SC-8",
+            "SI-10",
+            "SI-11",
+            "SI-3",
+            "SI-7"
+          ],
+          "OWASP_ASVS": [
+            "V5.1.1",
+            "V5.1.2",
+            "V5.2.1",
+            "V5.2.2",
+            "V5.3.1",
+            "V5.3.2"
+          ]
+        }
+      },
+      {
+        "id": "THR-F13652FA",
+        "category": "Elevation of Privilege",
+        "title": "Missing Role-Based Access Control (RBAC)",
+        "description": "Without details on RBAC implementation, users could potentially gain unauthorized access to sensitive resources or escalate their privileges.  This is compounded by the lack of information on authentication mechanisms.",
+        "affected_component": "Application Servers, Database Servers, System Services",
+        "attack_vector": "Exploiting vulnerabilities in the system to gain elevated privileges, misconfigured permissions.",
+        "dread_score": {
+          "damage": 8,
+          "reproducibility": 7,
+          "exploitability": 6,
+          "affected_users": 9,
+          "discoverability": 6
+        },
+        "overall_risk": 7.2,
+        "risk_level": "high",
+        "severity": "high",
+        "mitigations": [
+          "Implement a robust RBAC system to control user access to resources.",
+          "Regularly review and update user permissions.",
+          "Utilize privilege separation techniques to minimize the impact of a compromised account."
+        ],
+        "compliance_mappings": {
+          "NIST_800_53": [
+            "AC-2",
+            "AC-3",
+            "AC-6",
+            "CM-7",
+            "SC-2",
+            "SI-7"
+          ],
+          "OWASP_ASVS": [
+            "V4.1.1",
+            "V4.1.2",
+            "V4.2.1",
+            "V4.2.2",
+            "V4.3.1",
+            "V4.3.2"
+          ]
+        }
+      },
+      {
+        "id": "THR-DAC91BC2",
+        "category": "Repudiation",
+        "title": "Lack of Audit Logging",
+        "description": "The system\u2019s description doesn\u2019t specify the level of audit logging. Without comprehensive logging of user actions, system events, and data modifications, it becomes impossible to track down malicious activity, investigate security incidents, or determine accountability. This significantly hinders forensic investigations and compliance efforts.",
+        "affected_component": "System Logs, Application Servers",
+        "attack_vector": "Unauthorized access, data manipulation, system compromise \u2013 actions cannot be traced back to the perpetrator.",
+        "dread_score": {
+          "damage": 6,
+          "reproducibility": 7,
+          "exploitability": 6,
+          "affected_users": 8,
+          "discoverability": 8
+        },
+        "overall_risk": 7.0,
+        "risk_level": "high",
+        "severity": "high",
+        "mitigations": [
+          "Implement comprehensive audit logging for all critical system events.",
+          "Securely store audit logs and regularly review them for suspicious activity.",
+          "Integrate audit logs with a Security Information and Event Management (SIEM) system."
+        ],
+        "compliance_mappings": {
+          "NIST_800_53": [
+            "AC-6",
+            "AU-12",
+            "AU-2",
+            "AU-3",
+            "AU-6",
+            "AU-9"
+          ],
+          "OWASP_ASVS": [
+            "V7.1.1",
+            "V7.1.2",
+            "V7.2.1",
+            "V7.2.2",
+            "V7.3.1"
+          ]
+        }
+      }
+    ],
+    "overall_score": 75,
+    "nist_800_53": {
+      "controls": [
+        "AC-17",
+        "SI-10",
+        "SC-7",
+        "AC-3",
+        "SC-2",
+        "SI-11",
+        "AC-6",
+        "CM-7",
+        "SI-3",
+        "IA-5",
+        "AU-2",
+        "AU-9",
+        "IA-8",
+        "SI-7",
+        "AC-4",
+        "AU-12",
+        "AU-6",
+        "SC-8",
+        "MP-5",
+        "AU-3",
+        "IA-2",
+        "IA-2(1)",
+        "SC-13",
+        "AC-2",
+        "SC-5",
+        "IA-2(2)",
+        "SC-28"
+      ],
+      "by_family": {
+        "AC": [
+          "AC-17",
+          "AC-3",
+          "AC-6",
+          "AC-4",
+          "AC-2"
+        ],
+        "AU": [
+          "AU-2",
+          "AU-9",
+          "AU-12",
+          "AU-6",
+          "AU-3"
+        ],
+        "IA": [
+          "IA-5",
+          "IA-8",
+          "IA-2",
+          "IA-2(1)",
+          "IA-2(2)"
+        ],
+        "SC": [
+          "SC-7",
+          "SC-2",
+          "SC-8",
+          "SC-13",
+          "SC-5",
+          "SC-28"
+        ],
+        "SI": [
+          "SI-10",
+          "SI-11",
+          "SI-3",
+          "SI-7"
+        ]
+      },
+      "coverage": {
+        "AC": "partial",
+        "AU": "full",
+        "IA": "minimal"
+      }
+    },
+    "owasp_asvs": {
+      "controls": [
+        "V8.2.1",
+        "V2.1.1",
+        "V5.2.1",
+        "V5.2.2",
+        "V7.3.1",
+        "V7.1.1",
+        "V4.2.2",
+        "V4.3.2",
+        "V5.3.1",
+        "V6.1.1",
+        "V7.1.2",
+        "V2.2.1",
+        "V8.1.1",
+        "V2.7.1",
+        "V8.3.1",
+        "V4.1.1",
+        "V5.1.1",
+        "V4.2.1",
+        "V7.2.1",
+        "V6.2.1",
+        "V4.1.2",
+        "V8.2.2",
+        "V2.5.1",
+        "V2.3.1",
+        "V7.2.2",
+        "V4.3.1",
+        "V5.3.2",
+        "V2.1.2",
+        "V5.1.2"
+      ],
+      "by_chapter": {
+        "V2": [
+          "V2.1.1",
+          "V2.2.1",
+          "V2.7.1",
+          "V2.5.1",
+          "V2.3.1",
+          "V2.1.2"
+        ],
+        "V4": [
+          "V4.2.2",
+          "V4.3.2",
+          "V4.1.1",
+          "V4.2.1",
+          "V4.1.2",
+          "V4.3.1"
+        ],
+        "V5": [
+          "V5.2.1",
+          "V5.2.2",
+          "V5.3.1",
+          "V5.1.1",
+          "V5.3.2",
+          "V5.1.2"
+        ],
+        "V6": [
+          "V6.1.1",
+          "V6.2.1"
+        ],
+        "V7": [
+          "V7.3.1",
+          "V7.1.1",
+          "V7.1.2",
+          "V7.2.1",
+          "V7.2.2"
+        ],
+        "V8": [
+          "V8.2.1",
+          "V8.1.1",
+          "V8.3.1",
+          "V8.2.2"
+        ]
+      },
+      "coverage": {
+        "V2": "full",
+        "V3": "partial"
+      }
+    },
+    "gaps": [
+      "Unsecured Data Storage - Lack of comprehensive logging and monitoring.",
+      "Missing Role-Based Access Control (RBAC) - Insufficient granular access control."
+    ],
+    "priorities": [
+      "critical",
+      "high"
+    ]
+  },
+  "agent_logs": [
+    {
+      "timestamp": "2026-01-13T00:17:49.587773",
+      "agent": "orchestrator",
+      "action": "analysis_complete",
+      "data": {
+        "threats_count": 5,
+        "methodology": "stride",
+        "summary": {
+          "total_threats": 5,
+          "by_severity": {
+            "critical": 3,
+            "high": 2,
+            "medium": 0,
+            "low": 0
+          },
+          "by_category": {
+            "Information Disclosure": 1,
+            "Spoofing": 1,
+            "Tampering": 1,
+            "Elevation of Privilege": 1,
+            "Repudiation": 1
+          },
+          "average_risk": 7.68,
+          "errors": []
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "error": "ReportRepository.create() got an unexpected keyword argument 'format'"
+  },
+  "dfd_mermaid": "flowchart TB\n\n    %% Styling\n    classDef external fill:#e1f5fe,stroke:#0277bd,stroke-width:2px\n    classDef process fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px\n    classDef datastore fill:#fff3e0,stroke:#ef6c00,stroke-width:2px\n    classDef threat fill:#ffebee,stroke:#c62828,stroke-width:3px\n\n    subgraph External[\"External Entities\"]\n        user[(\"\ud83d\udc64 User\")]\n        admin[(\"\ud83d\udc54 Admin\")]\n        external_api[(\"\ud83c\udf10 External API\")]\n    end\n\n    subgraph TrustBoundary[\"Trust Boundary\"]\n        subgraph Frontend[\"Frontend Layer\"]\n            web_app[\"\ud83d\udda5\ufe0f Web Application\"]\n        end\n\n        subgraph Backend[\"Backend Layer\"]\n            api_gateway[\"\ud83d\udeaa API Gateway\"]\n            auth_service[\"\ud83d\udd10 Auth Service\"]\n            core_api[\"\u2699\ufe0f Core API\"]\n        end\n\n        subgraph Data[\"Data Layer\"]\n            database[(\"\ud83d\udcbe Database\")]\n            cache[(\"\u26a1 Cache\")]\n        end\n    end\n\n    %% Data Flows\n    user -->|\"\ud83d\udd12 HTTPS\"| web_app\n    admin -->|\"\ud83d\udd12 HTTPS + MFA\"| web_app\n    web_app -->|\"\ud83d\udd12 API Calls\"| api_gateway\n    api_gateway -->|\"\ud83d\udd12 Auth Check\"| auth_service\n    api_gateway -->|\"\ud83d\udd12 Business Logic\"| core_api\n    auth_service -->|\"\ud83d\udd12 User Data\"| database\n    core_api -->|\"\ud83d\udd12 CRUD\"| database\n    core_api -->|\"\u26a0\ufe0f Session\"| cache\n    core_api -->|\"\ud83d\udd12 External Call\"| external_api\n\n    %% Apply Styles\n    class user,admin,external_api external\n    class web_app,api_gateway,auth_service,core_api process\n    class database,cache datastore\n    class web_app,auth_service,core_api,database threat",
+  "devsecops_rules": {
+    "checkov": {
+      "custom_policies": [
+        {
+          "id": "CKV_CUSTOM_1",
+          "name": "check_information_disclosure_1",
+          "description": "Unsecured Data Storage",
+          "severity": "CRITICAL",
+          "category": "Security",
+          "resource_types": [
+            "aws_rds_instance",
+            "aws_dynamodb_table"
+          ],
+          "guideline": "Implement data encryption at rest and in transit.",
+          "check": "ensure_secure_information_disclosure"
+        },
+        {
+          "id": "CKV_CUSTOM_2",
+          "name": "check_spoofing_2",
+          "description": "Weak Authentication Mechanism",
+          "severity": "CRITICAL",
+          "category": "Security",
+          "resource_types": [
+            "aws_api_gateway_rest_api",
+            "aws_cognito_user_pool"
+          ],
+          "guideline": "Implement Multi-Factor Authentication (MFA) for all users.",
+          "check": "ensure_authentication_enabled"
+        },
+        {
+          "id": "CKV_CUSTOM_3",
+          "name": "check_tampering_3",
+          "description": "Unvalidated User Input",
+          "severity": "CRITICAL",
+          "category": "Security",
+          "resource_types": [
+            "aws_rds_instance",
+            "aws_dynamodb_table"
+          ],
+          "guideline": "Implement strict input validation and sanitization for all user-supplied data.",
+          "check": "ensure_secure_tampering"
+        },
+        {
+          "id": "CKV_CUSTOM_4",
+          "name": "check_elevation_of_privilege_4",
+          "description": "Missing Role-Based Access Control (RBAC)",
+          "severity": "HIGH",
+          "category": "Security",
+          "resource_types": [
+            "aws_rds_instance",
+            "aws_dynamodb_table"
+          ],
+          "guideline": "Implement a robust RBAC system to control user access to resources.",
+          "check": "ensure_secure_elevation_of_privilege"
+        },
+        {
+          "id": "CKV_CUSTOM_5",
+          "name": "check_repudiation_5",
+          "description": "Lack of Audit Logging",
+          "severity": "HIGH",
+          "category": "Security",
+          "resource_types": [
+            "aws_s3_bucket",
+            "aws_cloudtrail",
+            "aws_vpc"
+          ],
+          "guideline": "Implement comprehensive audit logging for all critical system events.",
+          "check": "ensure_logging_enabled"
+        }
+      ],
+      "config_file": "{\n  \"soft-fail-on\": [],\n  \"skip-check\": [],\n  \"custom-policies-dir\": \"./custom_policies\",\n  \"external-modules-download-path\": \".external_modules\"\n}"
+    },
+    "tfsec": {
+      "custom_rules": [
+        {
+          "id": "CUSTOM001",
+          "description": "Unsecured Data Storage",
+          "impact": "The lack of information regarding data classification and protection measures raises concerns about the security of stored data. If sensitive data is not properly encrypted or access-controlled, it could be exposed through data breaches, insider threats, or vulnerabilities in the system.",
+          "resolution": "Implement data encryption at rest and in transit.",
+          "severity": "CRITICAL",
+          "provider": "aws",
+          "resource_type": "aws_security_group",
+          "attribute": "ingress",
+          "check": {
+            "attribute": "encrypted",
+            "equals": true
+          }
+        },
+        {
+          "id": "CUSTOM002",
+          "description": "Weak Authentication Mechanism",
+          "impact": "The system lacks details regarding its authentication mechanisms. Without knowing the specific protocols, MFA implementation, or password policies, attackers could potentially impersonate legitimate users through brute-force attacks, credential stuffing, or phishing campaigns. The absence of strong authentication significantly increases the risk of unauthorized access.",
+          "resolution": "Implement Multi-Factor Authentication (MFA) for all users.",
+          "severity": "CRITICAL",
+          "provider": "aws",
+          "resource_type": "aws_security_group",
+          "attribute": "ingress",
+          "check": {
+            "attribute": "description",
+            "not_empty": true
+          }
+        },
+        {
+          "id": "CUSTOM003",
+          "description": "Unvalidated User Input",
+          "impact": "The system\u2019s description lacks details on how user input is handled. Without proper validation and sanitization, attackers could inject malicious code (SQL injection, XSS) or manipulate data, leading to data corruption, unauthorized modifications, or system compromise.  This is exacerbated by the lack of information on data classification.",
+          "resolution": "Implement strict input validation and sanitization for all user-supplied data.",
+          "severity": "CRITICAL",
+          "provider": "aws",
+          "resource_type": "aws_security_group",
+          "attribute": "ingress",
+          "check": {
+            "attribute": "description",
+            "not_empty": true
+          }
+        },
+        {
+          "id": "CUSTOM004",
+          "description": "Missing Role-Based Access Control (RBAC)",
+          "impact": "Without details on RBAC implementation, users could potentially gain unauthorized access to sensitive resources or escalate their privileges.  This is compounded by the lack of information on authentication mechanisms.",
+          "resolution": "Implement a robust RBAC system to control user access to resources.",
+          "severity": "HIGH",
+          "provider": "aws",
+          "resource_type": "aws_security_group",
+          "attribute": "ingress",
+          "check": {
+            "attribute": "cidr_blocks",
+            "not_contains": "0.0.0.0/0"
+          }
+        },
+        {
+          "id": "CUSTOM005",
+          "description": "Lack of Audit Logging",
+          "impact": "The system\u2019s description doesn\u2019t specify the level of audit logging. Without comprehensive logging of user actions, system events, and data modifications, it becomes impossible to track down malicious activity, investigate security incidents, or determine accountability. This significantly hinders forensic investigations and compliance efforts.",
+          "resolution": "Implement comprehensive audit logging for all critical system events.",
+          "severity": "HIGH",
+          "provider": "aws",
+          "resource_type": "aws_security_group",
+          "attribute": "ingress",
+          "check": {
+            "attribute": "description",
+            "not_empty": true
+          }
+        }
+      ],
+      "config_file": "{\n  \"minimum_severity\": \"LOW\",\n  \"exclude\": [],\n  \"custom_check_dir\": \"./tfsec_rules\"\n}"
+    },
+    "semgrep": {
+      "rules": [
+        {
+          "id": "security-custom-1",
+          "message": "Unsecured Data Storage",
+          "severity": "ERROR",
+          "languages": [
+            "python",
+            "javascript",
+            "typescript"
+          ],
+          "metadata": {
+            "category": "security",
+            "threat_category": "Information Disclosure",
+            "confidence": "HIGH",
+            "cwe": "CWE-200",
+            "owasp": "A01:2021"
+          },
+          "patterns": [
+            {
+              "pattern": "print($SENSITIVE)"
+            },
+            {
+              "pattern": "console.log($SENSITIVE)"
+            }
+          ]
+        },
+        {
+          "id": "security-custom-2",
+          "message": "Weak Authentication Mechanism",
+          "severity": "ERROR",
+          "languages": [
+            "python",
+            "javascript",
+            "typescript"
+          ],
+          "metadata": {
+            "category": "security",
+            "threat_category": "Spoofing",
+            "confidence": "HIGH",
+            "cwe": "CWE-287",
+            "owasp": "A07:2021"
+          },
+          "patterns": [
+            {
+              "pattern": "password = \"...\""
+            },
+            {
+              "pattern": "secret = \"...\""
+            },
+            {
+              "pattern": "api_key = \"...\""
+            }
+          ]
+        },
+        {
+          "id": "security-custom-3",
+          "message": "Unvalidated User Input",
+          "severity": "ERROR",
+          "languages": [
+            "python",
+            "javascript",
+            "typescript"
+          ],
+          "metadata": {
+            "category": "security",
+            "threat_category": "Tampering",
+            "confidence": "HIGH",
+            "cwe": "CWE-89",
+            "owasp": "A03:2021"
+          },
+          "patterns": [
+            {
+              "pattern": "cursor.execute($QUERY)",
+              "pattern-not": "cursor.execute($QUERY, $PARAMS)"
+            }
+          ],
+          "fix": "cursor.execute($QUERY, (params,))"
+        },
+        {
+          "id": "security-custom-4",
+          "message": "Missing Role-Based Access Control (RBAC)",
+          "severity": "ERROR",
+          "languages": [
+            "python",
+            "javascript",
+            "typescript"
+          ],
+          "metadata": {
+            "category": "security",
+            "threat_category": "Elevation of Privilege",
+            "confidence": "HIGH",
+            "cwe": "CWE-269",
+            "owasp": "A01:2021"
+          },
+          "patterns": [
+            {
+              "pattern": "eval($X)"
+            },
+            {
+              "pattern": "exec($X)"
+            }
+          ]
+        },
+        {
+          "id": "security-custom-5",
+          "message": "Lack of Audit Logging",
+          "severity": "ERROR",
+          "languages": [
+            "python",
+            "javascript",
+            "typescript"
+          ],
+          "metadata": {
+            "category": "security",
+            "threat_category": "Repudiation",
+            "confidence": "HIGH",
+            "cwe": "CWE-778",
+            "owasp": "A09:2021"
+          },
+          "patterns": [
+            {
+              "pattern": "eval($X)"
+            },
+            {
+              "pattern": "exec($X)"
+            }
+          ]
+        }
+      ],
+      "config_file": "rules:\n- id: security-custom-1\n  languages:\n  - python\n  - javascript\n  - typescript\n  message: Unsecured Data Storage\n  metadata:\n    category: security\n    confidence: HIGH\n    cwe: CWE-200\n    owasp: A01:2021\n    threat_category: Information Disclosure\n  patterns:\n  - pattern: print($SENSITIVE)\n  - pattern: console.log($SENSITIVE)\n  severity: ERROR\n- id: security-custom-2\n  languages:\n  - python\n  - javascript\n  - typescript\n  message: Weak Authentication Mechanism\n  metadata:\n    category: security\n    confidence: HIGH\n    cwe: CWE-287\n    owasp: A07:2021\n    threat_category: Spoofing\n  patterns:\n  - pattern: password = \"...\"\n  - pattern: secret = \"...\"\n  - pattern: api_key = \"...\"\n  severity: ERROR\n- fix: cursor.execute($QUERY, (params,))\n  id: security-custom-3\n  languages:\n  - python\n  - javascript\n  - typescript\n  message: Unvalidated User Input\n  metadata:\n    category: security\n    confidence: HIGH\n    cwe: CWE-89\n    owasp: A03:2021\n    threat_category: Tampering\n  patterns:\n  - pattern: cursor.execute($QUERY)\n    pattern-not: cursor.execute($QUERY, $PARAMS)\n  severity: ERROR\n- id: security-custom-4\n  languages:\n  - python\n  - javascript\n  - typescript\n  message: Missing Role-Based Access Control (RBAC)\n  metadata:\n    category: security\n    confidence: HIGH\n    cwe: CWE-269\n    owasp: A01:2021\n    threat_category: Elevation of Privilege\n  patterns:\n  - pattern: eval($X)\n  - pattern: exec($X)\n  severity: ERROR\n- id: security-custom-5\n  languages:\n  - python\n  - javascript\n  - typescript\n  message: Lack of Audit Logging\n  metadata:\n    category: security\n    confidence: HIGH\n    cwe: CWE-778\n    owasp: A09:2021\n    threat_category: Repudiation\n  patterns:\n  - pattern: eval($X)\n  - pattern: exec($X)\n  severity: ERROR\n"
+    },
+    "summary": {
+      "total_rules": 15,
+      "by_tool": {
+        "checkov": 5,
+        "tfsec": 5,
+        "semgrep": 5
+      }
+    }
+  },
+  "pasta_stages": null,
+  "source_data": null,
+  "created_at": "2026-01-13T00:16:53.877417",
+  "completed_at": "2026-01-13T00:17:49.584108",
+  "_ts": "2026-01-13T00:17:49.594785"
+}

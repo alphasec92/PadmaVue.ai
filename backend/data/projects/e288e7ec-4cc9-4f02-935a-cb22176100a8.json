@@ -1,0 +1,26 @@
+{
+  "id": "e288e7ec-4cc9-4f02-935a-cb22176100a8",
+  "name": "ehwerghwe",
+  "description": "herthesth",
+  "status": "ingested",
+  "files": [
+    {
+      "original_name": "README.md",
+      "safe_name": "2b7814d3fca2e99e.md",
+      "size": 10891,
+      "hash": "e153ce45f78a03f2ff7ceaf470cfc4f1160b62d30ce292375c8547ed2a883351",
+      "mime_type": "text/markdown",
+      "path": "./uploads/e288e7ec-4cc9-4f02-935a-cb22176100a8/2b7814d3fca2e99e.md",
+      "added_at": "2026-01-14T20:58:44.323176"
+    }
+  ],
+  "metadata": {
+    "source": "api_upload",
+    "upload_time": "2026-01-14T20:58:44.263068",
+    "files_count": 1,
+    "errors": null
+  },
+  "created_at": "2026-01-14T20:58:44.264610",
+  "updated_at": "2026-01-14T20:58:44.325376",
+  "_ts": "2026-01-14T20:58:44.325382"
+}

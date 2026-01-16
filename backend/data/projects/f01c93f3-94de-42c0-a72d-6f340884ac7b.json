@@ -1,0 +1,26 @@
+{
+  "id": "f01c93f3-94de-42c0-a72d-6f340884ac7b",
+  "name": "ss",
+  "description": "ddd",
+  "status": "ingested",
+  "files": [
+    {
+      "original_name": "Claude.pdf",
+      "safe_name": "0615570f9ea13694.pdf",
+      "size": 1205590,
+      "hash": "8b9144260622f45a2d66ed839b8c770ce5048748d55f71071965736863e0ac8b",
+      "mime_type": "application/pdf",
+      "path": "./uploads/f01c93f3-94de-42c0-a72d-6f340884ac7b/0615570f9ea13694.pdf",
+      "added_at": "2025-12-14T23:56:11.831362"
+    }
+  ],
+  "metadata": {
+    "source": "api_upload",
+    "upload_time": "2025-12-14T23:56:11.826094",
+    "files_count": 1,
+    "errors": null
+  },
+  "created_at": "2025-12-14T23:56:11.826145",
+  "updated_at": "2025-12-14T23:56:11.832139",
+  "_ts": "2025-12-14T23:56:11.832142"
+}

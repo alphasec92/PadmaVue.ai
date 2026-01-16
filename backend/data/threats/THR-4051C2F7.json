@@ -1,0 +1,47 @@
+{
+  "id": "THR-4051C2F7",
+  "category": "Spoofing",
+  "title": "Credential Stuffing Attack",
+  "description": "Attackers utilize lists of compromised usernames and passwords (credential stuffing) to attempt login to the system. This leverages existing data breaches to gain unauthorized access.",
+  "affected_component": "Authentication Service",
+  "attack_vector": "Brute-force or dictionary attacks against username/password combinations obtained from external breaches.",
+  "dread_score": {
+    "damage": 8,
+    "reproducibility": 9,
+    "exploitability": 7,
+    "affected_users": 9,
+    "discoverability": 6
+  },
+  "overall_risk": 7.8,
+  "severity": "high",
+  "mitigations": [
+    "Implement Multi-Factor Authentication (MFA) to significantly reduce the impact of compromised credentials.",
+    "Rate limiting login attempts to mitigate brute-force attacks.",
+    "Regularly monitor for unusual login activity and investigate suspicious accounts."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-17",
+      "AC-3",
+      "IA-2",
+      "IA-2(1)",
+      "IA-2(2)",
+      "IA-5",
+      "IA-8",
+      "SC-5",
+      "SC-7",
+      "SC-8"
+    ],
+    "OWASP_ASVS": [
+      "V2.1.1",
+      "V2.1.2",
+      "V2.2.1",
+      "V2.3.1",
+      "V2.5.1",
+      "V2.7.1"
+    ]
+  },
+  "analysis_id": "756d9221-ce73-411d-87ce-9c69cae379d2",
+  "stored_at": "2026-01-14T20:59:53.024976",
+  "_ts": "2026-01-14T20:59:53.024984"
+}

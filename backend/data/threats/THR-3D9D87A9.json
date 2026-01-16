@@ -1,0 +1,45 @@
+{
+  "id": "THR-3D9D87A9",
+  "category": "Elevation of Privilege",
+  "title": "Default Privileges and Unpatched Vulnerabilities",
+  "description": "The system is running with default configurations and likely contains unpatched vulnerabilities. Attackers can exploit these vulnerabilities to gain elevated privileges, allowing them to perform actions they shouldn't be authorized to do, such as installing malware, modifying system files, or gaining full control of the system.",
+  "affected_component": "Operating Systems, Applications, System Services",
+  "attack_vector": "Exploiting known vulnerabilities in software, leveraging default credentials, misconfigured permissions.",
+  "dread_score": {
+    "damage": 9,
+    "reproducibility": 8,
+    "exploitability": 8,
+    "affected_users": 9,
+    "discoverability": 7
+  },
+  "overall_risk": 8.2,
+  "severity": "critical",
+  "mitigations": [
+    "Regularly patch all software components with the latest security updates.",
+    "Conduct vulnerability scanning and penetration testing.",
+    "Implement a robust change management process to minimize the risk of misconfigurations."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-2",
+      "AC-3",
+      "AC-6",
+      "CM-3",
+      "CM-7",
+      "SC-2",
+      "SI-2",
+      "SI-7"
+    ],
+    "OWASP_ASVS": [
+      "V4.1.1",
+      "V4.1.2",
+      "V4.2.1",
+      "V4.2.2",
+      "V4.3.1",
+      "V4.3.2"
+    ]
+  },
+  "analysis_id": "9820a02c-e859-45f0-a330-25668f9abea4",
+  "stored_at": "2026-01-13T01:13:00.077479",
+  "_ts": "2026-01-13T01:13:00.077487"
+}

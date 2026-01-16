@@ -1,0 +1,42 @@
+{
+  "id": "THR-A9AC1E2F",
+  "category": "Repudiation",
+  "title": "Lack of Audit Logging",
+  "description": "Without comprehensive audit logging, it becomes difficult to track user actions, identify security incidents, and determine accountability. This significantly hinders incident response and forensic investigations.  The absence of detailed logs makes it impossible to prove or disprove a user's involvement in a malicious activity.",
+  "affected_component": "System Logs, Application Logs",
+  "attack_vector": "Lack of logging mechanisms, intentional log tampering (if possible)",
+  "dread_score": {
+    "damage": 6,
+    "reproducibility": 9,
+    "exploitability": 5,
+    "affected_users": 7,
+    "discoverability": 8
+  },
+  "overall_risk": 7.0,
+  "severity": "high",
+  "mitigations": [
+    "Implement detailed audit logging of all critical system events",
+    "Securely store audit logs to prevent tampering",
+    "Regularly review audit logs for suspicious activity"
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-6",
+      "AU-12",
+      "AU-2",
+      "AU-3",
+      "AU-6",
+      "AU-9"
+    ],
+    "OWASP_ASVS": [
+      "V7.1.1",
+      "V7.1.2",
+      "V7.2.1",
+      "V7.2.2",
+      "V7.3.1"
+    ]
+  },
+  "analysis_id": "75bef722-c2fd-43a4-bd53-6659360c3c39",
+  "stored_at": "2026-01-15T01:44:16.063795",
+  "_ts": "2026-01-15T01:44:16.063799"
+}

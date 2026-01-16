@@ -1,0 +1,41 @@
+{
+  "id": "THR-3EBF3446",
+  "category": "Denial of Service",
+  "title": "Uncontrolled Resource Consumption",
+  "description": "The system's architecture and components lack details, potentially leading to uncontrolled resource consumption by malicious actors. This could result in denial-of-service attacks, overwhelming system resources and making the application unavailable to legitimate users.",
+  "affected_component": "Application Servers, Databases, Network Infrastructure",
+  "attack_vector": "Resource exhaustion attacks (e.g., HTTP floods, slowloris), denial-of-service attacks targeting specific services.",
+  "dread_score": {
+    "damage": 8,
+    "reproducibility": 7,
+    "exploitability": 6,
+    "affected_users": 9,
+    "discoverability": 7
+  },
+  "overall_risk": 7.4,
+  "severity": "high",
+  "mitigations": [
+    "Implement rate limiting and traffic shaping.",
+    "Utilize a Content Delivery Network (CDN) to distribute traffic.",
+    "Employ intrusion detection and prevention systems (IDS/IPS)."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-20",
+      "AU-6",
+      "CP-9",
+      "SC-5",
+      "SC-7",
+      "SI-17"
+    ],
+    "OWASP_ASVS": [
+      "V11.1.1",
+      "V11.1.2",
+      "V11.1.3",
+      "V11.1.4"
+    ]
+  },
+  "analysis_id": "d7b62d4d-4403-4aed-af93-77a88d2ff518",
+  "stored_at": "2026-01-13T01:45:13.827279",
+  "_ts": "2026-01-13T01:45:13.827283"
+}

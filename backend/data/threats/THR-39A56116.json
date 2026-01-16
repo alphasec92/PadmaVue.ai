@@ -1,0 +1,49 @@
+{
+  "id": "THR-39A56116",
+  "category": "Information Disclosure",
+  "title": "Unsecured Data Storage",
+  "description": "Sensitive data (potentially classified based on the unknown internal scheme) may be stored without proper encryption or access controls. This exposes the data to unauthorized access if the system is compromised or if an attacker gains access to the storage.",
+  "affected_component": "Database, File Storage",
+  "attack_vector": "Unauthorized access to database or file storage due to weak access controls, misconfigured permissions, or vulnerabilities in the storage system.",
+  "dread_score": {
+    "damage": 8,
+    "reproducibility": 7,
+    "exploitability": 6,
+    "affected_users": 9,
+    "discoverability": 7
+  },
+  "overall_risk": 7.4,
+  "severity": "high",
+  "mitigations": [
+    "Encrypt all sensitive data at rest and in transit.",
+    "Implement strict access controls based on the principle of least privilege.",
+    "Regularly audit access permissions and data storage configurations."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-2",
+      "AC-3",
+      "AC-4",
+      "AC-6",
+      "AU-2",
+      "AU-3",
+      "AU-6",
+      "CM-7",
+      "MP-5",
+      "SC-13",
+      "SC-28",
+      "SC-8"
+    ],
+    "OWASP_ASVS": [
+      "V6.1.1",
+      "V6.2.1",
+      "V8.1.1",
+      "V8.2.1",
+      "V8.2.2",
+      "V8.3.1"
+    ]
+  },
+  "analysis_id": "d72bd7ad-75e8-4348-8cee-3c43eebcd36b",
+  "stored_at": "2026-01-13T00:12:44.907469",
+  "_ts": "2026-01-13T00:12:44.907488"
+}

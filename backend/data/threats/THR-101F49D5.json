@@ -1,0 +1,43 @@
+{
+  "id": "THR-101F49D5",
+  "category": "Elevation of Privilege",
+  "title": "Default Account Vulnerability",
+  "description": "If the system utilizes default accounts with elevated privileges, attackers could exploit these accounts to gain unauthorized access to sensitive system functions or data.  Lack of proper account management practices exacerbates this risk.",
+  "affected_component": "System Servers, Database Servers, Application Servers",
+  "attack_vector": "Exploiting default credentials or vulnerabilities associated with privileged accounts.",
+  "dread_score": {
+    "damage": 9,
+    "reproducibility": 8,
+    "exploitability": 7,
+    "affected_users": 9,
+    "discoverability": 6
+  },
+  "overall_risk": 7.8,
+  "severity": "high",
+  "mitigations": [
+    "Immediately change all default passwords.",
+    "Disable or remove default accounts.",
+    "Implement role-based access control (RBAC) to restrict user privileges."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-2",
+      "AC-3",
+      "AC-6",
+      "CM-7",
+      "SC-2",
+      "SI-7"
+    ],
+    "OWASP_ASVS": [
+      "V4.1.1",
+      "V4.1.2",
+      "V4.2.1",
+      "V4.2.2",
+      "V4.3.1",
+      "V4.3.2"
+    ]
+  },
+  "analysis_id": "ee461849-e939-48e4-b127-b8eb0d3606b9",
+  "stored_at": "2026-01-15T01:04:56.992087",
+  "_ts": "2026-01-15T01:04:56.992093"
+}

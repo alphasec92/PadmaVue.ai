@@ -1,0 +1,46 @@
+{
+  "id": "THR-75FA6E43",
+  "category": "Information Disclosure",
+  "title": "Data Leakage due to Inadequate Access Controls",
+  "description": "If access controls are not properly configured, unauthorized users could potentially access sensitive data. This could occur due to misconfigured permissions, vulnerabilities in the access control mechanism, or lack of data classification.",
+  "affected_component": "Database, File Storage, Application Servers",
+  "attack_vector": "IDOR (Insecure Direct Object Reference), misconfigured permissions, vulnerabilities in access control libraries.",
+  "dread_score": {
+    "damage": 7,
+    "reproducibility": 8,
+    "exploitability": 6,
+    "affected_users": 9,
+    "discoverability": 7
+  },
+  "overall_risk": 7.4,
+  "severity": "high",
+  "mitigations": [
+    "Implement strict access controls based on the principle of least privilege",
+    "Regularly review and update access permissions",
+    "Enforce data classification policies and implement appropriate security controls based on data sensitivity"
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-2",
+      "AC-3",
+      "AC-4",
+      "AC-6",
+      "CM-7",
+      "MP-5",
+      "SC-13",
+      "SC-28",
+      "SC-8"
+    ],
+    "OWASP_ASVS": [
+      "V6.1.1",
+      "V6.2.1",
+      "V8.1.1",
+      "V8.2.1",
+      "V8.2.2",
+      "V8.3.1"
+    ]
+  },
+  "analysis_id": "75bef722-c2fd-43a4-bd53-6659360c3c39",
+  "stored_at": "2026-01-15T01:44:16.062973",
+  "_ts": "2026-01-15T01:44:16.062979"
+}

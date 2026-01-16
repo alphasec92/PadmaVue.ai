@@ -1,0 +1,46 @@
+{
+  "id": "THR-DC6EBF4E",
+  "category": "Tampering",
+  "title": "SQL Injection Vulnerability",
+  "description": "The system likely uses a database to store information, and if input validation is inadequate, attackers could inject malicious SQL code into input fields. This could allow them to modify, delete, or extract data from the database, potentially compromising the entire system.",
+  "affected_component": "Web Application, Database Server",
+  "attack_vector": "Malicious SQL code injected into user input fields (e.g., login forms, search boxes, data entry fields).",
+  "dread_score": {
+    "damage": 9,
+    "reproducibility": 8,
+    "exploitability": 7,
+    "affected_users": 8,
+    "discoverability": 6
+  },
+  "overall_risk": 7.6,
+  "severity": "high",
+  "mitigations": [
+    "Implement strict input validation and sanitization for all user inputs.",
+    "Use parameterized queries or prepared statements to prevent SQL injection.",
+    "Regularly update database software to patch known vulnerabilities."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AU-9",
+      "CM-3",
+      "SC-28",
+      "SC-8",
+      "SI-10",
+      "SI-11",
+      "SI-2",
+      "SI-3",
+      "SI-7"
+    ],
+    "OWASP_ASVS": [
+      "V5.1.1",
+      "V5.1.2",
+      "V5.2.1",
+      "V5.2.2",
+      "V5.3.1",
+      "V5.3.2"
+    ]
+  },
+  "analysis_id": "ee461849-e939-48e4-b127-b8eb0d3606b9",
+  "stored_at": "2026-01-15T01:04:56.996080",
+  "_ts": "2026-01-15T01:04:56.996085"
+}

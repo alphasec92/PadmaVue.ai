@@ -1,0 +1,47 @@
+{
+  "id": "THR-AE5F0B9F",
+  "category": "Spoofing",
+  "title": "Weak Password Policy Leads to Credential Theft",
+  "description": "The system lacks information about password complexity requirements or enforcement. This allows an attacker to create weak passwords, potentially leading to successful credential theft through brute-force or dictionary attacks.  Without multi-factor authentication, compromised credentials provide immediate access.",
+  "affected_component": "Authentication Module",
+  "attack_vector": "Brute-force attack, credential stuffing, dictionary attack targeting username/password combination.",
+  "dread_score": {
+    "damage": 9,
+    "reproducibility": 8,
+    "exploitability": 7,
+    "affected_users": 10,
+    "discoverability": 6
+  },
+  "overall_risk": 8.0,
+  "severity": "critical",
+  "mitigations": [
+    "Implement strong password policies (minimum length, character requirements, regular password changes).",
+    "Enforce multi-factor authentication (MFA) for all users.",
+    "Utilize rate limiting and account lockout mechanisms to mitigate brute-force attacks."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-17",
+      "AC-3",
+      "IA-2",
+      "IA-2(1)",
+      "IA-2(2)",
+      "IA-5",
+      "IA-8",
+      "SC-5",
+      "SC-7",
+      "SC-8"
+    ],
+    "OWASP_ASVS": [
+      "V2.1.1",
+      "V2.1.2",
+      "V2.2.1",
+      "V2.3.1",
+      "V2.5.1",
+      "V2.7.1"
+    ]
+  },
+  "analysis_id": "441c0ce8-ee15-4017-aed3-e7ce686736d9",
+  "stored_at": "2026-01-13T01:16:32.420616",
+  "_ts": "2026-01-13T01:16:32.420670"
+}

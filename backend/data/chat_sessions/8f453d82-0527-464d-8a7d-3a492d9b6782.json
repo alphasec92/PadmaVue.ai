@@ -1,0 +1,30 @@
+{
+  "session_id": "8f453d82-0527-464d-8a7d-3a492d9b6782",
+  "created_at": "2026-01-14T20:57:45.321916",
+  "conversation_history": [
+    {
+      "role": "user",
+      "content": "I'm building a web app with React and Node.js"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"response_type\": \"general\", \"analysis\": \"Okay, you're building a web application using React and Node.js. This is a common architecture. To start understanding the potential security risks, I need more information about the specific system you're building. This is a good starting point, but it's not enough to begin a threat model.\", \"completeness_score\": 0.2, \"missing_info\": [\"What is the primary purpose of the web application?\", \"What kind of data will the application process or store?\", \"What are the key components of the system (e.g., frontend, backend, database)?\", \"How are users authenticated and authorized?\"], \"follow_up_questions\": [\"Could you describe the overall architecture of the application \\u2013 for example, is it a single-page application (SPA) or a traditional multi-page application?\", \"What database are you planning to use (e.g., PostgreSQL, MongoDB)?\", \"Are there any third-party services or APIs that the application will integrate with?\"], \"ready_for_threat_model\": false, \"confidence_level\": \"low\", \"uncertainty_notes\": [\"I don't have information on current best practices or specific vulnerabilities associated with React and Node.js. My knowledge is based on general security principles.\"], \"world_model\": {\"system_type\": \"web application\", \"components\": [\"React frontend\", \"Node.js backend\", \"Database\"], \"data_types\": [], \"auth_method\": \"Unknown\", \"network_exposure\": \"Unknown\", \"compliance\": [], \"ai_involved\": false}, \"sources\": [], \"web_search_used\": false, \"reasoning_level\": \"balanced\", \"reasoning_summary\": {\"key_steps\": [], \"assumptions\": [], \"evidence_used\": [], \"confidence\": \"medium\"}}"
+    }
+  ],
+  "world_model": {
+    "system_type": "web application",
+    "components": [
+      "React frontend",
+      "Node.js backend",
+      "Database"
+    ],
+    "data_types": [],
+    "auth_method": "Unknown",
+    "network_exposure": "Unknown",
+    "compliance": [],
+    "ai_involved": false
+  },
+  "completeness_score": 0.2,
+  "ready_for_threat_model": false,
+  "updated_at": "2026-01-14T20:57:59.278506"
+}

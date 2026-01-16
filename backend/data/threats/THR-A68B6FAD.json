@@ -1,0 +1,48 @@
+{
+  "id": "THR-A68B6FAD",
+  "category": "Spoofing",
+  "title": "Weak Authentication Mechanism",
+  "description": "The system lacks details regarding its authentication mechanisms. Without knowing if multi-factor authentication (MFA) is implemented, or if password policies are enforced, attackers could potentially spoof user identities to gain unauthorized access. This could involve brute-force attacks, credential stuffing, or phishing campaigns targeting weak passwords.",
+  "affected_component": "Web Application, Application Server, Database",
+  "attack_vector": "Exploitation of weak password policies, successful credential compromise through phishing or brute-force attacks, or leveraging vulnerabilities in the authentication protocol itself.",
+  "dread_score": {
+    "damage": 8,
+    "reproducibility": 9,
+    "exploitability": 7,
+    "affected_users": 10,
+    "discoverability": 6
+  },
+  "overall_risk": 8.0,
+  "severity": "critical",
+  "mitigations": [
+    "Implement Multi-Factor Authentication (MFA) for all users.",
+    "Enforce strong password policies (minimum length, complexity, regular rotation).",
+    "Regularly audit user accounts and disable inactive accounts."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-17",
+      "AC-3",
+      "AU-2",
+      "AU-3",
+      "AU-6",
+      "IA-2",
+      "IA-2(1)",
+      "IA-2(2)",
+      "IA-5",
+      "IA-8",
+      "SC-8"
+    ],
+    "OWASP_ASVS": [
+      "V2.1.1",
+      "V2.1.2",
+      "V2.2.1",
+      "V2.3.1",
+      "V2.5.1",
+      "V2.7.1"
+    ]
+  },
+  "analysis_id": "22c1f01c-396a-4425-b0b0-bffa5a1fd2e4",
+  "stored_at": "2026-01-13T00:16:48.276759",
+  "_ts": "2026-01-13T00:16:48.276762"
+}

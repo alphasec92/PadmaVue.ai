@@ -1,0 +1,45 @@
+{
+  "id": "THR-52DDE3F2",
+  "category": "Elevation of Privilege",
+  "title": "Default Configurations and Unpatched Vulnerabilities",
+  "description": "The system is running with default configurations and lacks a comprehensive security program. This increases the risk of attackers exploiting known vulnerabilities or misconfigurations to gain elevated privileges, potentially leading to complete system compromise. The lack of regular patching further amplifies this risk.",
+  "affected_component": "All System Components",
+  "attack_vector": "Exploitation of known vulnerabilities in software components, leveraging default credentials, or misconfigured permissions.",
+  "dread_score": {
+    "damage": 9,
+    "reproducibility": 8,
+    "exploitability": 7,
+    "affected_users": 8,
+    "discoverability": 7
+  },
+  "overall_risk": 7.8,
+  "severity": "high",
+  "mitigations": [
+    "Conduct regular vulnerability scans and penetration tests.",
+    "Implement a robust patch management process to promptly apply security updates.",
+    "Review and harden default configurations to remove unnecessary services and features."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-2",
+      "AC-3",
+      "AC-6",
+      "CM-3",
+      "CM-7",
+      "SC-2",
+      "SI-2",
+      "SI-7"
+    ],
+    "OWASP_ASVS": [
+      "V4.1.1",
+      "V4.1.2",
+      "V4.2.1",
+      "V4.2.2",
+      "V4.3.1",
+      "V4.3.2"
+    ]
+  },
+  "analysis_id": "bbd2ed94-e301-484a-8a4b-fc8d7e16a96c",
+  "stored_at": "2026-01-13T01:11:51.604584",
+  "_ts": "2026-01-13T01:11:51.604592"
+}

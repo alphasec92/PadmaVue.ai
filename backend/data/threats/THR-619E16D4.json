@@ -1,0 +1,43 @@
+{
+  "id": "THR-619E16D4",
+  "category": "Denial of Service",
+  "title": "Resource Exhaustion via Malicious Requests",
+  "description": "The system's architecture is unknown, but without safeguards, it\u2019s vulnerable to denial-of-service attacks. An attacker could flood the system with requests, overwhelming its resources and rendering it unavailable to legitimate users. The lack of rate limiting or traffic shaping mechanisms exacerbates this risk.",
+  "affected_component": "Web Servers, Application Servers, Database Servers",
+  "attack_vector": "Distributed Denial of Service (DDoS) attacks, overwhelming the system with a high volume of requests.",
+  "dread_score": {
+    "damage": 6,
+    "reproducibility": 9,
+    "exploitability": 7,
+    "affected_users": 7,
+    "discoverability": 8
+  },
+  "overall_risk": 7.4,
+  "severity": "high",
+  "mitigations": [
+    "Implement rate limiting to restrict the number of requests from a single source.",
+    "Utilize a Content Delivery Network (CDN) to distribute traffic and mitigate DDoS attacks.",
+    "Employ a Web Application Firewall (WAF) to filter malicious traffic."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-20",
+      "AC-4",
+      "AU-6",
+      "CP-9",
+      "SC-5",
+      "SC-7",
+      "SI-17",
+      "SI-3"
+    ],
+    "OWASP_ASVS": [
+      "V11.1.1",
+      "V11.1.2",
+      "V11.1.3",
+      "V11.1.4"
+    ]
+  },
+  "analysis_id": "bbd2ed94-e301-484a-8a4b-fc8d7e16a96c",
+  "stored_at": "2026-01-13T01:11:51.606566",
+  "_ts": "2026-01-13T01:11:51.606574"
+}

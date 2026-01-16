@@ -1,0 +1,43 @@
+{
+  "id": "THR-19CBFE0C",
+  "category": "Elevation of Privilege",
+  "title": "IDOR (Insecure Direct Object Reference) Vulnerability",
+  "description": "If the application exposes internal object references (e.g., database keys, file names) directly in URLs or API requests without proper authorization checks, attackers can manipulate these references to access resources they shouldn't be able to access, potentially escalating their privileges.",
+  "affected_component": "Web Application, API Layer",
+  "attack_vector": "Direct manipulation of object references in URLs or API requests to access unauthorized data or functionality.",
+  "dread_score": {
+    "damage": 8,
+    "reproducibility": 7,
+    "exploitability": 7,
+    "affected_users": 6,
+    "discoverability": 6
+  },
+  "overall_risk": 6.8,
+  "severity": "high",
+  "mitigations": [
+    "Implement robust authorization checks to verify user permissions before accessing any internal object references.",
+    "Use indirect object references (e.g., GUIDs) instead of direct identifiers.",
+    "Enforce the principle of least privilege \u2013 grant users only the minimum necessary access rights."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-2",
+      "AC-3",
+      "AC-6",
+      "CM-7",
+      "SC-2",
+      "SI-7"
+    ],
+    "OWASP_ASVS": [
+      "V4.1.1",
+      "V4.1.2",
+      "V4.2.1",
+      "V4.2.2",
+      "V4.3.1",
+      "V4.3.2"
+    ]
+  },
+  "analysis_id": "21916cd5-6891-4632-a9b5-548e5aed3ade",
+  "stored_at": "2026-01-13T00:24:11.098173",
+  "_ts": "2026-01-13T00:24:11.098178"
+}

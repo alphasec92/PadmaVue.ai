@@ -1,0 +1,954 @@
+{
+  "id": "ca5de075-fe97-4827-b1a3-25a253bf21f2",
+  "project_id": "a8c35354-50ee-45a5-86c7-a6c1a5087303",
+  "methodology": "stride",
+  "status": "failed",
+  "threats": [
+    {
+      "id": "THR-F59C117E",
+      "category": "Spoofing",
+      "title": "Weak Authentication Bypass",
+      "description": "Due to a lack of information regarding authentication mechanisms, an attacker could potentially bypass authentication controls, gaining unauthorized access to the system. This could involve exploiting vulnerabilities in the authentication process, such as weak passwords, lack of multi-factor authentication, or vulnerabilities in the authentication libraries themselves.",
+      "affected_component": "Authentication Module, Web Application",
+      "attack_vector": "Exploitation of vulnerabilities in the authentication logic, credential stuffing, brute-force attacks, or social engineering to obtain valid credentials.",
+      "dread_score": {
+        "damage": 9,
+        "reproducibility": 8,
+        "exploitability": 7,
+        "affected_users": 10,
+        "discoverability": 6
+      },
+      "overall_risk": 8.0,
+      "severity": "critical",
+      "mitigations": [
+        "Implement Multi-Factor Authentication (MFA) for all users.",
+        "Enforce strong password policies (length, complexity, rotation).",
+        "Regularly audit authentication logs for suspicious activity."
+      ],
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AC-17",
+          "AC-3",
+          "AU-2",
+          "AU-3",
+          "AU-6",
+          "IA-2",
+          "IA-2(1)",
+          "IA-2(2)",
+          "IA-5",
+          "IA-8",
+          "SC-8"
+        ],
+        "OWASP_ASVS": [
+          "V2.1.1",
+          "V2.1.2",
+          "V2.2.1",
+          "V2.3.1",
+          "V2.5.1",
+          "V2.7.1"
+        ]
+      }
+    },
+    {
+      "id": "THR-CDE275D6",
+      "category": "Tampering",
+      "title": "SQL Injection Vulnerability",
+      "description": "Without knowing the application's data handling practices and input validation, there's a high risk of SQL injection vulnerabilities. An attacker could inject malicious SQL code into input fields, allowing them to manipulate the database, potentially stealing data, modifying records, or even gaining control of the database server.",
+      "affected_component": "Web Application, Database Server",
+      "attack_vector": "Injection of malicious SQL code through vulnerable input fields (e.g., search boxes, login forms) that are not properly sanitized or parameterized.",
+      "dread_score": {
+        "damage": 8,
+        "reproducibility": 9,
+        "exploitability": 7,
+        "affected_users": 9,
+        "discoverability": 7
+      },
+      "overall_risk": 8.0,
+      "severity": "critical",
+      "mitigations": [
+        "Implement parameterized queries or prepared statements to prevent SQL injection.",
+        "Employ input validation and sanitization to filter out malicious characters.",
+        "Regularly update database software to patch known vulnerabilities."
+      ],
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AU-9",
+          "CM-3",
+          "SC-28",
+          "SC-8",
+          "SI-10",
+          "SI-11",
+          "SI-2",
+          "SI-3",
+          "SI-7"
+        ],
+        "OWASP_ASVS": [
+          "V5.1.1",
+          "V5.1.2",
+          "V5.2.1",
+          "V5.2.2",
+          "V5.3.1",
+          "V5.3.2"
+        ]
+      }
+    },
+    {
+      "id": "THR-D6764B1A",
+      "category": "Elevation of Privilege",
+      "title": "IDOR (Insecure Direct Object Reference)",
+      "description": "Without knowing the application's authorization mechanisms, there's a risk of IDOR vulnerabilities. An attacker could manipulate URLs or other parameters to access resources or perform actions that they are not authorized to perform, potentially gaining elevated privileges or accessing sensitive data.",
+      "affected_component": "Web Application",
+      "attack_vector": "Directly referencing internal objects (e.g., database IDs, file names) in URLs or request parameters without proper authorization checks.",
+      "dread_score": {
+        "damage": 8,
+        "reproducibility": 8,
+        "exploitability": 7,
+        "affected_users": 9,
+        "discoverability": 7
+      },
+      "overall_risk": 7.8,
+      "severity": "high",
+      "mitigations": [
+        "Implement robust authorization checks for all API endpoints and web pages.",
+        "Use indirect object references (e.g., GUIDs) instead of direct object references.",
+        "Regularly review and update authorization logic to address new vulnerabilities."
+      ],
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AC-2",
+          "AC-3",
+          "AC-6",
+          "CM-7",
+          "SC-2",
+          "SI-7"
+        ],
+        "OWASP_ASVS": [
+          "V4.1.1",
+          "V4.1.2",
+          "V4.2.1",
+          "V4.2.2",
+          "V4.3.1",
+          "V4.3.2"
+        ]
+      }
+    },
+    {
+      "id": "THR-F9163403",
+      "category": "Information Disclosure",
+      "title": "Exposure of Sensitive Data due to Lack of Access Controls",
+      "description": "The absence of information regarding access controls and data classification creates a significant risk of unauthorized access to sensitive data.  If data is not properly classified and access controls are not implemented, attackers could potentially gain access to confidential information, leading to data breaches and compliance violations.",
+      "affected_component": "All Data Storage Components, Web Application",
+      "attack_vector": "Exploitation of misconfigured access controls, vulnerabilities in the web application, or direct access to data storage locations.",
+      "dread_score": {
+        "damage": 7,
+        "reproducibility": 8,
+        "exploitability": 6,
+        "affected_users": 9,
+        "discoverability": 7
+      },
+      "overall_risk": 7.4,
+      "severity": "high",
+      "mitigations": [
+        "Implement strict access controls based on the principle of least privilege.",
+        "Regularly audit access permissions to ensure they are appropriate.",
+        "Encrypt sensitive data at rest and in transit."
+      ],
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AC-2",
+          "AC-3",
+          "AC-4",
+          "AC-6",
+          "AU-2",
+          "AU-3",
+          "AU-6",
+          "CM-7",
+          "MP-5",
+          "SC-13",
+          "SC-28",
+          "SC-8"
+        ],
+        "OWASP_ASVS": [
+          "V6.1.1",
+          "V6.2.1",
+          "V8.1.1",
+          "V8.2.1",
+          "V8.2.2",
+          "V8.3.1"
+        ]
+      }
+    },
+    {
+      "id": "THR-E0D96470",
+      "category": "Denial of Service",
+      "title": "Resource Exhaustion via Malicious Input",
+      "description": "The system's vulnerability to denial-of-service (DoS) attacks is heightened due to the lack of information about its architecture and security controls. An attacker could flood the system with requests or inject malicious data that consumes excessive resources, leading to service outages.",
+      "affected_component": "Web Server, Database Server, Network Infrastructure",
+      "attack_vector": "Injection of large or complex data, overwhelming the server with requests, or exploiting vulnerabilities in the application code to consume excessive resources.",
+      "dread_score": {
+        "damage": 6,
+        "reproducibility": 7,
+        "exploitability": 6,
+        "affected_users": 8,
+        "discoverability": 6
+      },
+      "overall_risk": 6.6,
+      "severity": "high",
+      "mitigations": [
+        "Implement rate limiting to restrict the number of requests from a single source.",
+        "Employ input validation to prevent the injection of malicious data.",
+        "Utilize a Content Delivery Network (CDN) to distribute traffic and mitigate DDoS attacks."
+      ],
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AC-20",
+          "AU-6",
+          "CP-9",
+          "SC-5",
+          "SC-7",
+          "SI-10",
+          "SI-11",
+          "SI-17"
+        ],
+        "OWASP_ASVS": [
+          "V11.1.1",
+          "V11.1.2",
+          "V11.1.3",
+          "V11.1.4"
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "total_threats": 5,
+    "by_severity": {
+      "critical": 2,
+      "high": 3,
+      "medium": 0,
+      "low": 0
+    },
+    "by_category": {
+      "Spoofing": 1,
+      "Tampering": 1,
+      "Elevation of Privilege": 1,
+      "Information Disclosure": 1,
+      "Denial of Service": 1
+    },
+    "average_risk": 7.56,
+    "errors": []
+  },
+  "compliance_summary": {
+    "mapped_threats": [
+      {
+        "id": "THR-F59C117E",
+        "category": "Spoofing",
+        "title": "Weak Authentication Bypass",
+        "description": "Due to a lack of information regarding authentication mechanisms, an attacker could potentially bypass authentication controls, gaining unauthorized access to the system. This could involve exploiting vulnerabilities in the authentication process, such as weak passwords, lack of multi-factor authentication, or vulnerabilities in the authentication libraries themselves.",
+        "affected_component": "Authentication Module, Web Application",
+        "attack_vector": "Exploitation of vulnerabilities in the authentication logic, credential stuffing, brute-force attacks, or social engineering to obtain valid credentials.",
+        "dread_score": {
+          "damage": 9,
+          "reproducibility": 8,
+          "exploitability": 7,
+          "affected_users": 10,
+          "discoverability": 6
+        },
+        "overall_risk": 8.0,
+        "risk_level": "critical",
+        "severity": "critical",
+        "mitigations": [
+          "Implement Multi-Factor Authentication (MFA) for all users.",
+          "Enforce strong password policies (length, complexity, rotation).",
+          "Regularly audit authentication logs for suspicious activity."
+        ],
+        "compliance_mappings": {
+          "NIST_800_53": [
+            "AC-17",
+            "AC-3",
+            "AU-2",
+            "AU-3",
+            "AU-6",
+            "IA-2",
+            "IA-2(1)",
+            "IA-2(2)",
+            "IA-5",
+            "IA-8",
+            "SC-8"
+          ],
+          "OWASP_ASVS": [
+            "V2.1.1",
+            "V2.1.2",
+            "V2.2.1",
+            "V2.3.1",
+            "V2.5.1",
+            "V2.7.1"
+          ]
+        }
+      },
+      {
+        "id": "THR-CDE275D6",
+        "category": "Tampering",
+        "title": "SQL Injection Vulnerability",
+        "description": "Without knowing the application's data handling practices and input validation, there's a high risk of SQL injection vulnerabilities. An attacker could inject malicious SQL code into input fields, allowing them to manipulate the database, potentially stealing data, modifying records, or even gaining control of the database server.",
+        "affected_component": "Web Application, Database Server",
+        "attack_vector": "Injection of malicious SQL code through vulnerable input fields (e.g., search boxes, login forms) that are not properly sanitized or parameterized.",
+        "dread_score": {
+          "damage": 8,
+          "reproducibility": 9,
+          "exploitability": 7,
+          "affected_users": 9,
+          "discoverability": 7
+        },
+        "overall_risk": 8.0,
+        "risk_level": "critical",
+        "severity": "critical",
+        "mitigations": [
+          "Implement parameterized queries or prepared statements to prevent SQL injection.",
+          "Employ input validation and sanitization to filter out malicious characters.",
+          "Regularly update database software to patch known vulnerabilities."
+        ],
+        "compliance_mappings": {
+          "NIST_800_53": [
+            "AU-9",
+            "CM-3",
+            "SC-28",
+            "SC-8",
+            "SI-10",
+            "SI-11",
+            "SI-2",
+            "SI-3",
+            "SI-7"
+          ],
+          "OWASP_ASVS": [
+            "V5.1.1",
+            "V5.1.2",
+            "V5.2.1",
+            "V5.2.2",
+            "V5.3.1",
+            "V5.3.2"
+          ]
+        }
+      },
+      {
+        "id": "THR-D6764B1A",
+        "category": "Elevation of Privilege",
+        "title": "IDOR (Insecure Direct Object Reference)",
+        "description": "Without knowing the application's authorization mechanisms, there's a risk of IDOR vulnerabilities. An attacker could manipulate URLs or other parameters to access resources or perform actions that they are not authorized to perform, potentially gaining elevated privileges or accessing sensitive data.",
+        "affected_component": "Web Application",
+        "attack_vector": "Directly referencing internal objects (e.g., database IDs, file names) in URLs or request parameters without proper authorization checks.",
+        "dread_score": {
+          "damage": 8,
+          "reproducibility": 8,
+          "exploitability": 7,
+          "affected_users": 9,
+          "discoverability": 7
+        },
+        "overall_risk": 7.8,
+        "risk_level": "high",
+        "severity": "high",
+        "mitigations": [
+          "Implement robust authorization checks for all API endpoints and web pages.",
+          "Use indirect object references (e.g., GUIDs) instead of direct object references.",
+          "Regularly review and update authorization logic to address new vulnerabilities."
+        ],
+        "compliance_mappings": {
+          "NIST_800_53": [
+            "AC-2",
+            "AC-3",
+            "AC-6",
+            "CM-7",
+            "SC-2",
+            "SI-7"
+          ],
+          "OWASP_ASVS": [
+            "V4.1.1",
+            "V4.1.2",
+            "V4.2.1",
+            "V4.2.2",
+            "V4.3.1",
+            "V4.3.2"
+          ]
+        }
+      },
+      {
+        "id": "THR-F9163403",
+        "category": "Information Disclosure",
+        "title": "Exposure of Sensitive Data due to Lack of Access Controls",
+        "description": "The absence of information regarding access controls and data classification creates a significant risk of unauthorized access to sensitive data.  If data is not properly classified and access controls are not implemented, attackers could potentially gain access to confidential information, leading to data breaches and compliance violations.",
+        "affected_component": "All Data Storage Components, Web Application",
+        "attack_vector": "Exploitation of misconfigured access controls, vulnerabilities in the web application, or direct access to data storage locations.",
+        "dread_score": {
+          "damage": 7,
+          "reproducibility": 8,
+          "exploitability": 6,
+          "affected_users": 9,
+          "discoverability": 7
+        },
+        "overall_risk": 7.4,
+        "risk_level": "high",
+        "severity": "high",
+        "mitigations": [
+          "Implement strict access controls based on the principle of least privilege.",
+          "Regularly audit access permissions to ensure they are appropriate.",
+          "Encrypt sensitive data at rest and in transit."
+        ],
+        "compliance_mappings": {
+          "NIST_800_53": [
+            "AC-2",
+            "AC-3",
+            "AC-4",
+            "AC-6",
+            "AU-2",
+            "AU-3",
+            "AU-6",
+            "CM-7",
+            "MP-5",
+            "SC-13",
+            "SC-28",
+            "SC-8"
+          ],
+          "OWASP_ASVS": [
+            "V6.1.1",
+            "V6.2.1",
+            "V8.1.1",
+            "V8.2.1",
+            "V8.2.2",
+            "V8.3.1"
+          ]
+        }
+      },
+      {
+        "id": "THR-E0D96470",
+        "category": "Denial of Service",
+        "title": "Resource Exhaustion via Malicious Input",
+        "description": "The system's vulnerability to denial-of-service (DoS) attacks is heightened due to the lack of information about its architecture and security controls. An attacker could flood the system with requests or inject malicious data that consumes excessive resources, leading to service outages.",
+        "affected_component": "Web Server, Database Server, Network Infrastructure",
+        "attack_vector": "Injection of large or complex data, overwhelming the server with requests, or exploiting vulnerabilities in the application code to consume excessive resources.",
+        "dread_score": {
+          "damage": 6,
+          "reproducibility": 7,
+          "exploitability": 6,
+          "affected_users": 8,
+          "discoverability": 6
+        },
+        "overall_risk": 6.6,
+        "risk_level": "high",
+        "severity": "high",
+        "mitigations": [
+          "Implement rate limiting to restrict the number of requests from a single source.",
+          "Employ input validation to prevent the injection of malicious data.",
+          "Utilize a Content Delivery Network (CDN) to distribute traffic and mitigate DDoS attacks."
+        ],
+        "compliance_mappings": {
+          "NIST_800_53": [
+            "AC-20",
+            "AU-6",
+            "CP-9",
+            "SC-5",
+            "SC-7",
+            "SI-10",
+            "SI-11",
+            "SI-17"
+          ],
+          "OWASP_ASVS": [
+            "V11.1.1",
+            "V11.1.2",
+            "V11.1.3",
+            "V11.1.4"
+          ]
+        }
+      }
+    ],
+    "overall_score": 75,
+    "nist_800_53": {
+      "controls": [
+        "CM-3",
+        "AC-20",
+        "AC-4",
+        "SI-7",
+        "CP-9",
+        "SC-8",
+        "SI-11",
+        "SC-7",
+        "SI-17",
+        "AU-3",
+        "CM-7",
+        "MP-5",
+        "SI-3",
+        "AC-2",
+        "AU-6",
+        "AC-6",
+        "SC-5",
+        "AU-9",
+        "AU-2",
+        "IA-2",
+        "IA-5",
+        "SI-10",
+        "IA-2(2)",
+        "AC-3",
+        "IA-8",
+        "AC-17",
+        "SC-2",
+        "IA-2(1)",
+        "SC-13",
+        "SI-2",
+        "SC-28"
+      ],
+      "by_family": {
+        "AC": [
+          "AC-20",
+          "AC-4",
+          "AC-2",
+          "AC-6",
+          "AC-3",
+          "AC-17"
+        ],
+        "AU": [
+          "AU-3",
+          "AU-6",
+          "AU-9",
+          "AU-2"
+        ],
+        "IA": [
+          "IA-2",
+          "IA-5",
+          "IA-2(2)",
+          "IA-8",
+          "IA-2(1)"
+        ],
+        "SC": [
+          "SC-8",
+          "SC-7",
+          "SC-5",
+          "SC-2",
+          "SC-13",
+          "SC-28"
+        ],
+        "SI": [
+          "SI-7",
+          "SI-11",
+          "SI-17",
+          "SI-3",
+          "SI-10",
+          "SI-2"
+        ]
+      },
+      "coverage": {
+        "AC": "partial",
+        "AU": "full",
+        "IA": "minimal"
+      }
+    },
+    "owasp_asvs": {
+      "controls": [
+        "V8.2.2",
+        "V11.1.2",
+        "V11.1.1",
+        "V4.1.1",
+        "V2.3.1",
+        "V4.2.1",
+        "V5.1.1",
+        "V4.1.2",
+        "V2.1.1",
+        "V11.1.3",
+        "V4.2.2",
+        "V5.3.1",
+        "V8.1.1",
+        "V2.7.1",
+        "V6.1.1",
+        "V11.1.4",
+        "V2.5.1",
+        "V6.2.1",
+        "V5.2.1",
+        "V2.1.2",
+        "V2.2.1",
+        "V4.3.2",
+        "V5.2.2",
+        "V5.3.2",
+        "V8.2.1",
+        "V8.3.1",
+        "V4.3.1",
+        "V5.1.2"
+      ],
+      "by_chapter": {
+        "V2": [
+          "V2.3.1",
+          "V2.1.1",
+          "V2.7.1",
+          "V2.5.1",
+          "V2.1.2",
+          "V2.2.1"
+        ],
+        "V4": [
+          "V4.1.1",
+          "V4.2.1",
+          "V4.1.2",
+          "V4.2.2",
+          "V4.3.2",
+          "V4.3.1"
+        ],
+        "V5": [
+          "V5.1.1",
+          "V5.3.1",
+          "V5.2.1",
+          "V5.2.2",
+          "V5.3.2",
+          "V5.1.2"
+        ],
+        "V6": [
+          "V6.1.1",
+          "V6.2.1"
+        ],
+        "V8": [
+          "V8.2.2",
+          "V8.1.1",
+          "V8.2.1",
+          "V8.3.1"
+        ],
+        "V11": [
+          "V11.1.2",
+          "V11.1.1",
+          "V11.1.3",
+          "V11.1.4"
+        ]
+      },
+      "coverage": {
+        "V2": "full",
+        "V3": "partial"
+      }
+    },
+    "gaps": [
+      "Weak Authentication Bypass - Insufficient access control implementation",
+      "IDOR - Lack of robust input validation and authorization mechanisms"
+    ],
+    "priorities": [
+      "critical",
+      "high"
+    ]
+  },
+  "agent_logs": [
+    {
+      "timestamp": "2026-01-13T02:25:31.764876",
+      "agent": "orchestrator",
+      "action": "analysis_complete",
+      "data": {
+        "threats_count": 5,
+        "methodology": "stride",
+        "summary": {
+          "total_threats": 5,
+          "by_severity": {
+            "critical": 2,
+            "high": 3,
+            "medium": 0,
+            "low": 0
+          },
+          "by_category": {
+            "Spoofing": 1,
+            "Tampering": 1,
+            "Elevation of Privilege": 1,
+            "Information Disclosure": 1,
+            "Denial of Service": 1
+          },
+          "average_risk": 7.56,
+          "errors": []
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "error": "ReportRepository.create() got an unexpected keyword argument 'format'"
+  },
+  "dfd_mermaid": "flowchart TB\n\n    %% Styling\n    classDef external fill:#e1f5fe,stroke:#0277bd,stroke-width:2px\n    classDef process fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px\n    classDef datastore fill:#fff3e0,stroke:#ef6c00,stroke-width:2px\n    classDef threat fill:#ffebee,stroke:#c62828,stroke-width:3px\n\n    subgraph External[\"External Entities\"]\n        user[(\"\ud83d\udc64 User\")]\n        admin[(\"\ud83d\udc54 Admin\")]\n        external_api[(\"\ud83c\udf10 External API\")]\n    end\n\n    subgraph TrustBoundary[\"Trust Boundary\"]\n        subgraph Frontend[\"Frontend Layer\"]\n            web_app[\"\ud83d\udda5\ufe0f Web Application\"]\n        end\n\n        subgraph Backend[\"Backend Layer\"]\n            api_gateway[\"\ud83d\udeaa API Gateway\"]\n            auth_service[\"\ud83d\udd10 Auth Service\"]\n            core_api[\"\u2699\ufe0f Core API\"]\n        end\n\n        subgraph Data[\"Data Layer\"]\n            database[(\"\ud83d\udcbe Database\")]\n            cache[(\"\u26a1 Cache\")]\n        end\n    end\n\n    %% Data Flows\n    user -->|\"\ud83d\udd12 HTTPS\"| web_app\n    admin -->|\"\ud83d\udd12 HTTPS + MFA\"| web_app\n    web_app -->|\"\ud83d\udd12 API Calls\"| api_gateway\n    api_gateway -->|\"\ud83d\udd12 Auth Check\"| auth_service\n    api_gateway -->|\"\ud83d\udd12 Business Logic\"| core_api\n    auth_service -->|\"\ud83d\udd12 User Data\"| database\n    core_api -->|\"\ud83d\udd12 CRUD\"| database\n    core_api -->|\"\u26a0\ufe0f Session\"| cache\n    core_api -->|\"\ud83d\udd12 External Call\"| external_api\n\n    %% Apply Styles\n    class user,admin,external_api external\n    class web_app,api_gateway,auth_service,core_api process\n    class database,cache datastore\n    class web_app,auth_service,database threat",
+  "devsecops_rules": {
+    "checkov": {
+      "custom_policies": [
+        {
+          "id": "CKV_CUSTOM_1",
+          "name": "check_spoofing_1",
+          "description": "Weak Authentication Bypass",
+          "severity": "CRITICAL",
+          "category": "Security",
+          "resource_types": [
+            "aws_api_gateway_rest_api",
+            "aws_cognito_user_pool"
+          ],
+          "guideline": "Implement Multi-Factor Authentication (MFA) for all users.",
+          "check": "ensure_authentication_enabled"
+        },
+        {
+          "id": "CKV_CUSTOM_2",
+          "name": "check_tampering_2",
+          "description": "SQL Injection Vulnerability",
+          "severity": "CRITICAL",
+          "category": "Security",
+          "resource_types": [
+            "aws_rds_instance",
+            "aws_dynamodb_table"
+          ],
+          "guideline": "Implement parameterized queries or prepared statements to prevent SQL injection.",
+          "check": "ensure_secure_tampering"
+        },
+        {
+          "id": "CKV_CUSTOM_3",
+          "name": "check_elevation_of_privilege_3",
+          "description": "IDOR (Insecure Direct Object Reference)",
+          "severity": "HIGH",
+          "category": "Security",
+          "resource_types": [
+            "aws_instance",
+            "aws_security_group"
+          ],
+          "guideline": "Implement robust authorization checks for all API endpoints and web pages.",
+          "check": "ensure_secure_elevation_of_privilege"
+        },
+        {
+          "id": "CKV_CUSTOM_4",
+          "name": "check_information_disclosure_4",
+          "description": "Exposure of Sensitive Data due to Lack of Access Controls",
+          "severity": "HIGH",
+          "category": "Security",
+          "resource_types": [
+            "aws_s3_bucket",
+            "aws_ebs_volume"
+          ],
+          "guideline": "Implement strict access controls based on the principle of least privilege.",
+          "check": "ensure_secure_information_disclosure"
+        },
+        {
+          "id": "CKV_CUSTOM_5",
+          "name": "check_denial_of_service_5",
+          "description": "Resource Exhaustion via Malicious Input",
+          "severity": "HIGH",
+          "category": "Security",
+          "resource_types": [
+            "aws_rds_instance",
+            "aws_dynamodb_table"
+          ],
+          "guideline": "Implement rate limiting to restrict the number of requests from a single source.",
+          "check": "ensure_secure_denial_of_service"
+        }
+      ],
+      "config_file": "{\n  \"soft-fail-on\": [],\n  \"skip-check\": [],\n  \"custom-policies-dir\": \"./custom_policies\",\n  \"external-modules-download-path\": \".external_modules\"\n}"
+    },
+    "tfsec": {
+      "custom_rules": [
+        {
+          "id": "CUSTOM001",
+          "description": "Weak Authentication Bypass",
+          "impact": "Due to a lack of information regarding authentication mechanisms, an attacker could potentially bypass authentication controls, gaining unauthorized access to the system. This could involve exploiting vulnerabilities in the authentication process, such as weak passwords, lack of multi-factor authentication, or vulnerabilities in the authentication libraries themselves.",
+          "resolution": "Implement Multi-Factor Authentication (MFA) for all users.",
+          "severity": "CRITICAL",
+          "provider": "aws",
+          "resource_type": "aws_security_group",
+          "attribute": "ingress",
+          "check": {
+            "attribute": "description",
+            "not_empty": true
+          }
+        },
+        {
+          "id": "CUSTOM002",
+          "description": "SQL Injection Vulnerability",
+          "impact": "Without knowing the application's data handling practices and input validation, there's a high risk of SQL injection vulnerabilities. An attacker could inject malicious SQL code into input fields, allowing them to manipulate the database, potentially stealing data, modifying records, or even gaining control of the database server.",
+          "resolution": "Implement parameterized queries or prepared statements to prevent SQL injection.",
+          "severity": "CRITICAL",
+          "provider": "aws",
+          "resource_type": "aws_security_group",
+          "attribute": "ingress",
+          "check": {
+            "attribute": "description",
+            "not_empty": true
+          }
+        },
+        {
+          "id": "CUSTOM003",
+          "description": "IDOR (Insecure Direct Object Reference)",
+          "impact": "Without knowing the application's authorization mechanisms, there's a risk of IDOR vulnerabilities. An attacker could manipulate URLs or other parameters to access resources or perform actions that they are not authorized to perform, potentially gaining elevated privileges or accessing sensitive data.",
+          "resolution": "Implement robust authorization checks for all API endpoints and web pages.",
+          "severity": "HIGH",
+          "provider": "aws",
+          "resource_type": "aws_security_group",
+          "attribute": "ingress",
+          "check": {
+            "attribute": "cidr_blocks",
+            "not_contains": "0.0.0.0/0"
+          }
+        },
+        {
+          "id": "CUSTOM004",
+          "description": "Exposure of Sensitive Data due to Lack of Access Controls",
+          "impact": "The absence of information regarding access controls and data classification creates a significant risk of unauthorized access to sensitive data.  If data is not properly classified and access controls are not implemented, attackers could potentially gain access to confidential information, leading to data breaches and compliance violations.",
+          "resolution": "Implement strict access controls based on the principle of least privilege.",
+          "severity": "HIGH",
+          "provider": "aws",
+          "resource_type": "aws_security_group",
+          "attribute": "ingress",
+          "check": {
+            "attribute": "encrypted",
+            "equals": true
+          }
+        },
+        {
+          "id": "CUSTOM005",
+          "description": "Resource Exhaustion via Malicious Input",
+          "impact": "The system's vulnerability to denial-of-service (DoS) attacks is heightened due to the lack of information about its architecture and security controls. An attacker could flood the system with requests or inject malicious data that consumes excessive resources, leading to service outages.",
+          "resolution": "Implement rate limiting to restrict the number of requests from a single source.",
+          "severity": "HIGH",
+          "provider": "aws",
+          "resource_type": "aws_security_group",
+          "attribute": "ingress",
+          "check": {
+            "attribute": "description",
+            "not_empty": true
+          }
+        }
+      ],
+      "config_file": "{\n  \"minimum_severity\": \"LOW\",\n  \"exclude\": [],\n  \"custom_check_dir\": \"./tfsec_rules\"\n}"
+    },
+    "semgrep": {
+      "rules": [
+        {
+          "id": "security-custom-1",
+          "message": "Weak Authentication Bypass",
+          "severity": "ERROR",
+          "languages": [
+            "python",
+            "javascript",
+            "typescript"
+          ],
+          "metadata": {
+            "category": "security",
+            "threat_category": "Spoofing",
+            "confidence": "HIGH",
+            "cwe": "CWE-287",
+            "owasp": "A07:2021"
+          },
+          "patterns": [
+            {
+              "pattern": "password = \"...\""
+            },
+            {
+              "pattern": "secret = \"...\""
+            },
+            {
+              "pattern": "api_key = \"...\""
+            }
+          ]
+        },
+        {
+          "id": "security-custom-2",
+          "message": "SQL Injection Vulnerability",
+          "severity": "ERROR",
+          "languages": [
+            "python",
+            "javascript",
+            "typescript"
+          ],
+          "metadata": {
+            "category": "security",
+            "threat_category": "Tampering",
+            "confidence": "HIGH",
+            "cwe": "CWE-89",
+            "owasp": "A03:2021"
+          },
+          "patterns": [
+            {
+              "pattern": "cursor.execute($QUERY)",
+              "pattern-not": "cursor.execute($QUERY, $PARAMS)"
+            }
+          ],
+          "fix": "cursor.execute($QUERY, (params,))"
+        },
+        {
+          "id": "security-custom-3",
+          "message": "IDOR (Insecure Direct Object Reference)",
+          "severity": "ERROR",
+          "languages": [
+            "python",
+            "javascript",
+            "typescript"
+          ],
+          "metadata": {
+            "category": "security",
+            "threat_category": "Elevation of Privilege",
+            "confidence": "HIGH",
+            "cwe": "CWE-269",
+            "owasp": "A01:2021"
+          },
+          "patterns": [
+            {
+              "pattern": "eval($X)"
+            },
+            {
+              "pattern": "exec($X)"
+            }
+          ]
+        },
+        {
+          "id": "security-custom-4",
+          "message": "Exposure of Sensitive Data due to Lack of Access Controls",
+          "severity": "ERROR",
+          "languages": [
+            "python",
+            "javascript",
+            "typescript"
+          ],
+          "metadata": {
+            "category": "security",
+            "threat_category": "Information Disclosure",
+            "confidence": "HIGH",
+            "cwe": "CWE-200",
+            "owasp": "A01:2021"
+          },
+          "patterns": [
+            {
+              "pattern": "print($SENSITIVE)"
+            },
+            {
+              "pattern": "console.log($SENSITIVE)"
+            }
+          ]
+        },
+        {
+          "id": "security-custom-5",
+          "message": "Resource Exhaustion via Malicious Input",
+          "severity": "ERROR",
+          "languages": [
+            "python",
+            "javascript",
+            "typescript"
+          ],
+          "metadata": {
+            "category": "security",
+            "threat_category": "Denial of Service",
+            "confidence": "HIGH",
+            "cwe": "CWE-400",
+            "owasp": "A05:2021"
+          },
+          "patterns": [
+            {
+              "pattern": "eval($X)"
+            },
+            {
+              "pattern": "exec($X)"
+            }
+          ]
+        }
+      ],
+      "config_file": "rules:\n- id: security-custom-1\n  languages:\n  - python\n  - javascript\n  - typescript\n  message: Weak Authentication Bypass\n  metadata:\n    category: security\n    confidence: HIGH\n    cwe: CWE-287\n    owasp: A07:2021\n    threat_category: Spoofing\n  patterns:\n  - pattern: password = \"...\"\n  - pattern: secret = \"...\"\n  - pattern: api_key = \"...\"\n  severity: ERROR\n- fix: cursor.execute($QUERY, (params,))\n  id: security-custom-2\n  languages:\n  - python\n  - javascript\n  - typescript\n  message: SQL Injection Vulnerability\n  metadata:\n    category: security\n    confidence: HIGH\n    cwe: CWE-89\n    owasp: A03:2021\n    threat_category: Tampering\n  patterns:\n  - pattern: cursor.execute($QUERY)\n    pattern-not: cursor.execute($QUERY, $PARAMS)\n  severity: ERROR\n- id: security-custom-3\n  languages:\n  - python\n  - javascript\n  - typescript\n  message: IDOR (Insecure Direct Object Reference)\n  metadata:\n    category: security\n    confidence: HIGH\n    cwe: CWE-269\n    owasp: A01:2021\n    threat_category: Elevation of Privilege\n  patterns:\n  - pattern: eval($X)\n  - pattern: exec($X)\n  severity: ERROR\n- id: security-custom-4\n  languages:\n  - python\n  - javascript\n  - typescript\n  message: Exposure of Sensitive Data due to Lack of Access Controls\n  metadata:\n    category: security\n    confidence: HIGH\n    cwe: CWE-200\n    owasp: A01:2021\n    threat_category: Information Disclosure\n  patterns:\n  - pattern: print($SENSITIVE)\n  - pattern: console.log($SENSITIVE)\n  severity: ERROR\n- id: security-custom-5\n  languages:\n  - python\n  - javascript\n  - typescript\n  message: Resource Exhaustion via Malicious Input\n  metadata:\n    category: security\n    confidence: HIGH\n    cwe: CWE-400\n    owasp: A05:2021\n    threat_category: Denial of Service\n  patterns:\n  - pattern: eval($X)\n  - pattern: exec($X)\n  severity: ERROR\n"
+    },
+    "summary": {
+      "total_rules": 15,
+      "by_tool": {
+        "checkov": 5,
+        "tfsec": 5,
+        "semgrep": 5
+      }
+    }
+  },
+  "pasta_stages": null,
+  "source_data": null,
+  "created_at": "2026-01-13T02:24:23.875843",
+  "completed_at": "2026-01-13T02:25:31.762662",
+  "_ts": "2026-01-13T02:25:31.769671"
+}

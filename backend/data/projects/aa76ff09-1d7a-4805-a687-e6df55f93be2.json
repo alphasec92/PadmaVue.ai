@@ -1,0 +1,26 @@
+{
+  "id": "aa76ff09-1d7a-4805-a687-e6df55f93be2",
+  "name": "test 1",
+  "description": "",
+  "status": "ingested",
+  "files": [
+    {
+      "original_name": "Claude.pdf",
+      "safe_name": "0615570f9ea13694.pdf",
+      "size": 1205590,
+      "hash": "8b9144260622f45a2d66ed839b8c770ce5048748d55f71071965736863e0ac8b",
+      "mime_type": "application/pdf",
+      "path": "./uploads/aa76ff09-1d7a-4805-a687-e6df55f93be2/0615570f9ea13694.pdf",
+      "added_at": "2025-12-15T00:01:40.459246"
+    }
+  ],
+  "metadata": {
+    "source": "api_upload",
+    "upload_time": "2025-12-15T00:01:40.455701",
+    "files_count": 1,
+    "errors": null
+  },
+  "created_at": "2025-12-15T00:01:40.455729",
+  "updated_at": "2025-12-15T00:01:40.459918",
+  "_ts": "2025-12-15T00:01:40.459921"
+}

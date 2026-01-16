@@ -1,0 +1,42 @@
+{
+  "id": "THR-2254A0A6",
+  "category": "Repudiation",
+  "title": "Lack of Audit Logging",
+  "description": "The absence of information regarding audit logging practices creates a significant risk of repudiation. Without detailed logs of user actions, system events, and data modifications, it becomes impossible to trace back malicious activities or determine accountability in case of a security incident.",
+  "affected_component": "System Logs",
+  "attack_vector": "Malicious actors can operate with impunity, making it difficult to identify and prosecute them.",
+  "dread_score": {
+    "damage": 6,
+    "reproducibility": 9,
+    "exploitability": 5,
+    "affected_users": 7,
+    "discoverability": 7
+  },
+  "overall_risk": 6.8,
+  "severity": "high",
+  "mitigations": [
+    "Implement comprehensive audit logging of all critical system events.",
+    "Securely store audit logs and regularly review them for suspicious activity.",
+    "Establish clear accountability procedures and processes."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-6",
+      "AU-12",
+      "AU-2",
+      "AU-3",
+      "AU-6",
+      "AU-9"
+    ],
+    "OWASP_ASVS": [
+      "V7.1.1",
+      "V7.1.2",
+      "V7.2.1",
+      "V7.2.2",
+      "V7.3.1"
+    ]
+  },
+  "analysis_id": "c8d9a5aa-b85e-408d-805a-bc60033aa3d1",
+  "stored_at": "2026-01-15T01:55:14.853272",
+  "_ts": "2026-01-15T01:55:14.853277"
+}

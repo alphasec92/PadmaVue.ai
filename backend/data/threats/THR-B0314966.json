@@ -1,0 +1,43 @@
+{
+  "id": "THR-B0314966",
+  "category": "Elevation of Privilege",
+  "title": "Default Configuration Vulnerability \u2013 Root Access",
+  "description": "The system utilizes default configurations, potentially including default credentials or unnecessary privileges, allowing an attacker to gain elevated access and control.",
+  "affected_component": "System Configuration, Operating System",
+  "attack_vector": "Exploitation of default credentials or vulnerabilities in the system's configuration to gain root or administrator access.",
+  "dread_score": {
+    "damage": 10,
+    "reproducibility": 9,
+    "exploitability": 8,
+    "affected_users": 10,
+    "discoverability": 7
+  },
+  "overall_risk": 8.8,
+  "severity": "critical",
+  "mitigations": [
+    "Change all default credentials immediately.",
+    "Remove unnecessary services and accounts.",
+    "Implement strict access controls based on the principle of least privilege."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-2",
+      "AC-3",
+      "AC-6",
+      "CM-7",
+      "SC-2",
+      "SI-7"
+    ],
+    "OWASP_ASVS": [
+      "V4.1.1",
+      "V4.1.2",
+      "V4.2.1",
+      "V4.2.2",
+      "V4.3.1",
+      "V4.3.2"
+    ]
+  },
+  "analysis_id": "94a255b9-3f53-4058-8270-9a7a207ce418",
+  "stored_at": "2026-01-15T05:37:40.838226",
+  "_ts": "2026-01-15T05:37:40.838248"
+}

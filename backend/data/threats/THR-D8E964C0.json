@@ -1,0 +1,48 @@
+{
+  "id": "THR-D8E964C0",
+  "category": "Spoofing",
+  "title": "Weak Authentication Bypass",
+  "description": "An attacker could potentially bypass authentication mechanisms due to weak or missing authentication factors. This could involve exploiting vulnerabilities in the authentication process itself, or leveraging default credentials or known vulnerabilities in the authentication libraries used.",
+  "affected_component": "Authentication Module",
+  "attack_vector": "Exploiting vulnerabilities in the authentication logic, using brute-force attacks against weak passwords, or leveraging default credentials.",
+  "dread_score": {
+    "damage": 8,
+    "reproducibility": 7,
+    "exploitability": 7,
+    "affected_users": 9,
+    "discoverability": 6
+  },
+  "overall_risk": 7.4,
+  "severity": "high",
+  "mitigations": [
+    "Implement Multi-Factor Authentication (MFA) for all users.",
+    "Enforce strong password policies (length, complexity, rotation).",
+    "Regularly audit authentication logs for suspicious activity and unusual login attempts."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-17",
+      "AC-3",
+      "AU-2",
+      "AU-3",
+      "AU-6",
+      "IA-2",
+      "IA-2(1)",
+      "IA-2(2)",
+      "IA-5",
+      "IA-8",
+      "SC-8"
+    ],
+    "OWASP_ASVS": [
+      "V2.1.1",
+      "V2.1.2",
+      "V2.2.1",
+      "V2.3.1",
+      "V2.5.1",
+      "V2.7.1"
+    ]
+  },
+  "analysis_id": "86953506-5df3-4c6d-9f70-3da77a3495d6",
+  "stored_at": "2026-01-13T01:09:23.620781",
+  "_ts": "2026-01-13T01:09:23.620789"
+}

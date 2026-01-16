@@ -1,0 +1,44 @@
+{
+  "id": "THR-63FF20B1",
+  "category": "Denial of Service",
+  "title": "Uncontrolled Resource Consumption \u2013 Brute Force Attack",
+  "description": "The system is vulnerable to brute-force attacks due to a lack of rate limiting and proper input validation, leading to excessive resource consumption and potential service disruption.",
+  "affected_component": "Authentication Service, Web Server",
+  "attack_vector": "An attacker repeatedly attempts to guess passwords or other credentials, overwhelming the system's resources and causing it to become unresponsive.",
+  "dread_score": {
+    "damage": 7,
+    "reproducibility": 8,
+    "exploitability": 7,
+    "affected_users": 9,
+    "discoverability": 6
+  },
+  "overall_risk": 7.4,
+  "severity": "high",
+  "mitigations": [
+    "Implement rate limiting on authentication attempts.",
+    "Use CAPTCHA or other challenge-response mechanisms.",
+    "Monitor system resources for suspicious activity."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-20",
+      "AU-6",
+      "CP-9",
+      "IA-2",
+      "IA-5",
+      "IA-8",
+      "SC-5",
+      "SC-7",
+      "SI-17"
+    ],
+    "OWASP_ASVS": [
+      "V11.1.1",
+      "V11.1.2",
+      "V11.1.3",
+      "V11.1.4"
+    ]
+  },
+  "analysis_id": "94a255b9-3f53-4058-8270-9a7a207ce418",
+  "stored_at": "2026-01-15T05:37:40.933047",
+  "_ts": "2026-01-15T05:37:40.933056"
+}

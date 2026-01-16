@@ -1,0 +1,8 @@
+{
+  "id": "a0f6b568-0d0f-4b12-a58f-c3a5ce272f84",
+  "name": "Security Review - web application",
+  "description": "{\"system_type\": \"web application\", \"components\": [\"React Frontend\", \"Node.js Backend\", \"PostgreSQL Database\"], \"data_types\": [\"User Credentials\", \"Customer Payment Information (tokenized)\"], \"auth_method\": \"JWT with bcrypt\", \"network_exposure\": \"public internet (HTTPS)\", \"compliance\": [\"GDPR\", \"PCI-DSS\"], \"ai_involved\": false, \"infrastructure\": \"AWS (CloudFront, WAF, ALB, Secrets Manager)\"}",
+  "created_at": "2025-12-16T01:17:14.958206",
+  "source": "ai_architect_chat",
+  "_ts": "2025-12-16T01:17:14.958242"
+}

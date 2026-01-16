@@ -1,0 +1,43 @@
+{
+  "id": "THR-C8B12703",
+  "category": "Elevation of Privilege",
+  "title": "IDOR Vulnerability in API Access Control",
+  "description": "The system may lack proper authorization checks, allowing users to access resources or perform actions they are not authorized to perform by manipulating parameters in API requests. Without knowing the authorization mechanisms, it's impossible to accurately assess this risk.",
+  "affected_component": "API Endpoints",
+  "attack_vector": "An attacker exploits vulnerabilities in the API authorization logic to gain access to resources or perform actions belonging to another user or with elevated privileges.",
+  "dread_score": {
+    "damage": 8,
+    "reproducibility": 7,
+    "exploitability": 7,
+    "affected_users": 8,
+    "discoverability": 6
+  },
+  "overall_risk": 7.2,
+  "severity": "high",
+  "mitigations": [
+    "Implement robust authorization checks for all API endpoints.",
+    "Use a principle of least privilege to restrict user access to only the resources they need.",
+    "Regularly review and test API authorization controls."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-2",
+      "AC-3",
+      "AC-6",
+      "CM-7",
+      "SC-2",
+      "SI-7"
+    ],
+    "OWASP_ASVS": [
+      "V4.1.1",
+      "V4.1.2",
+      "V4.2.1",
+      "V4.2.2",
+      "V4.3.1",
+      "V4.3.2"
+    ]
+  },
+  "analysis_id": "9b8e5e23-7d12-4a0b-9421-b188d6a33255",
+  "stored_at": "2026-01-13T02:14:00.513759",
+  "_ts": "2026-01-13T02:14:00.513763"
+}

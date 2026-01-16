@@ -1,0 +1,12 @@
+{
+  "id": "88e87e61-9ff9-4f62-9e47-cc01b3cfea58",
+  "name": "Security Review - houhio...",
+  "description": "System Type: event_driven\nDescription: houhio\nComponents: Not specified\n\nAI/ML: no\n\n\n\nData Types: user_credentials\nData Storage: Not specified\nData Flow: Not specified\n\nAuthentication: jwt, mtls\nAuthorization: Not specified\n\nNetwork Exposure: Not specified\nEncryption: Not specified\nSecrets Management: gcp_secrets\n\nCompliance Requirements: None specified\nSecurity Concerns: None specified\nAdditional Context: .nlkn",
+  "created_at": "2025-12-15T02:01:14.714058",
+  "source": "architect_form",
+  "architecture_types": [
+    "event_driven"
+  ],
+  "methodology": "stride",
+  "_ts": "2025-12-15T02:01:14.714070"
+}

@@ -1,0 +1,26 @@
+{
+  "id": "54027c83-ac85-45e8-b026-a9c8e478b98c",
+  "name": "mango",
+  "description": "",
+  "status": "ingested",
+  "files": [
+    {
+      "original_name": "README.md",
+      "safe_name": "2b7814d3fca2e99e.md",
+      "size": 9870,
+      "hash": "37169b0c858b664ddda5790f4cfdd8750c14759824341e9ab81949051e831399",
+      "mime_type": "text/markdown",
+      "path": "./uploads/54027c83-ac85-45e8-b026-a9c8e478b98c/2b7814d3fca2e99e.md",
+      "added_at": "2026-01-13T00:15:44.517503"
+    }
+  ],
+  "metadata": {
+    "source": "api_upload",
+    "upload_time": "2026-01-13T00:15:44.508637",
+    "files_count": 1,
+    "errors": null
+  },
+  "created_at": "2026-01-13T00:15:44.508659",
+  "updated_at": "2026-01-13T00:15:44.518207",
+  "_ts": "2026-01-13T00:15:44.518211"
+}

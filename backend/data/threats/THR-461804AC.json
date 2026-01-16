@@ -1,0 +1,43 @@
+{
+  "id": "THR-461804AC",
+  "category": "Elevation of Privilege",
+  "title": "IDOR (Insecure Direct Object Reference)",
+  "description": "Without knowing how the system handles user-supplied identifiers (e.g., database keys, file names), there's a risk of IDOR vulnerabilities. An attacker could manipulate these identifiers to access resources or perform actions that they shouldn't be authorized to do, potentially gaining elevated privileges.",
+  "affected_component": "API Endpoints, Data Access Layer",
+  "attack_vector": "Exploiting vulnerabilities in how the system resolves object references \u2013 manipulating URLs or parameters to access unauthorized resources.",
+  "dread_score": {
+    "damage": 7,
+    "reproducibility": 8,
+    "exploitability": 7,
+    "affected_users": 9,
+    "discoverability": 6
+  },
+  "overall_risk": 7.4,
+  "severity": "high",
+  "mitigations": [
+    "Implement access controls based on user roles and permissions.",
+    "Avoid using predictable or easily guessable object identifiers.",
+    "Use indirect object references (e.g., GUIDs) to obfuscate the underlying resource."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-2",
+      "AC-3",
+      "AC-6",
+      "CM-7",
+      "SC-2",
+      "SI-7"
+    ],
+    "OWASP_ASVS": [
+      "V4.1.1",
+      "V4.1.2",
+      "V4.2.1",
+      "V4.2.2",
+      "V4.3.1",
+      "V4.3.2"
+    ]
+  },
+  "analysis_id": "c8d9a5aa-b85e-408d-805a-bc60033aa3d1",
+  "stored_at": "2026-01-15T01:55:14.851575",
+  "_ts": "2026-01-15T01:55:14.851581"
+}
