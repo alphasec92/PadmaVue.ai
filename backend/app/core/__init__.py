@@ -1,5 +1,5 @@
 """
-Core modules for SecurityReview.ai
+Core modules for PadmaVue.ai
 """
 
 from app.core.logging import (

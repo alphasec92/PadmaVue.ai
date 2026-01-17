@@ -60,6 +60,8 @@ export default function AIArchitectPage() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [showSessions, setShowSessions] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [projectName, setProjectName] = useState('');
+  const [projectNameError, setProjectNameError] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   // Web Search (Grounded Responses)
@@ -157,6 +159,8 @@ export default function AIArchitectPage() {
     setReadyForThreatModel(false);
     setResult(null);
     setError(null);
+    setProjectName('');
+    setProjectNameError(false);
   };
 
   const sendMessage = async () => {
@@ -235,10 +239,18 @@ export default function AIArchitectPage() {
   };
 
   const generateThreatModel = async () => {
+    // Validate project name
+    if (!projectName.trim()) {
+      setProjectNameError(true);
+      setError('Project Name is required before generating a threat model');
+      return;
+    }
+    
     if (!sessionId || generating) return;
     
     setGenerating(true);
     setError(null);
+    setProjectNameError(false);
     
     try {
       const response = await api.request<{
@@ -253,7 +265,7 @@ export default function AIArchitectPage() {
       }>('/api/architect-chat/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ session_id: sessionId })
+        body: JSON.stringify({ session_id: sessionId, project_name: projectName.trim() })
       });
       
       setResult(response);
@@ -279,11 +291,15 @@ export default function AIArchitectPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-primary to-purple-600 rounded-xl">
+            <motion.div 
+              whileHover={{ rotate: [0, -10, 10, -5, 5, 0] }}
+              transition={{ duration: 0.5 }}
+              className="p-2 bg-gradient-to-br from-watercolor-coral to-watercolor-pink rounded-xl shadow-lg shadow-watercolor-coral/20"
+            >
               <Shield className="w-6 h-6 text-white" />
-            </div>
+            </motion.div>
             <div>
-              <h1 className="text-2xl font-bold">AI Security Consultant</h1>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-watercolor-coral to-watercolor-blue bg-clip-text text-transparent">AI Security Consultant</h1>
               <p className="text-sm text-muted-foreground">
                 Intelligent threat modeling through conversation
               </p>
@@ -393,8 +409,13 @@ export default function AIArchitectPage() {
             <div className="bg-muted/30 rounded-xl border border-border min-h-[500px] max-h-[600px] overflow-auto p-4">
               {messages.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-center p-8">
-                  <Bot className="w-16 h-16 text-primary/50 mb-4" />
-                  <h3 className="text-xl font-semibold mb-2">Start a Conversation</h3>
+                  <motion.div
+                    animate={{ y: [0, -5, 0] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  >
+                    <Bot className="w-16 h-16 text-watercolor-coral/50 mb-4" />
+                  </motion.div>
+                  <h3 className="text-xl font-semibold mb-2 bg-gradient-to-r from-watercolor-coral to-watercolor-blue bg-clip-text text-transparent">Start a Conversation</h3>
                   <p className="text-muted-foreground max-w-md mb-6">
                     Describe your system architecture, and I'll help you identify security threats
                     and create a comprehensive threat model.
@@ -405,13 +426,14 @@ export default function AIArchitectPage() {
                       "We have a microservices architecture on AWS",
                       "I need to review security for our payment system"
                     ].map((suggestion, i) => (
-                      <button
+                      <motion.button
                         key={i}
+                        whileHover={{ scale: 1.02, borderColor: 'hsl(5 64% 69% / 0.5)' }}
                         onClick={() => setInput(suggestion)}
-                        className="px-3 py-2 bg-muted hover:bg-primary/10 rounded-lg text-sm transition-all"
+                        className="px-3 py-2 bg-muted hover:bg-watercolor-coral/10 rounded-lg text-sm transition-all border border-transparent"
                       >
                         {suggestion}
-                      </button>
+                      </motion.button>
                     ))}
                   </div>
                 </div>
@@ -428,15 +450,15 @@ export default function AIArchitectPage() {
                       )}
                     >
                       {msg.role === 'assistant' && (
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                          <Bot className="w-5 h-5 text-primary" />
+                        <div className="w-8 h-8 rounded-full bg-watercolor-coral/10 flex items-center justify-center flex-shrink-0">
+                          <Bot className="w-5 h-5 text-watercolor-coral" />
                         </div>
                       )}
                       
                       <div className={cn(
                         "max-w-[80%] rounded-xl p-4",
                         msg.role === 'user'
-                          ? "bg-primary text-white"
+                          ? "bg-gradient-to-r from-watercolor-coral to-watercolor-pink text-white shadow-lg shadow-watercolor-coral/20"
                           : "bg-muted"
                       )}>
                         {/* Web-grounded badge */}
@@ -565,12 +587,12 @@ export default function AIArchitectPage() {
                       animate={{ opacity: 1 }}
                       className="flex gap-3"
                     >
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Bot className="w-5 h-5 text-primary" />
+                      <div className="w-8 h-8 rounded-full bg-watercolor-coral/10 flex items-center justify-center">
+                        <Bot className="w-5 h-5 text-watercolor-coral" />
                       </div>
                       <div className="bg-muted rounded-xl p-4">
                         <div className="flex items-center gap-2">
-                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <Loader2 className="w-4 h-4 animate-spin text-watercolor-coral" />
                           <span className="text-sm">Analyzing...</span>
                         </div>
                       </div>
@@ -624,7 +646,7 @@ export default function AIArchitectPage() {
                   className={cn(
                     "px-4 rounded-lg transition-all flex items-center justify-center",
                     input.trim() && !loading
-                      ? "bg-primary text-white hover:bg-primary/90"
+                      ? "bg-gradient-to-r from-watercolor-coral to-watercolor-pink text-white hover:shadow-lg hover:shadow-watercolor-coral/30"
                       : "bg-muted text-muted-foreground cursor-not-allowed"
                   )}
                 >
@@ -642,24 +664,47 @@ export default function AIArchitectPage() {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="p-4 bg-green-500/10 border border-green-500/30 rounded-xl"
+                className={cn(
+                  "p-4 rounded-xl border",
+                  !projectName.trim() 
+                    ? "bg-amber-500/10 border-amber-500/30" 
+                    : "bg-green-500/10 border-green-500/30"
+                )}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <CheckCircle2 className="w-6 h-6 text-green-500" />
+                    {!projectName.trim() ? (
+                      <AlertTriangle className="w-6 h-6 text-amber-500" />
+                    ) : (
+                      <CheckCircle2 className="w-6 h-6 text-green-500" />
+                    )}
                     <div>
-                      <p className="font-semibold text-green-600 dark:text-green-400">
-                        Ready to Generate Threat Model
+                      <p className={cn(
+                        "font-semibold",
+                        !projectName.trim() 
+                          ? "text-amber-600 dark:text-amber-400" 
+                          : "text-green-600 dark:text-green-400"
+                      )}>
+                        {!projectName.trim() 
+                          ? "Enter Project Name to Continue" 
+                          : "Ready to Generate Threat Model"}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        Completeness: {Math.round(completenessScore * 100)}%
+                        {!projectName.trim() 
+                          ? "Project name is required" 
+                          : `Completeness: ${Math.round(completenessScore * 100)}%`}
                       </p>
                     </div>
                   </div>
                   <button
                     onClick={generateThreatModel}
-                    disabled={generating}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all"
+                    disabled={generating || !projectName.trim()}
+                    className={cn(
+                      "flex items-center gap-2 px-5 py-2.5 text-white rounded-lg transition-all",
+                      !projectName.trim() 
+                        ? "bg-amber-600/50 cursor-not-allowed" 
+                        : "bg-green-600 hover:bg-green-700"
+                    )}
                   >
                     {generating ? (
                       <>
@@ -716,7 +761,7 @@ export default function AIArchitectPage() {
                       <div className="flex gap-3 mt-4">
                         <Link
                           href={`/review?analysis_id=${result.analysis_id}`}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-primary text-white rounded-xl font-medium"
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-watercolor-coral to-watercolor-pink text-white rounded-xl font-medium shadow-lg shadow-watercolor-coral/20 hover:shadow-watercolor-coral/30 transition-shadow"
                         >
                           <FileText className="w-5 h-5" />
                           View Full Analysis
@@ -724,7 +769,7 @@ export default function AIArchitectPage() {
                         </Link>
                         <Link
                           href={`/dfd?analysis_id=${result.analysis_id}`}
-                          className="px-4 py-3 bg-purple-500/20 text-purple-600 dark:text-purple-400 rounded-xl font-medium"
+                          className="px-4 py-3 bg-watercolor-blue/20 text-watercolor-blue rounded-xl font-medium hover:bg-watercolor-blue/30 transition-colors"
                         >
                           View DFD
                         </Link>
@@ -738,6 +783,45 @@ export default function AIArchitectPage() {
 
           {/* Right Sidebar - World Model */}
           <div className="space-y-4">
+            {/* Project Information - Required */}
+            <div className={cn(
+              "bg-muted/30 rounded-xl border p-4 transition-colors",
+              projectNameError ? "border-red-500 bg-red-500/5" : "border-border"
+            )}>
+              <h3 className="font-semibold mb-3 flex items-center gap-2">
+                <FileText className="w-4 h-4" />
+                Project Information
+              </h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Project Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={projectName}
+                    onChange={(e) => {
+                      setProjectName(e.target.value);
+                      if (e.target.value.trim()) setProjectNameError(false);
+                    }}
+                    placeholder="e.g., E-Commerce Platform"
+                    className={cn(
+                      "w-full px-3 py-2 rounded-lg bg-background border outline-none transition-all text-sm",
+                      projectNameError 
+                        ? "border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20" 
+                        : "border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
+                    )}
+                  />
+                  {projectNameError && (
+                    <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
+                      <AlertTriangle className="w-3 h-3" />
+                      Required before generating threat model
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+            
             {/* Completeness */}
             <div className="bg-muted/30 rounded-xl border border-border p-4">
               <h3 className="font-semibold mb-3 flex items-center gap-2">
@@ -857,8 +941,8 @@ export default function AIArchitectPage() {
             </div>
 
             {/* Tips */}
-            <div className="bg-blue-500/5 border border-blue-500/20 rounded-xl p-4">
-              <h3 className="font-semibold mb-2 flex items-center gap-2 text-blue-600">
+            <div className="bg-watercolor-coral/5 border border-watercolor-coral/20 rounded-xl p-4">
+              <h3 className="font-semibold mb-2 flex items-center gap-2 text-watercolor-coral">
                 <AlertTriangle className="w-4 h-4" />
                 Tips
               </h3>

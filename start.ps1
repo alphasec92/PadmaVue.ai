@@ -1,5 +1,5 @@
 # ===========================================
-# SecurityReview.ai - Start Script (Windows)
+# PadmaVue.ai - Start Script (Windows)
 # ===========================================
 # Usage: .\start.ps1 [options]
 #   -Backend    Start backend only
@@ -23,6 +23,9 @@ $ErrorActionPreference = "Stop"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $ScriptDir
 
+# Source common functions
+. "$ScriptDir\scripts\common\Common.ps1"
+
 # Minimum versions
 $MinPythonMajor = 3
 $MinPythonMinor = 11
@@ -32,21 +35,6 @@ $MinNpmMajor = 9
 # ===========================================
 # Helper Functions
 # ===========================================
-
-function Write-Banner {
-    Write-Host ""
-    Write-Host "===========================================================" -ForegroundColor Cyan
-    Write-Host "              SecurityReview.ai                            " -ForegroundColor Cyan
-    Write-Host "          AI-Powered Threat Modeling Platform              " -ForegroundColor Cyan
-    Write-Host "===========================================================" -ForegroundColor Cyan
-    Write-Host ""
-}
-
-function Write-Step($message) { Write-Host "`n> $message" -ForegroundColor Blue }
-function Write-Success($message) { Write-Host "[OK] $message" -ForegroundColor Green }
-function Write-Warning($message) { Write-Host "[WARN] $message" -ForegroundColor Yellow }
-function Write-Error($message) { Write-Host "[ERROR] $message" -ForegroundColor Red }
-function Write-Info($message) { Write-Host "[INFO] $message" -ForegroundColor Cyan }
 
 function Show-Help {
     Write-Host @"
@@ -70,26 +58,6 @@ Examples:
   .\start.ps1 -Reset       # Clean reinstall
 "@
     exit 0
-}
-
-function Test-Command($command) {
-    return $null -ne (Get-Command $command -ErrorAction SilentlyContinue)
-}
-
-function Test-Port($port) {
-    $connection = Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue
-    return $null -ne $connection
-}
-
-function Stop-ProcessOnPort($port) {
-    $connections = Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue
-    foreach ($conn in $connections) {
-        $process = Get-Process -Id $conn.OwningProcess -ErrorAction SilentlyContinue
-        if ($process) {
-            Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
-        }
-    }
-    Start-Sleep -Seconds 1
 }
 
 # ===========================================
@@ -478,12 +446,14 @@ function Start-DockerFull {
     
     Write-Info "Building and starting containers..."
     
+    $composePath = Get-ComposePath "compose.full.yml"
+    
     # Try modern docker compose first
     try {
-        docker compose -f compose.full.yml up --build -d
+        docker compose -f $composePath up --build -d
     } catch {
         # Fall back to docker-compose
-        docker-compose -f compose.full.yml up --build -d
+        docker-compose -f $composePath up --build -d
     }
     
     Write-Host ""
@@ -494,8 +464,8 @@ function Start-DockerFull {
     Write-Host "  Neo4j:     http://localhost:7474 (user: neo4j)"
     Write-Host "  Qdrant:    http://localhost:6333"
     Write-Host ""
-    Write-Host "  Stop with: docker compose -f compose.full.yml down"
-    Write-Host "  Logs:      docker compose -f compose.full.yml logs -f"
+    Write-Host "  Stop with: docker compose -f $composePath down"
+    Write-Host "  Logs:      docker compose -f $composePath logs -f"
 }
 
 # ===========================================
@@ -547,7 +517,7 @@ if (-not $Backend) {
 # Success message
 Write-Host ""
 Write-Host "===========================================================" -ForegroundColor Green
-Write-Host "     SecurityReview.ai is running! (Lite Mode)             " -ForegroundColor Green
+Write-Host "         PadmaVue.ai is running! (Lite Mode)              " -ForegroundColor Green
 Write-Host "===========================================================" -ForegroundColor Green
 Write-Host ""
 Write-Host "  Open: " -NoNewline

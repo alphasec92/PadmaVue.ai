@@ -1,6 +1,6 @@
 #!/bin/bash
 # ===========================================
-# SecurityReview.ai - Push Docker Images to ECR
+# PadmaVue.ai - Push Docker Images to ECR
 # ===========================================
 
 set -e
@@ -9,7 +9,7 @@ set -e
 AWS_REGION=${AWS_REGION:-"us-east-1"}
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 ECR_REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-APP_NAME="securityreview"
+APP_NAME="padmavue"
 
 # Colors for output
 RED='\033[0;31m'
@@ -18,7 +18,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 echo -e "${GREEN}=========================================${NC}"
-echo -e "${GREEN}SecurityReview.ai - ECR Push Script${NC}"
+echo -e "${GREEN}PadmaVue.ai - ECR Push Script${NC}"
 echo -e "${GREEN}=========================================${NC}"
 echo ""
 echo "AWS Region: ${AWS_REGION}"

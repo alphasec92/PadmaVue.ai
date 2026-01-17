@@ -1,5 +1,5 @@
 # ===========================================
-# SecurityReview.ai - AWS Infrastructure
+# PadmaVue.ai - AWS Infrastructure
 # Terraform configuration for ECS deployment
 # ===========================================
 
@@ -15,7 +15,7 @@ terraform {
   
   # Uncomment for remote state storage
   # backend "s3" {
-  #   bucket         = "securityreview-terraform-state"
+  #   bucket         = "padmavue-terraform-state"
   #   key            = "terraform.tfstate"
   #   region         = "us-east-1"
   #   encrypt        = true
@@ -28,7 +28,7 @@ provider "aws" {
   
   default_tags {
     tags = {
-      Project     = "SecurityReview.ai"
+      Project     = "PadmaVue.ai"
       Environment = var.environment
       ManagedBy   = "Terraform"
     }
@@ -54,7 +54,7 @@ variable "environment" {
 variable "app_name" {
   description = "Application name"
   type        = string
-  default     = "securityreview"
+  default     = "padmavue"
 }
 
 variable "domain_name" {
@@ -314,7 +314,7 @@ resource "aws_lb_listener_rule" "api" {
 
 resource "aws_secretsmanager_secret" "app_secrets" {
   name        = "${var.app_name}/secrets"
-  description = "Application secrets for SecurityReview.ai"
+  description = "Application secrets for PadmaVue.ai"
 
   tags = {
     Name = "${var.app_name}-secrets"

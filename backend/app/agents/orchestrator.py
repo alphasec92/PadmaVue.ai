@@ -41,7 +41,7 @@ class AnalysisState(TypedDict):
     project_id: str
     project_data: Dict[str, Any]
     analysis_type: str
-    methodology: str  # "stride" or "pasta"
+    methodology: str  # Primary: "stride" or "pasta"
     
     # Configuration
     include_dfd: bool
@@ -49,6 +49,11 @@ class AnalysisState(TypedDict):
     include_devsecops: bool
     compliance_frameworks: List[str]
     severity_threshold: str
+    
+    # MAESTRO (Agentic AI) overlay configuration
+    include_maestro: bool
+    force_maestro: bool
+    maestro_confidence_threshold: float
     
     # Processing state
     current_phase: str
@@ -161,24 +166,53 @@ class SecurityOrchestrator:
             }
     
     async def _run_threat_modeling(self, state: AnalysisState) -> Dict[str, Any]:
-        """Run threat modeling agent with selected methodology"""
+        """Run threat modeling agent with selected methodology and optional MAESTRO overlay"""
         methodology = state.get("methodology", "stride")
-        logger.info(f"Running {methodology.upper()} threat modeling", project_id=state["project_id"])
+        include_maestro = state.get("include_maestro", False)
+        force_maestro = state.get("force_maestro", False)
+        maestro_threshold = state.get("maestro_confidence_threshold", 0.6)
+        
+        logger.info(
+            f"Running {methodology.upper()} threat modeling",
+            project_id=state["project_id"],
+            include_maestro=include_maestro,
+            force_maestro=force_maestro
+        )
         
         try:
+            # Get parsed content from files if available
+            parsed_content = None
+            project_data = state.get("project_data", {})
+            files = project_data.get("files", [])
+            for file in files:
+                if file.get("parsed_content"):
+                    parsed_content = (parsed_content or "") + "\n" + file["parsed_content"]
+            
             results = await self.threat_agent.run(
-                project_data=state["project_data"],
+                project_data=project_data,
                 elicitation_results=state.get("elicitation_results", {}),
                 severity_threshold=state.get("severity_threshold", "low"),
-                methodology=methodology
+                methodology=methodology,
+                # MAESTRO overlay parameters
+                include_maestro=include_maestro,
+                force_maestro=force_maestro,
+                maestro_confidence_threshold=maestro_threshold,
+                parsed_content=parsed_content
             )
             
             threat_count = len(results.get("threats", []))
+            maestro_count = len(results.get("maestro_threats", []))
+            
+            message = f"{methodology.upper()} analysis complete: {threat_count} threats"
+            if include_maestro:
+                applicability = results.get("maestro_applicability", {})
+                status = applicability.get("status", "not_detected")
+                message += f" | MAESTRO: {status} ({maestro_count} threats)"
             
             return {
                 "current_phase": AnalysisPhase.COMPLIANCE,
                 "threat_results": results,
-                "messages": [{"role": "assistant", "content": f"{methodology.upper()} analysis complete: {threat_count} threats"}]
+                "messages": [{"role": "assistant", "content": message}]
             }
         except Exception as e:
             logger.error("Threat modeling failed", error=str(e))
@@ -317,6 +351,10 @@ class SecurityOrchestrator:
             if severity in severity_counts:
                 severity_counts[severity] += 1
         
+        # Extract MAESTRO results from threat_results
+        maestro_applicability = threat_results.get("maestro_applicability")
+        maestro_threats = threat_results.get("maestro_threats", [])
+        
         # Compile final results
         final_results = {
             "methodology": methodology.upper(),
@@ -325,12 +363,18 @@ class SecurityOrchestrator:
                 "by_severity": severity_counts,
                 "by_category": self._count_by_category(formatted_threats),
                 "average_risk": self._calculate_average_risk(formatted_threats),
-                "errors": state.get("errors", [])
+                "errors": state.get("errors", []),
+                # MAESTRO summary
+                "maestro_status": maestro_applicability.get("status") if maestro_applicability else None,
+                "maestro_threats_count": len(maestro_threats)
             },
             "threats": formatted_threats,
             "compliance_summary": state.get("compliance_results", {}),
             "dfd_mermaid": state.get("diagram_results", {}).get("mermaid_code"),
-            "devsecops_rules": state.get("devsecops_results", {})
+            "devsecops_rules": state.get("devsecops_results", {}),
+            # MAESTRO (Agentic AI) results
+            "maestro_applicability": maestro_applicability,
+            "maestro_threats": maestro_threats
         }
         
         # Add PASTA stages if applicable
@@ -365,7 +409,11 @@ class SecurityOrchestrator:
         include_compliance: bool = True,
         include_devsecops: bool = True,
         compliance_frameworks: List[str] = None,
-        severity_threshold: str = "low"
+        severity_threshold: str = "low",
+        # MAESTRO (Agentic AI) overlay parameters
+        include_maestro: bool = False,
+        force_maestro: bool = False,
+        maestro_confidence_threshold: float = 0.6
     ) -> Dict[str, Any]:
         """
         Run the full security analysis workflow.
@@ -374,15 +422,18 @@ class SecurityOrchestrator:
             project_id: Project identifier
             project_data: Project metadata and content
             analysis_type: Type of analysis
-            methodology: "stride" or "pasta"
+            methodology: Primary methodology - "stride" or "pasta"
             include_dfd: Generate DFD diagram
             include_compliance: Include compliance mapping
             include_devsecops: Generate DevSecOps rules
             compliance_frameworks: List of compliance frameworks
             severity_threshold: Minimum severity to report
+            include_maestro: Include MAESTRO (Agentic AI) threat analysis
+            force_maestro: Force MAESTRO even if not auto-detected
+            maestro_confidence_threshold: Confidence threshold for MAESTRO applicability
         
         Returns:
-            Complete analysis results
+            Complete analysis results including MAESTRO if applicable
         """
         if compliance_frameworks is None:
             compliance_frameworks = ["NIST_800_53", "OWASP_ASVS"]
@@ -397,6 +448,11 @@ class SecurityOrchestrator:
             "include_devsecops": include_devsecops,
             "compliance_frameworks": compliance_frameworks,
             "severity_threshold": severity_threshold,
+            # MAESTRO overlay settings
+            "include_maestro": include_maestro,
+            "force_maestro": force_maestro,
+            "maestro_confidence_threshold": maestro_confidence_threshold,
+            # Processing state
             "current_phase": AnalysisPhase.ELICITATION,
             "messages": [],
             "elicitation_results": None,
@@ -409,16 +465,27 @@ class SecurityOrchestrator:
             "errors": []
         }
         
-        logger.info("Starting security analysis workflow",
-                   project_id=project_id,
-                   methodology=methodology,
-                   analysis_type=analysis_type)
+        logger.info(
+            "Starting security analysis workflow",
+            project_id=project_id,
+            methodology=methodology,
+            analysis_type=analysis_type,
+            include_maestro=include_maestro,
+            force_maestro=force_maestro
+        )
         
         final_state = await self.graph.ainvoke(initial_state)
         
-        logger.info("Security analysis complete",
-                   project_id=project_id,
-                   methodology=methodology,
-                   threats_found=len(final_state.get("final_results", {}).get("threats", [])))
+        final_results = final_state.get("final_results", {})
+        threat_count = len(final_results.get("threats", []))
+        maestro_count = len(final_results.get("maestro_threats", []))
         
-        return final_state.get("final_results", {})
+        logger.info(
+            "Security analysis complete",
+            project_id=project_id,
+            methodology=methodology,
+            threats_found=threat_count,
+            maestro_threats=maestro_count if include_maestro else 0
+        )
+        
+        return final_results

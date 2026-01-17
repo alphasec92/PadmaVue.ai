@@ -129,7 +129,7 @@ class OpenRouterProvider(LLMProvider):
         client = AsyncOpenAI(api_key=self.api_key, base_url="https://openrouter.ai/api/v1")
         msgs = ([{"role": "system", "content": system}] if system else []) + [{"role": "user", "content": prompt}]
         r = await client.chat.completions.create(model=self.model, messages=msgs, temperature=temp, max_tokens=max_tokens,
-            extra_headers={"HTTP-Referer": "https://securityreview.ai"})
+            extra_headers={"HTTP-Referer": "https://padmavue.ai"})
         return r.choices[0].message.content
 
 

@@ -1,6 +1,6 @@
 # Environment Templates
 
-This folder contains environment variable templates for the SecurityReview.ai application.
+This folder contains environment variable templates for the PadmaVue.ai application.
 
 ## Setup Instructions
 

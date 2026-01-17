@@ -1,13 +1,16 @@
 #!/bin/bash
 # ===========================================
-# SecurityReview.ai - Stop Script (Mac/Linux)
+# PadmaVue.ai - Stop Script (Mac/Linux)
 # ===========================================
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-echo "Stopping SecurityReview.ai..."
+# Source common functions
+source "$SCRIPT_DIR/scripts/common/common.sh"
+
+echo "Stopping PadmaVue.ai..."
 
 # Stop backend
 if [ -f "$SCRIPT_DIR/.backend.pid" ]; then
@@ -28,23 +31,23 @@ if [ -f "$SCRIPT_DIR/.frontend.pid" ]; then
 fi
 
 # Kill any remaining processes on ports
-if command -v lsof &>/dev/null; then
-    lsof -ti :8000 2>/dev/null | xargs kill -9 2>/dev/null || true
-    lsof -ti :3000 2>/dev/null | xargs kill -9 2>/dev/null || true
-elif command -v fuser &>/dev/null; then
-    fuser -k 8000/tcp 2>/dev/null || true
-    fuser -k 3000/tcp 2>/dev/null || true
-fi
+kill_port 8000
+kill_port 3000
 
 # Stop Docker containers if running
-if command -v docker &>/dev/null; then
-    if docker compose -f compose.lite.yml ps 2>/dev/null | grep -q "Up"; then
+if command_exists docker; then
+    compose_cmd=$(get_docker_compose_cmd 2>/dev/null || echo "docker compose")
+    
+    lite_compose=$(get_compose_path "compose.lite.yml")
+    if $compose_cmd -f "$lite_compose" ps 2>/dev/null | grep -q "Up"; then
         echo "Stopping Docker containers (lite)..."
-        docker compose -f compose.lite.yml down 2>/dev/null || docker-compose -f compose.lite.yml down 2>/dev/null || true
+        $compose_cmd -f "$lite_compose" down 2>/dev/null || true
     fi
-    if docker compose -f compose.full.yml ps 2>/dev/null | grep -q "Up"; then
+    
+    full_compose=$(get_compose_path "compose.full.yml")
+    if $compose_cmd -f "$full_compose" ps 2>/dev/null | grep -q "Up"; then
         echo "Stopping Docker containers (full)..."
-        docker compose -f compose.full.yml down 2>/dev/null || docker-compose -f compose.full.yml down 2>/dev/null || true
+        $compose_cmd -f "$full_compose" down 2>/dev/null || true
     fi
 fi
 

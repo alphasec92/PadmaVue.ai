@@ -1,6 +1,6 @@
 #!/bin/bash
 # ===========================================
-# SecurityReview.ai - Test Runner
+# PadmaVue.ai - Test Runner
 # ===========================================
 
 set -euo pipefail
@@ -15,7 +15,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
 echo -e "${BLUE}=========================================${NC}"
-echo -e "${BLUE}SecurityReview.ai - Test Suite${NC}"
+echo -e "${BLUE}PadmaVue.ai - Test Suite${NC}"
 echo -e "${BLUE}=========================================${NC}"
 echo ""
 

@@ -1,11 +1,12 @@
 """
 Export API Endpoints
 Generate comprehensive security reports in PDF and JSON formats
+With OWASP reference citations (deterministic mapping, no hallucination)
 """
 
 import io
 import json
-from typing import Optional
+from typing import Optional, List, Dict, Any
 from datetime import datetime
 from pathlib import Path
 
@@ -20,6 +21,12 @@ from app.storage.repository import (
     report_repo,
 )
 from app.core.logging import audit_logger
+from app.core.references import get_reference_registry, format_references_for_report
+from app.services.reference_mapper import (
+    get_reference_mapper,
+    get_references_for_report_type,
+    ReferenceMapper
+)
 
 logger = structlog.get_logger()
 router = APIRouter()
@@ -223,7 +230,7 @@ def _build_report_data(
         "meta": {
             "report_type": report_type,
             "generated_at": datetime.utcnow().isoformat(),
-            "generator": "SecurityReview.ai",
+            "generator": "PadmaVue.ai",
             "version": "1.0.0"
         },
         "project": {
@@ -315,7 +322,92 @@ def _build_report_data(
     if include_mitigations:
         report["remediation_roadmap"] = _generate_remediation_roadmap(threats)
     
+    # ===========================================
+    # OWASP Reference Citations
+    # Deterministic mapping - no hallucination
+    # ===========================================
+    has_ai = _detect_ai_involvement(threats, project.description or "")
+    has_agents = _detect_agentic_involvement(threats, project.description or "")
+    
+    reference_data = get_references_for_report_type(
+        findings=threats,
+        report_type=report_type,
+        has_ai=has_ai,
+        has_agents=has_agents
+    )
+    
+    # Add references based on report type
+    if report_type == "full":
+        # Full: Add external references appendix
+        report["external_references"] = reference_data.get("external_references", [])
+        report["reference_summary"] = reference_data.get("reference_summary", {})
+        # Enrich threats with references
+        if "threats" in report:
+            report["threats"] = _enrich_threats_with_references(report["threats"])
+        
+    elif report_type == "executive":
+        # Executive: Brief standards section
+        report["standards_guidance"] = {
+            "referenced_standards": reference_data.get("standards_referenced", []),
+            "summary": reference_data.get("standards_summary", "")
+        }
+        
+    elif report_type == "technical":
+        # Technical: Full references + mapping methodology
+        report["external_references"] = reference_data.get("external_references", [])
+        report["owasp_mapping_notes"] = reference_data.get("owasp_mapping_notes", "")
+        # Enrich threats with references
+        if "threats" in report:
+            report["threats"] = _enrich_threats_with_references(report["threats"])
+        
+    elif report_type == "compliance":
+        # Compliance: Governance references
+        report["control_governance_references"] = reference_data.get("control_governance_references", [])
+        report["finding_reference_mapping"] = reference_data.get("finding_reference_mapping", [])
+        report["compliance_disclaimer"] = reference_data.get("compliance_note", "")
+    
+    # Flag unmapped findings for all report types
+    if reference_data.get("unmapped_findings"):
+        report["unmapped_findings"] = reference_data["unmapped_findings"]
+    
     return report
+
+
+def _detect_ai_involvement(threats: list, description: str) -> bool:
+    """Detect if the system involves AI/LLM based on threats and description"""
+    ai_keywords = ["llm", "ai", "gpt", "chatbot", "model", "machine learning", "neural", "embedding", "langchain"]
+    text = description.lower()
+    for threat in threats:
+        text += " " + str(threat.get("title", "")).lower()
+        text += " " + str(threat.get("description", "")).lower()
+    return any(kw in text for kw in ai_keywords)
+
+
+def _detect_agentic_involvement(threats: list, description: str) -> bool:
+    """Detect if the system involves AI agents based on threats and description"""
+    agent_keywords = ["agent", "agentic", "autonomous", "tool calling", "function calling", "mcp", "multi-agent"]
+    text = description.lower()
+    for threat in threats:
+        text += " " + str(threat.get("title", "")).lower()
+        text += " " + str(threat.get("description", "")).lower()
+        # Check for MAESTRO categories
+        if threat.get("maestro_category") or threat.get("agent_category"):
+            return True
+    return any(kw in text for kw in agent_keywords)
+
+
+def _enrich_threats_with_references(threats: list) -> list:
+    """Add reference information to each threat"""
+    mapper = get_reference_mapper()
+    enriched = []
+    for threat in threats:
+        result = mapper.map_references(threat)
+        enriched_threat = dict(threat)
+        enriched_threat["reference_ids"] = result.reference_ids
+        enriched_threat["references"] = format_references_for_report(result.reference_ids)
+        enriched_threat["reference_confidence"] = result.confidence
+        enriched.append(enriched_threat)
+    return enriched
 
 
 def _calculate_risk_rating(severity_counts: dict, avg_risk: float) -> str:
@@ -394,165 +486,263 @@ def _generate_remediation_roadmap(threats: list) -> list:
 
 
 def _generate_pdf(report_data: dict, report_type: str) -> bytes:
-    """Generate PDF report using HTML template"""
+    """Generate PDF report - uses reportlab which is more portable"""
     try:
-        # Try using weasyprint for PDF generation
-        from weasyprint import HTML, CSS
+        # Use reportlab which is more portable (doesn't require system libraries)
+        from reportlab.lib.pagesizes import letter, A4
+        from reportlab.lib import colors
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.units import inch
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
         
-        html_content = _generate_html_report(report_data, report_type)
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=0.75*inch, bottomMargin=0.75*inch)
         
-        # Generate PDF
-        pdf = HTML(string=html_content).write_pdf(
-            stylesheets=[CSS(string=_get_pdf_styles())]
-        )
+        styles = getSampleStyleSheet()
+        # Use custom style names to avoid conflicts with built-in styles
+        styles.add(ParagraphStyle(name='ReportTitle', fontSize=24, spaceAfter=30, textColor=colors.HexColor('#E5857B')))
+        styles.add(ParagraphStyle(name='ReportH1', fontSize=18, spaceAfter=12, spaceBefore=20, textColor=colors.HexColor('#1f2937')))
+        styles.add(ParagraphStyle(name='ReportH2', fontSize=14, spaceAfter=8, spaceBefore=16, textColor=colors.HexColor('#374151')))
+        styles.add(ParagraphStyle(name='ReportBody', fontSize=10, spaceAfter=6, textColor=colors.HexColor('#4b5563')))
+        styles.add(ParagraphStyle(name='ReportSmall', fontSize=8, textColor=colors.HexColor('#6b7280')))
         
-        return pdf
+        elements = []
+        
+        # Title
+        elements.append(Paragraph("Security Assessment Report", styles['ReportTitle']))
+        elements.append(Paragraph(f"Generated: {report_data['meta']['generated_at']}", styles['ReportSmall']))
+        elements.append(Spacer(1, 20))
+        
+        # Project Info
+        elements.append(Paragraph("Project Information", styles['ReportH1']))
+        project = report_data['project']
+        elements.append(Paragraph(f"<b>Name:</b> {project['name']}", styles['ReportBody']))
+        elements.append(Paragraph(f"<b>Description:</b> {project['description']}", styles['ReportBody']))
+        elements.append(Paragraph(f"<b>Methodology:</b> {report_data['analysis']['methodology']}", styles['ReportBody']))
+        elements.append(Spacer(1, 15))
+        
+        # Summary
+        elements.append(Paragraph("Executive Summary", styles['ReportH1']))
+        summary = report_data['summary']
+        
+        summary_data = [
+            ['Metric', 'Value'],
+            ['Total Threats', str(summary['total_threats'])],
+            ['Overall Risk Rating', summary['risk_rating']],
+            ['Average Risk Score', str(summary['average_risk_score'])],
+            ['Critical', str(summary['severity_breakdown']['critical'])],
+            ['High', str(summary['severity_breakdown']['high'])],
+            ['Medium', str(summary['severity_breakdown']['medium'])],
+            ['Low', str(summary['severity_breakdown']['low'])],
+        ]
+        
+        table = Table(summary_data, colWidths=[3*inch, 2*inch])
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#E5857B')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+            ('TOPPADDING', (0, 0), (-1, -1), 8),
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#e5e7eb')),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#f9fafb')),
+            ('ALIGN', (1, 0), (1, -1), 'CENTER'),
+        ]))
+        elements.append(table)
+        elements.append(Spacer(1, 20))
+        
+        # Threats
+        if 'threats' in report_data:
+            elements.append(PageBreak())
+            elements.append(Paragraph("Identified Threats", styles['ReportH1']))
+            
+            for i, threat in enumerate(report_data['threats'][:20], 1):  # Limit to 20
+                severity_colors = {
+                    'critical': '#ef4444',
+                    'high': '#f97316',
+                    'medium': '#eab308',
+                    'low': '#22c55e'
+                }
+                sev = threat.get('severity', 'medium').lower()
+                sev_color = severity_colors.get(sev, '#6b7280')
+                
+                elements.append(Paragraph(
+                    f"<b>{i}. {threat['title']}</b> "
+                    f"<font color='{sev_color}'>[{threat.get('severity', 'Medium').upper()}]</font> "
+                    f"<font color='#6b7280'>Risk: {threat.get('overall_risk', 'N/A')}</font>",
+                    styles['ReportH2']
+                ))
+                elements.append(Paragraph(f"{threat.get('description', 'No description')}", styles['ReportBody']))
+                elements.append(Paragraph(f"<b>Affected:</b> {threat.get('affected_component', 'N/A')}", styles['ReportBody']))
+                
+                if threat.get('mitigations'):
+                    elements.append(Paragraph("<b>Mitigations:</b>", styles['ReportBody']))
+                    for m in threat['mitigations'][:3]:
+                        elements.append(Paragraph(f"  • {m}", styles['ReportBody']))
+                
+                # Add reference badges for full/technical reports
+                if threat.get('references') and report_type in ['full', 'technical']:
+                    ref_badges = []
+                    for ref in threat.get('references', [])[:4]:  # Limit to 4 badges
+                        ref_badges.append(f"<font color='#4338ca' size='8'>[{ref.get('title', ref.get('id', ''))}]</font>")
+                    if ref_badges:
+                        elements.append(Paragraph(f"<b>References:</b> {' '.join(ref_badges)}", styles['ReportBody']))
+                
+                elements.append(Spacer(1, 10))
+        
+        # Top threats for executive
+        elif 'top_threats' in report_data:
+            elements.append(Paragraph("Top Priority Threats", styles['ReportH1']))
+            for i, threat in enumerate(report_data['top_threats'], 1):
+                elements.append(Paragraph(
+                    f"<b>{i}. {threat['title']}</b> [{threat['severity'].upper()}]",
+                    styles['ReportH2']
+                ))
+                elements.append(Paragraph(f"<b>Business Impact:</b> {threat['business_impact']}", styles['ReportBody']))
+                elements.append(Paragraph(f"<b>Recommendation:</b> {threat['recommendation']}", styles['ReportBody']))
+                elements.append(Spacer(1, 10))
+        
+        # Remediation Roadmap
+        if 'remediation_roadmap' in report_data:
+            elements.append(PageBreak())
+            elements.append(Paragraph("Remediation Roadmap", styles['ReportH1']))
+            
+            for phase in report_data['remediation_roadmap']:
+                elements.append(Paragraph(f"<b>{phase['phase']}</b>", styles['ReportH2']))
+                for item in phase['items'][:5]:
+                    elements.append(Paragraph(f"• {item['threat']} ({item['severity'].upper()})", styles['ReportBody']))
+                elements.append(Spacer(1, 10))
+        
+        # Data Flow Diagram code
+        if 'data_flow_diagram' in report_data:
+            elements.append(PageBreak())
+            elements.append(Paragraph("Data Flow Diagram (Mermaid)", styles['ReportH1']))
+            elements.append(Paragraph("The following Mermaid code can be rendered using any Mermaid viewer:", styles['ReportBody']))
+            elements.append(Spacer(1, 10))
+            
+            dfd_code = report_data['data_flow_diagram']['mermaid_code']
+            # Truncate if too long
+            if len(dfd_code) > 2000:
+                dfd_code = dfd_code[:2000] + "\n... (truncated)"
+            
+            for line in dfd_code.split('\n')[:30]:
+                elements.append(Paragraph(f"<font face='Courier' size='8'>{line}</font>", styles['ReportBody']))
+        
+        # ===========================================
+        # OWASP Reference Sections (based on report type)
+        # ===========================================
+        
+        # External References Appendix (Full and Technical reports)
+        if report_type in ['full', 'technical'] and report_data.get('external_references'):
+            elements.append(PageBreak())
+            elements.append(Paragraph("External References", styles['ReportH1']))
+            elements.append(Paragraph(
+                "The following OWASP resources were referenced during this security assessment. "
+                "References are mapped deterministically based on finding characteristics.",
+                styles['ReportBody']
+            ))
+            elements.append(Spacer(1, 10))
+            
+            ref_data = [['Reference', 'URL']]
+            for ref in report_data['external_references']:
+                ref_data.append([
+                    ref.get('title', 'Unknown'),
+                    ref.get('url', 'N/A')[:50] + ('...' if len(ref.get('url', '')) > 50 else '')
+                ])
+            
+            if len(ref_data) > 1:
+                ref_table = Table(ref_data, colWidths=[2.5*inch, 4*inch])
+                ref_table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#4338ca')),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                    ('FONTSIZE', (0, 0), (-1, -1), 9),
+                    ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+                    ('TOPPADDING', (0, 0), (-1, -1), 6),
+                    ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#e5e7eb')),
+                    ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#f5f3ff')),
+                    ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                ]))
+                elements.append(ref_table)
+        
+        # Standards & Guidance (Executive report)
+        if report_type == 'executive' and report_data.get('standards_guidance'):
+            elements.append(Spacer(1, 20))
+            elements.append(Paragraph("Standards & Guidance Referenced", styles['ReportH1']))
+            
+            guidance = report_data['standards_guidance']
+            if guidance.get('summary'):
+                elements.append(Paragraph(guidance['summary'], styles['ReportBody']))
+            
+            if guidance.get('referenced_standards'):
+                elements.append(Spacer(1, 10))
+                for std in guidance['referenced_standards'][:5]:
+                    elements.append(Paragraph(
+                        f"• <b>{std.get('title', 'Unknown')}</b>: {std.get('description', '')}",
+                        styles['ReportBody']
+                    ))
+        
+        # Control/Governance References (Compliance report)
+        if report_type == 'compliance' and report_data.get('control_governance_references'):
+            elements.append(PageBreak())
+            elements.append(Paragraph("Control & Governance References", styles['ReportH1']))
+            elements.append(Paragraph(
+                "The following regulatory and guidance frameworks are referenced for control mapping. "
+                "This does not constitute a compliance certification.",
+                styles['ReportBody']
+            ))
+            elements.append(Spacer(1, 10))
+            
+            for ref in report_data['control_governance_references']:
+                elements.append(Paragraph(f"<b>{ref.get('title', 'Unknown')}</b>", styles['ReportH2']))
+                elements.append(Paragraph(f"Scope: {ref.get('scope', 'N/A')}", styles['ReportBody']))
+                elements.append(Paragraph(f"Applicability: {ref.get('applicability', 'N/A')}", styles['ReportBody']))
+                elements.append(Paragraph(f"URL: {ref.get('url', 'N/A')}", styles['ReportBody']))
+                elements.append(Spacer(1, 8))
+            
+            # Compliance disclaimer
+            if report_data.get('compliance_disclaimer'):
+                elements.append(Spacer(1, 15))
+                elements.append(Paragraph(
+                    f"<i>Note: {report_data['compliance_disclaimer']}</i>",
+                    styles['ReportBody']
+                ))
+        
+        # OWASP Mapping Notes (Technical report)
+        if report_type == 'technical' and report_data.get('owasp_mapping_notes'):
+            elements.append(PageBreak())
+            elements.append(Paragraph("OWASP Mapping Methodology", styles['ReportH1']))
+            for para in report_data['owasp_mapping_notes'].strip().split('\n\n'):
+                if para.strip():
+                    elements.append(Paragraph(para.strip(), styles['ReportBody']))
+                    elements.append(Spacer(1, 8))
+        
+        # Unmapped Findings (all report types)
+        if report_data.get('unmapped_findings'):
+            elements.append(Spacer(1, 20))
+            elements.append(Paragraph("Open Questions / Unmapped Findings", styles['ReportH2']))
+            elements.append(Paragraph(
+                "The following findings could not be deterministically mapped to OWASP references "
+                "and require manual review:",
+                styles['ReportBody']
+            ))
+            for uf in report_data['unmapped_findings'][:10]:
+                elements.append(Paragraph(
+                    f"• {uf.get('title', 'Unknown finding')}: {uf.get('reason', 'No mapping rule matched')}",
+                    styles['ReportBody']
+                ))
+        
+        # Build PDF
+        doc.build(elements)
+        
+        return buffer.getvalue()
         
     except ImportError:
-        # Fallback: generate a simple text-based PDF using reportlab
-        try:
-            from reportlab.lib.pagesizes import letter, A4
-            from reportlab.lib import colors
-            from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-            from reportlab.lib.units import inch
-            from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak
-            
-            buffer = io.BytesIO()
-            doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=0.75*inch, bottomMargin=0.75*inch)
-            
-            styles = getSampleStyleSheet()
-            styles.add(ParagraphStyle(name='Title', fontSize=24, spaceAfter=30, textColor=colors.HexColor('#6366f1')))
-            styles.add(ParagraphStyle(name='Heading1', fontSize=18, spaceAfter=12, spaceBefore=20, textColor=colors.HexColor('#1f2937')))
-            styles.add(ParagraphStyle(name='Heading2', fontSize=14, spaceAfter=8, spaceBefore=16, textColor=colors.HexColor('#374151')))
-            styles.add(ParagraphStyle(name='Body', fontSize=10, spaceAfter=6, textColor=colors.HexColor('#4b5563')))
-            styles.add(ParagraphStyle(name='Small', fontSize=8, textColor=colors.HexColor('#6b7280')))
-            
-            elements = []
-            
-            # Title
-            elements.append(Paragraph("Security Assessment Report", styles['Title']))
-            elements.append(Paragraph(f"Generated: {report_data['meta']['generated_at']}", styles['Small']))
-            elements.append(Spacer(1, 20))
-            
-            # Project Info
-            elements.append(Paragraph("Project Information", styles['Heading1']))
-            project = report_data['project']
-            elements.append(Paragraph(f"<b>Name:</b> {project['name']}", styles['Body']))
-            elements.append(Paragraph(f"<b>Description:</b> {project['description']}", styles['Body']))
-            elements.append(Paragraph(f"<b>Methodology:</b> {report_data['analysis']['methodology']}", styles['Body']))
-            elements.append(Spacer(1, 15))
-            
-            # Summary
-            elements.append(Paragraph("Executive Summary", styles['Heading1']))
-            summary = report_data['summary']
-            
-            summary_data = [
-                ['Metric', 'Value'],
-                ['Total Threats', str(summary['total_threats'])],
-                ['Overall Risk Rating', summary['risk_rating']],
-                ['Average Risk Score', str(summary['average_risk_score'])],
-                ['Critical', str(summary['severity_breakdown']['critical'])],
-                ['High', str(summary['severity_breakdown']['high'])],
-                ['Medium', str(summary['severity_breakdown']['medium'])],
-                ['Low', str(summary['severity_breakdown']['low'])],
-            ]
-            
-            table = Table(summary_data, colWidths=[3*inch, 2*inch])
-            table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#6366f1')),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-                ('FONTSIZE', (0, 0), (-1, -1), 10),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-                ('TOPPADDING', (0, 0), (-1, -1), 8),
-                ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#e5e7eb')),
-                ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#f9fafb')),
-                ('ALIGN', (1, 0), (1, -1), 'CENTER'),
-            ]))
-            elements.append(table)
-            elements.append(Spacer(1, 20))
-            
-            # Threats
-            if 'threats' in report_data:
-                elements.append(PageBreak())
-                elements.append(Paragraph("Identified Threats", styles['Heading1']))
-                
-                for i, threat in enumerate(report_data['threats'][:20], 1):  # Limit to 20
-                    severity_colors = {
-                        'critical': '#ef4444',
-                        'high': '#f97316',
-                        'medium': '#eab308',
-                        'low': '#22c55e'
-                    }
-                    sev = threat.get('severity', 'medium').lower()
-                    sev_color = severity_colors.get(sev, '#6b7280')
-                    
-                    elements.append(Paragraph(
-                        f"<b>{i}. {threat['title']}</b> "
-                        f"<font color='{sev_color}'>[{threat.get('severity', 'Medium').upper()}]</font> "
-                        f"<font color='#6b7280'>Risk: {threat.get('overall_risk', 'N/A')}</font>",
-                        styles['Heading2']
-                    ))
-                    elements.append(Paragraph(f"{threat.get('description', 'No description')}", styles['Body']))
-                    elements.append(Paragraph(f"<b>Affected:</b> {threat.get('affected_component', 'N/A')}", styles['Body']))
-                    
-                    if threat.get('mitigations'):
-                        elements.append(Paragraph("<b>Mitigations:</b>", styles['Body']))
-                        for m in threat['mitigations'][:3]:
-                            elements.append(Paragraph(f"  • {m}", styles['Body']))
-                    
-                    elements.append(Spacer(1, 10))
-            
-            # Top threats for executive
-            elif 'top_threats' in report_data:
-                elements.append(Paragraph("Top Priority Threats", styles['Heading1']))
-                for i, threat in enumerate(report_data['top_threats'], 1):
-                    elements.append(Paragraph(
-                        f"<b>{i}. {threat['title']}</b> [{threat['severity'].upper()}]",
-                        styles['Heading2']
-                    ))
-                    elements.append(Paragraph(f"<b>Business Impact:</b> {threat['business_impact']}", styles['Body']))
-                    elements.append(Paragraph(f"<b>Recommendation:</b> {threat['recommendation']}", styles['Body']))
-                    elements.append(Spacer(1, 10))
-            
-            # Remediation Roadmap
-            if 'remediation_roadmap' in report_data:
-                elements.append(PageBreak())
-                elements.append(Paragraph("Remediation Roadmap", styles['Heading1']))
-                
-                for phase in report_data['remediation_roadmap']:
-                    elements.append(Paragraph(f"<b>{phase['phase']}</b>", styles['Heading2']))
-                    for item in phase['items'][:5]:
-                        elements.append(Paragraph(f"• {item['threat']} ({item['severity'].upper()})", styles['Body']))
-                    elements.append(Spacer(1, 10))
-            
-            # Data Flow Diagram code
-            if 'data_flow_diagram' in report_data:
-                elements.append(PageBreak())
-                elements.append(Paragraph("Data Flow Diagram (Mermaid)", styles['Heading1']))
-                elements.append(Paragraph("The following Mermaid code can be rendered using any Mermaid viewer:", styles['Body']))
-                elements.append(Spacer(1, 10))
-                
-                dfd_code = report_data['data_flow_diagram']['mermaid_code']
-                # Truncate if too long
-                if len(dfd_code) > 2000:
-                    dfd_code = dfd_code[:2000] + "\n... (truncated)"
-                
-                for line in dfd_code.split('\n')[:30]:
-                    elements.append(Paragraph(f"<font face='Courier' size='8'>{line}</font>", styles['Body']))
-            
-            # Build PDF
-            doc.build(elements)
-            
-            return buffer.getvalue()
-            
-        except ImportError:
-            # If no PDF library available, return JSON with note
-            logger.warning("No PDF library available, returning JSON instead")
-            return json.dumps({
-                "error": "PDF generation not available",
-                "note": "Install 'weasyprint' or 'reportlab' for PDF export",
-                "data": report_data
-            }, indent=2).encode('utf-8')
+        # If no PDF library available, return JSON with note
+        logger.warning("No PDF library available, returning JSON instead")
+        return json.dumps({
+            "error": "PDF generation not available",
+            "note": "Install 'reportlab' for PDF export",
+            "data": report_data
+        }, indent=2).encode('utf-8')
 
 
 def _generate_html_report(report_data: dict, report_type: str) -> str:
@@ -701,7 +891,7 @@ def _generate_html_report(report_data: dict, report_type: str) -> str:
     
     html += """
         <footer>
-            <p>Generated by SecurityReview.ai | Confidential</p>
+            <p>Generated by PadmaVue.ai | Confidential</p>
         </footer>
     </body>
     </html>

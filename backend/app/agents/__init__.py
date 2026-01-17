@@ -1,5 +1,5 @@
 """
-LangGraph Agents for SecurityReview.ai
+LangGraph Agents for PadmaVue.ai
 Multi-agent system for security analysis
 """
 

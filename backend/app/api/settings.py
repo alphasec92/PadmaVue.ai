@@ -201,7 +201,7 @@ async def test_provider(config: ProviderConfig):
         # Test with a simple prompt
         start_time = time.time()
         response = await provider.generate(
-            prompt="Say 'Hello, SecurityReview.ai!' in exactly those words.",
+            prompt="Say 'Hello, PadmaVue.ai!' in exactly those words.",
             max_tokens=50
         )
         latency_ms = (time.time() - start_time) * 1000

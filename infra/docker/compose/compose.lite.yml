@@ -1,11 +1,11 @@
 # ===========================================
-# SecurityReview.ai - Docker Compose (Lite Mode)
+# PadmaVue.ai - Docker Compose (Lite Mode)
 # Backend + Frontend only - No Neo4j/Qdrant
 # ===========================================
 # Usage:
-#   docker compose -f compose.lite.yml up --build -d
-#   docker compose -f compose.lite.yml logs -f
-#   docker compose -f compose.lite.yml down
+#   docker compose -f infra/docker/compose/compose.lite.yml up --build -d
+#   docker compose -f infra/docker/compose/compose.lite.yml logs -f
+#   docker compose -f infra/docker/compose/compose.lite.yml down
 # ===========================================
 
 services:
@@ -14,13 +14,13 @@ services:
   # ==========================================
   backend:
     build:
-      context: ./backend
+      context: ../../../backend
       dockerfile: Dockerfile
-    container_name: securityreview-backend
+    container_name: padmavue-backend
     ports:
       - "8000:8000"
     env_file:
-      - backend/.env
+      - ../../../backend/.env
     environment:
       - STORAGE_MODE=lite
       - DATA_DIR=/app/data
@@ -28,11 +28,11 @@ services:
       - UPLOAD_DIR=/app/uploads
       - DEBUG=false
     volumes:
-      - ./data:/app/data
-      - ./logs:/app/logs
-      - ./uploads:/app/uploads
+      - ../../../data:/app/data
+      - ../../../logs:/app/logs
+      - ../../../uploads:/app/uploads
     networks:
-      - securityreview-network
+      - padmavue-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
@@ -46,9 +46,9 @@ services:
   # ==========================================
   frontend:
     build:
-      context: ./frontend
+      context: ../../../frontend
       dockerfile: Dockerfile
-    container_name: securityreview-frontend
+    container_name: padmavue-frontend
     ports:
       - "3000:3000"
     environment:
@@ -57,7 +57,7 @@ services:
       backend:
         condition: service_healthy
     networks:
-      - securityreview-network
+      - padmavue-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
@@ -70,5 +70,5 @@ services:
 # Networks
 # ==========================================
 networks:
-  securityreview-network:
+  padmavue-network:
     driver: bridge

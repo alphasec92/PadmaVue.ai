@@ -26,7 +26,7 @@ import {
   HelpCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { MethodologySelector } from '@/components/methodology-selector';
+import { MethodologySelector, type MethodologySettings } from '@/components/methodology-selector';
 import { useProjectStore } from '@/store/project-store';
 import { api } from '@/lib/api';
 
@@ -143,7 +143,13 @@ export default function UploadPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [projectName, setProjectName] = useState('');
   const [description, setDescription] = useState('');
-  const [selectedMethodology, setSelectedMethodology] = useState<'stride' | 'pasta'>('stride');
+  // Methodology settings with MAESTRO overlay support
+  const [methodologySettings, setMethodologySettings] = useState<MethodologySettings>({
+    primary: 'stride',
+    includeMaestro: false,
+    forceMaestro: false,
+    maestroConfidenceThreshold: 0.6
+  });
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<ErrorDetails | null>(null);
@@ -225,16 +231,20 @@ export default function UploadPage() {
 
       // Store project info
       setProjectId(ingestResponse.project_id);
-      setMethodology(selectedMethodology);
+      setMethodology(methodologySettings.primary);
 
-      // Step 2: Run security analysis
+      // Step 2: Run security analysis with MAESTRO overlay if enabled
       setUploadProgress(60);
       const analysisResponse = await api.analyze({
         project_id: ingestResponse.project_id,
-        methodology: selectedMethodology,
+        methodology: methodologySettings.primary,
         include_dfd: true,
         include_compliance: true,
         include_devsecops: true,
+        // MAESTRO (Agentic AI) overlay parameters
+        include_maestro: methodologySettings.includeMaestro,
+        force_maestro: methodologySettings.forceMaestro,
+        maestro_confidence_threshold: methodologySettings.maestroConfidenceThreshold,
       });
 
       setUploadProgress(100);
@@ -259,7 +269,7 @@ export default function UploadPage() {
           className="text-center mb-12"
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-6">
-            <Sparkles className="w-4 h-4 text-primary" />
+            <Sparkles className="w-4 h-4 text-watercolor-coral" />
             <span className="text-sm font-medium">Step 1 of 3</span>
           </div>
           <h1 className="heading-lg mb-4">Start Security Analysis</h1>
@@ -301,7 +311,7 @@ export default function UploadPage() {
               exit={{ opacity: 0 }}
               className="mb-6 p-3 rounded-xl bg-muted/50 flex items-center gap-3"
             >
-              <Loader2 className="w-4 h-4 animate-spin text-primary" />
+              <Loader2 className="w-4 h-4 animate-spin text-watercolor-coral" />
               <span className="text-sm">Checking backend connection...</span>
             </motion.div>
           )}
@@ -321,7 +331,7 @@ export default function UploadPage() {
                 className={cn(
                   'flex-1 flex items-center justify-center gap-3 px-6 py-4 rounded-xl font-medium transition-all',
                   inputMode === 'files' 
-                    ? 'bg-primary text-white shadow-lg shadow-primary/25' 
+                    ? 'bg-gradient-to-r from-watercolor-coral to-watercolor-pink text-white shadow-lg shadow-watercolor-coral/25' 
                     : 'hover:bg-muted'
                 )}
               >
@@ -333,7 +343,7 @@ export default function UploadPage() {
                 className={cn(
                   'flex-1 flex items-center justify-center gap-3 px-6 py-4 rounded-xl font-medium transition-all',
                   inputMode === 'chat' 
-                    ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg shadow-purple-500/25' 
+                    ? 'bg-gradient-to-r from-watercolor-coral to-watercolor-pink text-white shadow-lg shadow-watercolor-coral/25' 
                     : 'hover:bg-muted'
                 )}
               >
@@ -351,10 +361,10 @@ export default function UploadPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="p-6 rounded-2xl glass border-2 border-purple-500/30"
+                className="p-6 rounded-2xl glass border-2 border-watercolor-coral/30"
               >
                 <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-watercolor-coral to-watercolor-pink">
                     <MessageSquare className="w-6 h-6 text-white" />
                   </div>
                   <div className="flex-1">
@@ -437,8 +447,8 @@ export default function UploadPage() {
             className="p-6 rounded-2xl glass"
           >
             <MethodologySelector
-              selected={selectedMethodology}
-              onSelect={setSelectedMethodology}
+              settings={methodologySettings}
+              onSettingsChange={setMethodologySettings}
               disabled={uploading}
             />
           </motion.div>
@@ -466,9 +476,9 @@ export default function UploadPage() {
                   {...getRootProps()}
                   className={cn(
                     'relative p-8 rounded-xl border-2 border-dashed transition-all cursor-pointer',
-                    'hover:border-primary hover:bg-primary/5',
+                    'hover:border-watercolor-coral hover:bg-watercolor-coral/5',
                     isDragActive 
-                      ? 'border-primary bg-primary/10' 
+                      ? 'border-watercolor-coral bg-watercolor-coral/10' 
                       : 'border-border',
                     uploading && 'pointer-events-none opacity-50'
                   )}
@@ -477,11 +487,11 @@ export default function UploadPage() {
                   <div className="text-center">
                     <motion.div
                       animate={isDragActive ? { scale: 1.1, y: -5 } : { scale: 1, y: 0 }}
-                      className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4"
+                      className="w-16 h-16 rounded-2xl bg-watercolor-coral/10 flex items-center justify-center mx-auto mb-4"
                     >
                       <Upload className={cn(
                         'w-8 h-8 transition-colors',
-                        isDragActive ? 'text-primary' : 'text-muted-foreground'
+                        isDragActive ? 'text-watercolor-coral' : 'text-muted-foreground'
                       )} />
                     </motion.div>
                     <p className="text-lg font-medium mb-2">
@@ -538,7 +548,7 @@ export default function UploadPage() {
                 {/* No files hint */}
                 {files.length === 0 && (
                   <p className="text-xs text-muted-foreground mt-4 text-center">
-                    No files? Switch to <button onClick={() => setInputMode('chat')} className="text-primary hover:underline">Chat with AI</button> mode
+                    No files? Switch to <button onClick={() => setInputMode('chat')} className="text-watercolor-coral hover:underline">Chat with AI</button> mode
                   </p>
                 )}
               </motion.div>
@@ -566,7 +576,7 @@ export default function UploadPage() {
                     {error.solution && (
                       <div className="mt-2 p-3 rounded-lg bg-muted/50">
                         <p className="text-sm font-medium mb-1 flex items-center gap-1">
-                          <Zap className="w-3 h-3 text-primary" />
+                          <Zap className="w-3 h-3 text-watercolor-coral" />
                           Solution:
                         </p>
                         <p className="text-sm text-muted-foreground whitespace-pre-wrap">{error.solution}</p>
@@ -599,8 +609,8 @@ export default function UploadPage() {
               className={cn(
                 'flex items-center gap-3 px-8 py-4 rounded-xl font-semibold',
                 inputMode === 'chat' 
-                  ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg shadow-purple-500/25'
-                  : 'bg-gradient-to-r from-primary to-purple-600 text-white shadow-lg shadow-primary/25',
+                  ? 'bg-gradient-to-r from-watercolor-slate to-watercolor-blue text-white shadow-lg shadow-watercolor-slate/25'
+                  : 'bg-gradient-to-r from-watercolor-coral to-watercolor-pink text-white shadow-lg shadow-watercolor-coral/25',
                 'disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none'
               )}
             >
@@ -633,8 +643,8 @@ export default function UploadPage() {
                 className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
               >
                 <div className="p-8 rounded-2xl glass-solid text-center max-w-sm w-full mx-4">
-                  <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                    <Loader2 className="w-10 h-10 text-primary animate-spin" />
+                  <div className="w-20 h-20 rounded-full bg-watercolor-coral/10 flex items-center justify-center mx-auto mb-6">
+                    <Loader2 className="w-10 h-10 text-watercolor-coral animate-spin" />
                   </div>
                   <h3 className="text-xl font-semibold mb-2">
                     {uploadProgress < 50 ? 'Uploading Files' : uploadProgress < 90 ? 'Running Analysis' : 'Finishing Up'}
@@ -648,7 +658,7 @@ export default function UploadPage() {
                   </p>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <motion.div
-                      className="h-full bg-gradient-to-r from-primary to-purple-600"
+                      className="h-full bg-gradient-to-r from-watercolor-coral to-watercolor-pink"
                       initial={{ width: 0 }}
                       animate={{ width: `${uploadProgress}%` }}
                       transition={{ duration: 0.3 }}

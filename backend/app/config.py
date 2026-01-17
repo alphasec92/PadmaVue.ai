@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     # ==========================================
     # Application Settings
     # ==========================================
-    APP_NAME: str = "SecurityReview.ai"
+    APP_NAME: str = "PadmaVue.ai"
     DEBUG: bool = Field(default=False, description="Enable debug mode (disable in production)")
     LOG_LEVEL: str = Field(default="INFO", description="Logging level")
     
@@ -42,7 +42,7 @@ class Settings(BaseSettings):
         default="http://localhost:3000",
         description="Comma-separated list of allowed CORS origins"
     )
-    RATE_LIMIT_PER_MINUTE: int = Field(default=60, description="Rate limit per IP per minute")
+    RATE_LIMIT_PER_MINUTE: int = Field(default=300, description="Rate limit per IP per minute")
     
     # ==========================================
     # Storage Configuration
@@ -139,7 +139,7 @@ class Settings(BaseSettings):
     # Neo4j (GraphRAG)
     NEO4J_URI: str = "bolt://localhost:7687"
     NEO4J_USER: str = "neo4j"
-    NEO4J_PASSWORD: str = Field(default="securityreview", repr=False)
+    NEO4J_PASSWORD: str = Field(default="padmavue", repr=False)
     
     # Qdrant (Vector RAG)
     QDRANT_HOST: str = "localhost"

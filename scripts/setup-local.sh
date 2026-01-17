@@ -1,6 +1,6 @@
 #!/bin/bash
 # ===========================================
-# SecurityReview.ai - Local Setup Script
+# PadmaVue.ai - Local Setup Script
 # Creates virtual environment, directories, and secure configs
 # ===========================================
 
@@ -19,7 +19,7 @@ log_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 echo -e "${BLUE}=========================================${NC}"
-echo -e "${BLUE}SecurityReview.ai - Secure Local Setup${NC}"
+echo -e "${BLUE}PadmaVue.ai - Secure Local Setup${NC}"
 echo -e "${BLUE}=========================================${NC}"
 echo ""
 
@@ -99,12 +99,12 @@ log_info "Setting up environment files..."
 if [ ! -f "$PROJECT_ROOT/backend/.env" ]; then
     cat > "$PROJECT_ROOT/backend/.env" << EOF
 # ===========================================
-# SecurityReview.ai Backend Configuration
+# PadmaVue.ai Backend Configuration
 # Generated: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
 # ===========================================
 
 # Application
-APP_NAME=SecurityReview.ai
+APP_NAME=PadmaVue.ai
 DEBUG=true
 LOG_LEVEL=INFO
 
@@ -154,9 +154,9 @@ fi
 # Frontend .env.local
 if [ ! -f "$PROJECT_ROOT/frontend/.env.local" ]; then
     cat > "$PROJECT_ROOT/frontend/.env.local" << EOF
-# SecurityReview.ai Frontend Configuration
+# PadmaVue.ai Frontend Configuration
 NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
-NEXT_PUBLIC_APP_NAME=SecurityReview.ai
+NEXT_PUBLIC_APP_NAME=PadmaVue.ai
 EOF
     chmod 600 "$PROJECT_ROOT/frontend/.env.local"
     log_success "Created frontend/.env.local"

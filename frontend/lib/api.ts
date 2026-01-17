@@ -156,6 +156,27 @@ interface AnalysisRequest {
   include_devsecops?: boolean;
   compliance_frameworks?: string[];
   severity_threshold?: string;
+  // MAESTRO (Agentic AI) overlay settings
+  include_maestro?: boolean;
+  force_maestro?: boolean;
+  maestro_confidence_threshold?: number;
+}
+
+// MAESTRO Applicability result
+interface MaestroApplicability {
+  applicable: boolean;
+  confidence: number;
+  status: 'detected' | 'not_detected' | 'forced';
+  reasons: string[];
+  evidence: Array<{
+    source: string;
+    snippet: string;
+    signal_type: string;
+    file?: string;
+    confidence: number;
+  }>;
+  signals?: Record<string, string[]>;
+  checked_at?: string;
 }
 
 interface OWASPMapping {
@@ -185,6 +206,13 @@ interface Threat {
   status?: string;
   zone?: string;
   trust_boundary?: string;
+  // MAESTRO-specific fields
+  methodology?: 'stride' | 'pasta' | 'maestro';
+  evidence?: Array<{
+    source: string;
+    snippet: string;
+  }>;
+  trust_level?: 'high' | 'medium' | 'low';
 }
 
 interface AnalysisResponse {
@@ -200,6 +228,9 @@ interface AnalysisResponse {
   dfd_mermaid?: string;
   devsecops_rules?: Record<string, any>;
   pasta_stages?: Record<string, any>;
+  // MAESTRO (Agentic AI) results
+  maestro_applicability?: MaestroApplicability;
+  maestro_threats?: Threat[];
   metadata?: {
     zones?: Zone[];
     trust_boundaries?: TrustBoundary[];
@@ -329,6 +360,10 @@ class ApiClient {
         include_devsecops: request.include_devsecops ?? true,
         compliance_frameworks: request.compliance_frameworks || ['NIST_800_53', 'OWASP_ASVS'],
         severity_threshold: request.severity_threshold || 'low',
+        // MAESTRO (Agentic AI) overlay parameters
+        include_maestro: request.include_maestro ?? false,
+        force_maestro: request.force_maestro ?? false,
+        maestro_confidence_threshold: request.maestro_confidence_threshold ?? 0.6,
       }),
     });
   }
@@ -903,7 +938,7 @@ export type {
   IngestResponse, 
   AnalysisRequest, 
   AnalysisResponse, 
-  Threat,
+  Threat, 
   OWASPMapping, 
   DFDResponse, 
   Methodology,

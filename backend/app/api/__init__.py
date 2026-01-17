@@ -1,5 +1,5 @@
 """
-API Routes for SecurityReview.ai
+API Routes for PadmaVue.ai
 """
 
 from app.api import ingest, analyze, dfd, report, settings, threats, architect, export, mcp

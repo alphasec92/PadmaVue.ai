@@ -1,5 +1,5 @@
 {
-  "family": "securityreview-backend",
+  "family": "padmavue-backend",
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "512",
@@ -77,7 +77,7 @@
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/securityreview-backend",
+          "awslogs-group": "/ecs/padmavue-backend",
           "awslogs-region": "${AWS_REGION}",
           "awslogs-stream-prefix": "ecs"
         }

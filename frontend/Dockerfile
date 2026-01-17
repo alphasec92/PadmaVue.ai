@@ -1,5 +1,5 @@
 # ===========================================
-# SecurityReview.ai Frontend Dockerfile
+# PadmaVue.ai Frontend Dockerfile
 # Security-hardened Next.js application
 # ===========================================
 

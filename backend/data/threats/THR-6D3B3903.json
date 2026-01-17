@@ -1,0 +1,43 @@
+{
+  "id": "THR-6D3B3903",
+  "category": "Information Disclosure",
+  "title": "Lack of Data Classification",
+  "description": "Without a defined data classification scheme, the system doesn't know what data is sensitive. This leads to inconsistent security controls being applied, increasing the risk of unauthorized disclosure of confidential information.  Data that should be protected is not, and vice versa.",
+  "affected_component": "All System Components",
+  "attack_vector": "Accidental exposure through misconfigured access controls, insecure APIs, or vulnerabilities in the application code.",
+  "dread_score": {
+    "damage": 6,
+    "reproducibility": 7,
+    "exploitability": 6,
+    "affected_users": 8,
+    "discoverability": 8
+  },
+  "overall_risk": 7.0,
+  "severity": "high",
+  "mitigations": [
+    "Implement a data classification scheme based on sensitivity levels.",
+    "Apply appropriate security controls based on the classification level (e.g., encryption, access restrictions).",
+    "Regularly review and update the data classification scheme to reflect changing business requirements."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-3",
+      "AC-4",
+      "MP-5",
+      "SC-13",
+      "SC-28",
+      "SC-8"
+    ],
+    "OWASP_ASVS": [
+      "V6.1.1",
+      "V6.2.1",
+      "V8.1.1",
+      "V8.2.1",
+      "V8.2.2",
+      "V8.3.1"
+    ]
+  },
+  "analysis_id": "4db2cfb6-e4d1-46a3-a848-1cb4a06cbb53",
+  "stored_at": "2026-01-15T18:43:25.945921",
+  "_ts": "2026-01-15T18:43:25.945924"
+}

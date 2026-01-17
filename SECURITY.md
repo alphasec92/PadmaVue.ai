@@ -4,10 +4,10 @@
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
-If you discover a security vulnerability in SecurityReview.ai, please report it responsibly:
+If you discover a security vulnerability in PadmaVue.ai, please report it responsibly:
 
-1. **Email**: Send details to [security@securityreview.ai](mailto:security@securityreview.ai)
-2. **GitHub Security Advisory**: Use [GitHub's private vulnerability reporting](https://github.com/yourusername/Securityreview.ai/security/advisories/new)
+1. **Email**: Send details to [security@padmavue.ai](mailto:security@padmavue.ai)
+2. **GitHub Security Advisory**: Use [GitHub's private vulnerability reporting](https://github.com/yourusername/PadmaVue.ai/security/advisories/new)
 
 ### What to Include
 
@@ -31,7 +31,7 @@ If you discover a security vulnerability in SecurityReview.ai, please report it 
 
 ## Security Best Practices
 
-When deploying SecurityReview.ai:
+When deploying PadmaVue.ai:
 
 1. **Never expose to public internet** without authentication
 2. **Change default secrets** in `.env` files
@@ -42,7 +42,7 @@ When deploying SecurityReview.ai:
 ## Scope
 
 This security policy covers:
-- The SecurityReview.ai application code
+- The PadmaVue.ai application code
 - Default configurations
 - Official Docker images
 

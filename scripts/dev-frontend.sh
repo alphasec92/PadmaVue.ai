@@ -1,6 +1,6 @@
 #!/bin/bash
 # ===========================================
-# SecurityReview.ai - Frontend Development Server
+# PadmaVue.ai - Frontend Development Server
 # ===========================================
 
 set -euo pipefail
@@ -17,7 +17,7 @@ PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 FRONTEND_DIR="$PROJECT_ROOT/frontend"
 
 echo -e "${BLUE}=========================================${NC}"
-echo -e "${BLUE}SecurityReview.ai - Frontend Dev Server${NC}"
+echo -e "${BLUE}PadmaVue.ai - Frontend Dev Server${NC}"
 echo -e "${BLUE}=========================================${NC}"
 echo ""
 

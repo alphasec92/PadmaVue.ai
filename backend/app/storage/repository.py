@@ -67,6 +67,9 @@ class AnalysisData:
     devsecops_rules: Optional[Dict] = None
     pasta_stages: Optional[Dict] = None
     source_data: Optional[Dict] = None  # Original form/file data used to create analysis
+    # MAESTRO (Agentic AI) analysis results
+    maestro_applicability: Optional[Dict] = None
+    maestro_threats: List[Dict] = field(default_factory=list)
     created_at: str = field(default_factory=lambda: datetime.utcnow().isoformat())
     completed_at: Optional[str] = None
 

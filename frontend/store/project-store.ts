@@ -25,6 +25,27 @@ interface Threat {
   likelihood?: number;
   impact?: number;
   business_impact?: string;
+  // MAESTRO-specific fields
+  methodology?: 'stride' | 'pasta' | 'maestro';
+  evidence?: Array<{ source: string; snippet: string }>;
+  trust_level?: 'high' | 'medium' | 'low';
+}
+
+// MAESTRO Applicability Result
+interface MaestroApplicability {
+  applicable: boolean;
+  confidence: number;
+  status: 'detected' | 'not_detected' | 'forced';
+  reasons: string[];
+  evidence: Array<{
+    source: string;
+    snippet: string;
+    signal_type: string;
+    file?: string;
+    confidence: number;
+  }>;
+  signals?: Record<string, string[]>;
+  checked_at?: string;
 }
 
 interface AnalysisResult {
@@ -38,12 +59,18 @@ interface AnalysisResult {
     by_severity: Record<string, number>;
     by_category?: Record<string, number>;
     average_risk?: number;
+    // MAESTRO summary
+    maestro_status?: 'detected' | 'not_detected' | 'forced' | null;
+    maestro_threats_count?: number;
   };
   threats: Threat[];
   compliance_summary: Record<string, any>;
   dfd_mermaid?: string;
   devsecops_rules?: Record<string, any>;
   pasta_stages?: Record<string, any>;
+  // MAESTRO (Agentic AI) results
+  maestro_applicability?: MaestroApplicability;
+  maestro_threats?: Threat[];
 }
 
 interface ProjectState {

@@ -27,14 +27,14 @@ const REPORT_TYPES: { id: ReportType; name: string; description: string; icon: a
     name: 'Full Report', 
     description: 'Complete analysis with all threats, DFD, and compliance mappings',
     icon: FileCheck,
-    color: 'from-primary to-purple-600'
+    color: 'from-watercolor-coral to-watercolor-pink'
   },
   { 
     id: 'executive', 
     name: 'Executive Summary', 
     description: 'High-level overview for leadership and stakeholders',
     icon: BarChart3,
-    color: 'from-blue-500 to-cyan-600'
+    color: 'from-watercolor-blue to-cyan-600'
   },
   { 
     id: 'technical', 
@@ -48,7 +48,7 @@ const REPORT_TYPES: { id: ReportType; name: string; description: string; icon: a
     name: 'Compliance Report', 
     description: 'NIST 800-53, OWASP ASVS mappings and control coverage',
     icon: ClipboardList,
-    color: 'from-orange-500 to-amber-600'
+    color: 'from-watercolor-coral to-orange-500'
   }
 ];
 
@@ -150,8 +150,8 @@ export function ExportModal({
           {/* Header */}
           <div className="flex items-center justify-between p-5 border-b border-border">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-primary/10">
-                <Download className="w-5 h-5 text-primary" />
+              <div className="p-2 rounded-xl bg-watercolor-coral/10">
+                <Download className="w-5 h-5 text-watercolor-coral" />
               </div>
               <div>
                 <h2 className="text-lg font-bold">Export Report</h2>
@@ -167,11 +167,11 @@ export function ExportModal({
           <div className="p-5 overflow-y-auto max-h-[calc(90vh-180px)] space-y-6">
             {/* Project Info */}
             <div className="flex items-center gap-4 p-4 rounded-xl bg-muted/50">
-              <Shield className="w-8 h-8 text-primary" />
+              <Shield className="w-8 h-8 text-watercolor-coral" />
               <div className="flex-1">
                 <p className="font-semibold">{projectName || 'Security Analysis'}</p>
                 <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                  <span className="px-2 py-0.5 rounded bg-primary/20 text-primary text-xs font-medium">{methodology || 'STRIDE'}</span>
+                  <span className="px-2 py-0.5 rounded bg-watercolor-coral/20 text-watercolor-coral text-xs font-medium">{methodology || 'STRIDE'}</span>
                   <span>{threatCount || 0} threats identified</span>
                 </div>
               </div>
@@ -187,7 +187,7 @@ export function ExportModal({
                   onClick={() => setFormat('pdf')}
                   className={cn(
                     'p-4 rounded-xl border-2 text-left transition-all flex items-center gap-3',
-                    format === 'pdf' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
+                    format === 'pdf' ? 'border-watercolor-coral bg-watercolor-coral/5' : 'border-border hover:border-watercolor-coral/50'
                   )}
                 >
                   <div className={cn('p-2 rounded-lg', format === 'pdf' ? 'bg-red-500/20' : 'bg-muted')}>
@@ -197,7 +197,7 @@ export function ExportModal({
                     <p className="font-medium">PDF Document</p>
                     <p className="text-xs text-muted-foreground">Formatted, printable report</p>
                   </div>
-                  {format === 'pdf' && <CheckCircle2 className="w-5 h-5 text-primary ml-auto" />}
+                  {format === 'pdf' && <CheckCircle2 className="w-5 h-5 text-watercolor-coral ml-auto" />}
                 </motion.button>
 
                 <motion.button
@@ -206,7 +206,7 @@ export function ExportModal({
                   onClick={() => setFormat('json')}
                   className={cn(
                     'p-4 rounded-xl border-2 text-left transition-all flex items-center gap-3',
-                    format === 'json' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
+                    format === 'json' ? 'border-watercolor-coral bg-watercolor-coral/5' : 'border-border hover:border-watercolor-coral/50'
                   )}
                 >
                   <div className={cn('p-2 rounded-lg', format === 'json' ? 'bg-yellow-500/20' : 'bg-muted')}>
@@ -216,7 +216,7 @@ export function ExportModal({
                     <p className="font-medium">JSON Data</p>
                     <p className="text-xs text-muted-foreground">Structured data for tools</p>
                   </div>
-                  {format === 'json' && <CheckCircle2 className="w-5 h-5 text-primary ml-auto" />}
+                  {format === 'json' && <CheckCircle2 className="w-5 h-5 text-watercolor-coral ml-auto" />}
                 </motion.button>
               </div>
             </div>
@@ -233,7 +233,7 @@ export function ExportModal({
                     onClick={() => setReportType(type.id)}
                     className={cn(
                       'p-4 rounded-xl border-2 text-left transition-all',
-                      reportType === type.id ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'
+                      reportType === type.id ? 'border-watercolor-coral bg-watercolor-coral/5' : 'border-border hover:border-watercolor-coral/50'
                     )}
                   >
                     <div className="flex items-start gap-3">
@@ -243,7 +243,7 @@ export function ExportModal({
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <p className="font-medium">{type.name}</p>
-                          {reportType === type.id && <CheckCircle2 className="w-4 h-4 text-primary" />}
+                          {reportType === type.id && <CheckCircle2 className="w-4 h-4 text-watercolor-coral" />}
                         </div>
                         <p className="text-xs text-muted-foreground mt-0.5">{type.description}</p>
                       </div>
@@ -266,14 +266,14 @@ export function ExportModal({
                     key={opt.id}
                     className={cn(
                       'flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors',
-                      opt.checked ? 'bg-primary/5' : 'hover:bg-muted'
+                      opt.checked ? 'bg-watercolor-coral/5' : 'hover:bg-muted'
                     )}
                   >
                     <input
                       type="checkbox"
                       checked={opt.checked}
                       onChange={e => opt.onChange(e.target.checked)}
-                      className="w-4 h-4 rounded border-border text-primary focus:ring-primary"
+                      className="w-4 h-4 rounded border-border text-watercolor-coral focus:ring-watercolor-coral accent-watercolor-coral"
                     />
                     <div className="flex-1">
                       <p className="font-medium text-sm">{opt.label}</p>
@@ -338,7 +338,7 @@ export function ExportModal({
                 whileTap={{ scale: 0.98 }}
                 onClick={handleExport}
                 disabled={exporting}
-                className="flex items-center gap-2 px-6 py-2 rounded-xl bg-gradient-to-r from-primary to-purple-600 text-white font-medium disabled:opacity-50"
+                className="flex items-center gap-2 px-6 py-2 rounded-xl bg-gradient-to-r from-watercolor-coral to-watercolor-pink text-white font-medium disabled:opacity-50"
               >
                 {exporting ? (
                   <>

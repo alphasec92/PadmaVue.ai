@@ -17,12 +17,12 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'SecurityReview.ai - AI-Powered Threat Modeling',
+  title: 'PadmaVue.ai - AI-Powered Threat Modeling',
   description: 'Advanced security analysis platform with STRIDE & PASTA threat modeling, compliance mapping, and DevSecOps rule generation.',
   keywords: ['security', 'threat modeling', 'STRIDE', 'PASTA', 'DREAD', 'compliance', 'DevSecOps'],
-  authors: [{ name: 'SecurityReview.ai' }],
+  authors: [{ name: 'PadmaVue.ai' }],
   openGraph: {
-    title: 'SecurityReview.ai',
+    title: 'PadmaVue.ai',
     description: 'AI-Powered Threat Modeling Platform',
     type: 'website',
   },

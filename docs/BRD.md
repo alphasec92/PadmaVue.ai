@@ -1,5 +1,5 @@
 # Business Requirements Document (BRD)
-## SecurityReview.ai
+## PadmaVue.ai
 
 **Document Version:** 1.1
 **Date:** January 15, 2026
@@ -25,7 +25,7 @@
 
 ## 1. Executive Summary
 
-SecurityReview.ai is an AI-powered security review platform that automates threat modeling, compliance mapping, and DevSecOps rule generation. The platform addresses the critical need for efficient, consistent, and comprehensive security analysis in modern software development lifecycles.
+PadmaVue.ai is an AI-powered security review platform that automates threat modeling, compliance mapping, and DevSecOps rule generation. The platform addresses the critical need for efficient, consistent, and comprehensive security analysis in modern software development lifecycles.
 
 The solution leverages advanced AI capabilities (LLM integration with multiple providers) combined with established threat modeling frameworks (STRIDE, PASTA) to transform manual, time-consuming security reviews into automated, intelligent assessments that produce actionable security artifacts.
 
@@ -331,8 +331,8 @@ A unified platform that:
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
-| 1.0 | 2026-01-14 | SecurityReview.ai Team | Initial document creation |
-| 1.1 | 2026-01-15 | SecurityReview.ai Team | Added operational requirements BR-16, BR-17 for analysis history; Added UX requirements BR-23-25; Renumbered security requirements; Updated status to Active |
+| 1.0 | 2026-01-14 | PadmaVue.ai Team | Initial document creation |
+| 1.1 | 2026-01-15 | PadmaVue.ai Team | Added operational requirements BR-16, BR-17 for analysis history; Added UX requirements BR-23-25; Renumbered security requirements; Updated status to Active |
 
 ---
 

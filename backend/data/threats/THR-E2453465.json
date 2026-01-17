@@ -1,0 +1,48 @@
+{
+  "id": "THR-E2453465",
+  "category": "Tampering",
+  "title": "Insecure Data Storage",
+  "description": "Sensitive data is handled without adequate protection against unauthorized modification. This could involve storing data in plain text, using weak encryption algorithms, or failing to properly sanitize user inputs before storing them in the database.  An attacker could modify data in transit or at rest, leading to data corruption or manipulation.",
+  "affected_component": "Database, Application Servers, Data Transmission Channels",
+  "attack_vector": "SQL injection, cross-site scripting (XSS), or direct manipulation of database records.",
+  "dread_score": {
+    "damage": 9,
+    "reproducibility": 8,
+    "exploitability": 7,
+    "affected_users": 9,
+    "discoverability": 7
+  },
+  "overall_risk": 8.0,
+  "severity": "critical",
+  "mitigations": [
+    "Implement robust input validation and sanitization to prevent injection attacks.",
+    "Utilize strong encryption algorithms for data at rest and in transit (TLS/SSL).",
+    "Regularly audit and monitor database access logs for suspicious activity."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AU-2",
+      "AU-3",
+      "AU-6",
+      "AU-9",
+      "SC-13",
+      "SC-28",
+      "SC-8",
+      "SI-10",
+      "SI-11",
+      "SI-3",
+      "SI-7"
+    ],
+    "OWASP_ASVS": [
+      "V5.1.1",
+      "V5.1.2",
+      "V5.2.1",
+      "V5.2.2",
+      "V5.3.1",
+      "V5.3.2"
+    ]
+  },
+  "analysis_id": "4db2cfb6-e4d1-46a3-a848-1cb4a06cbb53",
+  "stored_at": "2026-01-15T18:43:25.943924",
+  "_ts": "2026-01-15T18:43:25.943934"
+}

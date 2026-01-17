@@ -159,9 +159,9 @@ function DFDContent() {
         threat_count: data.threats?.length || 0
       });
       
-      if (data.dfd_mermaid) {
-        setMermaidCode(data.dfd_mermaid);
-        setFetchError(null);
+        if (data.dfd_mermaid) {
+          setMermaidCode(data.dfd_mermaid);
+          setFetchError(null);
       } else {
         setFetchError('No DFD available for this analysis');
       }
@@ -185,47 +185,47 @@ function DFDContent() {
   useEffect(() => {
     const initMermaid = async () => {
       try {
-        mermaid.initialize({
-          startOnLoad: false,
-          theme: isDark ? 'dark' : 'default',
-          flowchart: {
-            curve: 'basis',
-            padding: 20,
-            nodeSpacing: 50,
-            rankSpacing: 50,
-            useMaxWidth: true,
-          },
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: isDark ? 'dark' : 'default',
+      flowchart: {
+        curve: 'basis',
+        padding: 20,
+        nodeSpacing: 50,
+        rankSpacing: 50,
+        useMaxWidth: true,
+      },
           securityLevel: 'loose',
-          themeVariables: isDark ? {
-            primaryColor: '#3b82f6',
-            primaryTextColor: '#fff',
-            primaryBorderColor: '#60a5fa',
-            lineColor: '#64748b',
-            secondaryColor: '#8b5cf6',
-            tertiaryColor: '#1e293b',
-            background: '#0f172a',
-            mainBkg: '#1e293b',
-            nodeBorder: '#475569',
-            clusterBkg: '#1e293b20',
-            clusterBorder: '#475569',
-            titleColor: '#f1f5f9',
-            edgeLabelBackground: '#1e293b',
-          } : {
-            primaryColor: '#3b82f6',
-            primaryTextColor: '#1e293b',
-            primaryBorderColor: '#3b82f6',
-            lineColor: '#94a3b8',
-            secondaryColor: '#8b5cf6',
-            tertiaryColor: '#f1f5f9',
-            background: '#ffffff',
-            mainBkg: '#f8fafc',
-            nodeBorder: '#cbd5e1',
-            clusterBkg: '#f1f5f920',
-            clusterBorder: '#cbd5e1',
-            titleColor: '#1e293b',
-            edgeLabelBackground: '#ffffff',
-          },
-        });
+      themeVariables: isDark ? {
+        primaryColor: '#3b82f6',
+        primaryTextColor: '#fff',
+        primaryBorderColor: '#60a5fa',
+        lineColor: '#64748b',
+        secondaryColor: '#8b5cf6',
+        tertiaryColor: '#1e293b',
+        background: '#0f172a',
+        mainBkg: '#1e293b',
+        nodeBorder: '#475569',
+        clusterBkg: '#1e293b20',
+        clusterBorder: '#475569',
+        titleColor: '#f1f5f9',
+        edgeLabelBackground: '#1e293b',
+      } : {
+        primaryColor: '#3b82f6',
+        primaryTextColor: '#1e293b',
+        primaryBorderColor: '#3b82f6',
+        lineColor: '#94a3b8',
+        secondaryColor: '#8b5cf6',
+        tertiaryColor: '#f1f5f9',
+        background: '#ffffff',
+        mainBkg: '#f8fafc',
+        nodeBorder: '#cbd5e1',
+        clusterBkg: '#f1f5f920',
+        clusterBorder: '#cbd5e1',
+        titleColor: '#1e293b',
+        edgeLabelBackground: '#ffffff',
+      },
+    });
         setMermaidReady(true);
       } catch (e) {
         console.error('Failed to initialize mermaid:', e);
@@ -237,7 +237,7 @@ function DFDContent() {
   // Render diagram when mermaid is ready and code changes
   useEffect(() => {
     if (mermaidReady && mermaidCode) {
-      renderDiagram();
+    renderDiagram();
     }
   }, [mermaidCode, renderKey, mermaidReady]);
 
@@ -335,10 +335,10 @@ function DFDContent() {
                   )}
                 </div>
               ) : (
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-4">
-                  <Sparkles className="w-4 h-4 text-primary" />
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-4">
+                <Sparkles className="w-4 h-4 text-primary" />
                   <span className="text-sm font-medium">System Flow Map</span>
-                </div>
+              </div>
               )}
               
               <h1 className="heading-lg">
@@ -354,7 +354,7 @@ function DFDContent() {
                 <p className="text-amber-500 text-sm mt-2 flex items-center gap-1">
                   <AlertTriangle className="w-4 h-4" />
                   {fetchError}
-                </p>
+              </p>
               )}
             </div>
             

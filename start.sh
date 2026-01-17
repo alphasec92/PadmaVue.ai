@@ -1,6 +1,6 @@
 #!/bin/bash
 # ===========================================
-# SecurityReview.ai - Start Script (Mac/Linux)
+# PadmaVue.ai - Start Script (Mac/Linux)
 # ===========================================
 # Usage: ./start.sh [options]
 #   --backend   Start backend only
@@ -13,18 +13,12 @@
 
 set -euo pipefail
 
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-NC='\033[0m'
-BOLD='\033[1m'
-
 # Script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
+
+# Source common functions
+source "$SCRIPT_DIR/scripts/common/common.sh"
 
 # Minimum versions
 MIN_PYTHON_MAJOR=3
@@ -35,23 +29,6 @@ MIN_NPM_MAJOR=9
 # ===========================================
 # Helper Functions
 # ===========================================
-
-print_banner() {
-    echo -e "${CYAN}"
-    echo "╔══════════════════════════════════════════════════════════╗"
-    echo "║              🛡️  SecurityReview.ai                        ║"
-    echo "║          AI-Powered Threat Modeling Platform             ║"
-    echo "╚══════════════════════════════════════════════════════════╝"
-    echo -e "${NC}"
-}
-
-print_step() { echo -e "\n${BLUE}▶ ${BOLD}$1${NC}"; }
-print_success() { echo -e "${GREEN}✓ $1${NC}"; }
-print_warning() { echo -e "${YELLOW}⚠ $1${NC}"; }
-print_error() { echo -e "${RED}✗ $1${NC}"; }
-print_info() { echo -e "${CYAN}ℹ $1${NC}"; }
-
-die() { print_error "$1"; exit 1; }
 
 show_help() {
     cat << EOF
@@ -77,20 +54,9 @@ EOF
     exit 0
 }
 
-command_exists() { command -v "$1" &>/dev/null; }
-
 version_ge() {
     # Returns 0 if $1 >= $2 (version comparison)
     [ "$(printf '%s\n' "$2" "$1" | sort -V | head -n1)" = "$2" ]
-}
-
-detect_os() {
-    case "$(uname -s)" in
-        Darwin*)    echo "mac" ;;
-        Linux*)     echo "linux" ;;
-        CYGWIN*|MINGW*|MSYS*) echo "windows" ;;
-        *)          echo "unknown" ;;
-    esac
 }
 
 # ===========================================
@@ -403,26 +369,6 @@ update_env() {
 # Start Services
 # ===========================================
 
-kill_port() {
-    local port=$1
-    if command_exists lsof; then
-        lsof -ti :"$port" | xargs kill -9 2>/dev/null || true
-    elif command_exists fuser; then
-        fuser -k "$port"/tcp 2>/dev/null || true
-    fi
-}
-
-port_in_use() {
-    local port=$1
-    if command_exists lsof; then
-        lsof -i :"$port" >/dev/null 2>&1
-    elif command_exists netstat; then
-        netstat -tuln 2>/dev/null | grep -q ":$port "
-    else
-        return 1
-    fi
-}
-
 start_backend() {
     print_step "Starting backend server..."
     
@@ -524,14 +470,12 @@ start_docker_full() {
     
     print_info "Building and starting containers..."
     
-    # Try modern docker compose first, fall back to docker-compose
-    if docker compose version >/dev/null 2>&1; then
-        docker compose -f compose.full.yml up --build -d
-    elif command_exists docker-compose; then
-        docker-compose -f compose.full.yml up --build -d
-    else
-        die "Neither 'docker compose' nor 'docker-compose' found"
-    fi
+    local compose_cmd
+    compose_cmd=$(get_docker_compose_cmd)
+    local compose_file
+    compose_file=$(get_compose_path "compose.full.yml")
+    
+    $compose_cmd -f "$compose_file" up --build -d
     
     echo ""
     print_success "Full mode started with Docker!"
@@ -541,8 +485,8 @@ start_docker_full() {
     echo "  Neo4j:     http://localhost:7474 (user: neo4j)"
     echo "  Qdrant:    http://localhost:6333"
     echo ""
-    echo "  Stop with: docker compose -f compose.full.yml down"
-    echo "  Logs:      docker compose -f compose.full.yml logs -f"
+    echo "  Stop with: $compose_cmd -f $compose_file down"
+    echo "  Logs:      $compose_cmd -f $compose_file logs -f"
 }
 
 # ===========================================
@@ -639,7 +583,7 @@ main() {
     # Success message
     echo ""
     echo -e "${GREEN}╔══════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${GREEN}║        🎉 SecurityReview.ai is running! (Lite Mode)      ║${NC}"
+    echo -e "${GREEN}║        🎉 PadmaVue.ai is running! (Lite Mode)           ║${NC}"
     echo -e "${GREEN}╚══════════════════════════════════════════════════════════╝${NC}"
     echo ""
     echo -e "  🌐 Open: ${CYAN}http://localhost:3000${NC}"

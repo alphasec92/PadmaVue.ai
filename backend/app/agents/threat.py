@@ -15,6 +15,7 @@ from app.engines.stride import STRIDEEngine
 from app.engines.pasta import PASTAEngine
 from app.engines.dread import DREADEngine
 from app.engines.owasp_mapper import OWASPMapper
+from app.engines.maestro import MAESTROEngine, MaestroApplicability
 
 logger = structlog.get_logger()
 
@@ -84,28 +85,41 @@ Output valid JSON with comprehensive PASTA analysis."""
         self.pasta_engine = PASTAEngine()
         self.dread_engine = DREADEngine()
         self.owasp_mapper = OWASPMapper()
+        self.maestro_engine = MAESTROEngine()
     
     async def run(
         self,
         project_data: Dict[str, Any],
         elicitation_results: Dict[str, Any],
         severity_threshold: str = "low",
-        methodology: str = "stride"  # "stride" or "pasta"
+        methodology: str = "stride",  # Primary: "stride" or "pasta"
+        include_maestro: bool = False,
+        force_maestro: bool = False,
+        maestro_confidence_threshold: float = 0.6,
+        parsed_content: Optional[str] = None
     ) -> Dict[str, Any]:
         """
-        Run threat modeling analysis using selected methodology.
+        Run threat modeling analysis using selected methodology with optional MAESTRO overlay.
         
         Args:
             project_data: Project metadata
             elicitation_results: Results from elicitation agent
             severity_threshold: Minimum severity to include
-            methodology: "stride" or "pasta"
+            methodology: Primary methodology - "stride" or "pasta"
+            include_maestro: Whether to include MAESTRO (Agentic AI) analysis
+            force_maestro: Force MAESTRO even if not auto-detected
+            maestro_confidence_threshold: Confidence threshold for MAESTRO applicability
+            parsed_content: Optional parsed document content for evidence detection
         
         Returns:
-            Threat analysis results with OWASP mappings
+            Threat analysis results with OWASP mappings and optional MAESTRO results
         """
         methodology = methodology.lower()
-        logger.info(f"Running {methodology.upper()} threat modeling with OWASP mappings")
+        logger.info(
+            f"Running {methodology.upper()} threat modeling with OWASP mappings",
+            include_maestro=include_maestro,
+            force_maestro=force_maestro
+        )
         
         # Detect AI/Agent components in the system
         has_ai = self._detect_ai_components(project_data, elicitation_results)
@@ -114,6 +128,7 @@ Output valid JSON with comprehensive PASTA analysis."""
         
         logger.info("Component detection", has_ai=has_ai, has_agents=has_agents, has_api=has_api)
         
+        # Run primary methodology (STRIDE or PASTA)
         if methodology == "pasta":
             result = await self._run_pasta_analysis(
                 project_data,
@@ -145,7 +160,99 @@ Output valid JSON with comprehensive PASTA analysis."""
         result["has_agent_components"] = has_agents
         result["has_api"] = has_api
         
+        # MAESTRO Analysis (Agentic AI Threats) - NO HALLUCINATION GATE
+        result["maestro_applicability"] = None
+        result["maestro_threats"] = []
+        
+        if include_maestro:
+            maestro_result = await self._run_maestro_analysis(
+                project_data=project_data,
+                elicitation_results=elicitation_results,
+                parsed_content=parsed_content,
+                force=force_maestro,
+                confidence_threshold=maestro_confidence_threshold
+            )
+            result["maestro_applicability"] = maestro_result["applicability"]
+            result["maestro_threats"] = maestro_result["threats"]
+            
+            # If MAESTRO threats were generated, add them to the main threats list
+            # with methodology="maestro" tag
+            if maestro_result["threats"]:
+                result["threats"].extend(maestro_result["threats"])
+                logger.info(
+                    f"Added {len(maestro_result['threats'])} MAESTRO threats",
+                    status=maestro_result["applicability"]["status"]
+                )
+        
         return result
+    
+    async def _run_maestro_analysis(
+        self,
+        project_data: Dict[str, Any],
+        elicitation_results: Dict[str, Any],
+        parsed_content: Optional[str] = None,
+        force: bool = False,
+        confidence_threshold: float = 0.6
+    ) -> Dict[str, Any]:
+        """
+        Run MAESTRO (Agentic AI) threat analysis.
+        
+        This implements the NO-HALLUCINATION requirement:
+        - Only generates MAESTRO threats when there's evidence of AI/agent components
+        - Evidence is stored and shown in results
+        - Force flag allows override but marks results as "forced"
+        """
+        # Step 1: Check applicability (the evidence gate)
+        applicability = self.maestro_engine.check_applicability(
+            project_data=project_data,
+            elicitation_results=elicitation_results,
+            parsed_content=parsed_content,
+            metadata=project_data.get("metadata", {}),
+            force=force
+        )
+        
+        logger.info(
+            "MAESTRO applicability check complete",
+            applicable=applicability.applicable,
+            confidence=applicability.confidence,
+            status=applicability.status,
+            evidence_count=len(applicability.evidence)
+        )
+        
+        # Step 2: Only generate threats if applicable or forced
+        threats = []
+        
+        should_generate = (
+            force or 
+            (applicability.applicable and applicability.confidence >= confidence_threshold)
+        )
+        
+        if should_generate:
+            threats = self.maestro_engine.generate_threats(
+                project_data=project_data,
+                elicitation_results=elicitation_results,
+                applicability=applicability
+            )
+            logger.info(f"Generated {len(threats)} MAESTRO threats")
+        else:
+            logger.info(
+                "MAESTRO threats not generated - not applicable",
+                confidence=applicability.confidence,
+                threshold=confidence_threshold
+            )
+        
+        return {
+            "applicability": {
+                "applicable": applicability.applicable,
+                "confidence": applicability.confidence,
+                "status": applicability.status,
+                "reasons": applicability.reasons,
+                "evidence": applicability.evidence,
+                "signals": applicability.signals,
+                "checked_at": applicability.checked_at
+            },
+            "threats": threats
+        }
     
     def _detect_ai_components(
         self,
@@ -671,5 +778,22 @@ Respond with JSON:
                 ],
                 "best_for": "Enterprise applications, risk-driven decisions, stakeholder communication",
                 "complexity": "High"
+            },
+            {
+                "id": "maestro",
+                "name": "MAESTRO",
+                "full_name": "Multi-Agent Environment Security Threat Risk & Outcome",
+                "description": "CSA's Agentic AI threat modeling framework for AI-powered and multi-agent systems",
+                "categories": [
+                    "Autonomous Action Abuse",
+                    "Multi-Agent Coordination Attacks", 
+                    "Tool/MCP Exploitation",
+                    "Memory/Context Manipulation",
+                    "Goal/Objective Hijacking",
+                    "LLM Decision Trust Exploitation"
+                ],
+                "best_for": "AI agents, LLM applications, multi-agent systems, autonomous workflows",
+                "complexity": "High",
+                "reference": "https://cloudsecurityalliance.org/blog/2025/02/06/agentic-ai-threat-modeling-framework-maestro"
             }
         ]

@@ -75,8 +75,8 @@ class DevSecOpsGenerator:
         """Generate Checkov policy YAML file"""
         checkov_config = {
             "metadata": {
-                "name": "SecurityReview Custom Policies",
-                "guidelines": "https://securityreview.ai/docs/policies"
+                "name": "PadmaVue Custom Policies",
+                "guidelines": "https://padmavue.ai/docs/policies"
             },
             "scope": {
                 "provider": "aws"
@@ -213,7 +213,7 @@ class DevSecOpsGenerator:
             rule["metadata"] = {
                 "category": "security",
                 "confidence": "HIGH",
-                "source": "SecurityReview.ai"
+                "source": "PadmaVue.ai"
             }
         
         return rule

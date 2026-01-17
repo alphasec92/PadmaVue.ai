@@ -7,7 +7,7 @@ import {
   ChevronRight, ChevronLeft, ExternalLink, Copy, Eye, EyeOff, Sparkles,
   AlertCircle, HelpCircle, Monitor, Moon, Sun, Shield, FileText, Palette,
   RefreshCw, Key, Lock, Target, Terminal, Wifi, WifiOff, Plug, Plus, Trash2, Link,
-  Globe, Search
+  Globe, Search, Bot
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { api, Provider, ApiError, MCPServerResponse, MCPServerCreate, MCPTestResult, MCPRegistryServer, MCPImportResult } from '@/lib/api';
@@ -142,7 +142,7 @@ export function SettingsModal({ isOpen, onClose }: Props) {
   const modelInputRef = useRef<HTMLInputElement>(null);
   
   // Methodology settings
-  const [defaultMethodology, setDefaultMethodology] = useState<'stride' | 'pasta'>('stride');
+  const [defaultMethodology, setDefaultMethodology] = useState<'stride' | 'pasta' | 'maestro'>('stride');
   
   // Web Search (Grounded Responses)
   const webSearch = useWebSearch();
@@ -601,7 +601,7 @@ export function SettingsModal({ isOpen, onClose }: Props) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleMethodologyChange = (methodology: 'stride' | 'pasta') => {
+  const handleMethodologyChange = (methodology: 'stride' | 'pasta' | 'maestro') => {
     setDefaultMethodology(methodology);
     localStorage.setItem('defaultMethodology', methodology);
   };
@@ -1637,31 +1637,31 @@ export function SettingsModal({ isOpen, onClose }: Props) {
                   <p className="text-sm text-muted-foreground">Choose which methodology to use by default</p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleMethodologyChange('stride')}
                     className={cn(
-                      'p-5 rounded-xl border-2 text-left transition-all relative overflow-hidden',
+                      'p-4 rounded-xl border-2 text-left transition-all relative overflow-hidden',
                       defaultMethodology === 'stride' ? 'border-blue-500 bg-blue-500/5' : 'border-border hover:border-blue-500/50'
                     )}
                   >
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-full blur-2xl" />
+                    <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-full blur-2xl" />
                     <div className="relative">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500">
-                          <Shield className="w-5 h-5 text-white" />
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500">
+                          <Shield className="w-4 h-4 text-white" />
                         </div>
-                        <h4 className="font-semibold text-lg">STRIDE</h4>
-                        {defaultMethodology === 'stride' && <CheckCircle2 className="w-5 h-5 text-blue-500 ml-auto" />}
+                        <h4 className="font-semibold">STRIDE</h4>
+                        {defaultMethodology === 'stride' && <CheckCircle2 className="w-4 h-4 text-blue-500 ml-auto" />}
                       </div>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Microsoft's threat classification model for systematic threat identification.
+                      <p className="text-xs text-muted-foreground mb-3">
+                        Microsoft's threat classification model.
                       </p>
-                      <div className="flex flex-wrap gap-1.5">
+                      <div className="flex flex-wrap gap-1">
                         {['Spoofing', 'Tampering', 'Repudiation', 'Info Disclosure', 'DoS', 'Elevation'].map(t => (
-                          <span key={t} className="text-xs px-2 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium">{t}</span>
+                          <span key={t} className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium">{t}</span>
                         ))}
                       </div>
                     </div>
@@ -1672,25 +1672,57 @@ export function SettingsModal({ isOpen, onClose }: Props) {
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleMethodologyChange('pasta')}
                     className={cn(
-                      'p-5 rounded-xl border-2 text-left transition-all relative overflow-hidden',
+                      'p-4 rounded-xl border-2 text-left transition-all relative overflow-hidden',
                       defaultMethodology === 'pasta' ? 'border-purple-500 bg-purple-500/5' : 'border-border hover:border-purple-500/50'
                     )}
                   >
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-2xl" />
+                    <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-2xl" />
                     <div className="relative">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="p-2 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500">
-                          <Target className="w-5 h-5 text-white" />
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="p-1.5 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500">
+                          <Target className="w-4 h-4 text-white" />
                         </div>
-                        <h4 className="font-semibold text-lg">PASTA</h4>
-                        {defaultMethodology === 'pasta' && <CheckCircle2 className="w-5 h-5 text-purple-500 ml-auto" />}
+                        <h4 className="font-semibold">PASTA</h4>
+                        {defaultMethodology === 'pasta' && <CheckCircle2 className="w-4 h-4 text-purple-500 ml-auto" />}
                       </div>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        Process for Attack Simulation and Threat Analysis - risk-centric approach.
+                      <p className="text-xs text-muted-foreground mb-3">
+                        Risk-centric attack simulation.
                       </p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {['Business Impact', 'Attack Trees', 'Risk Analysis'].map(t => (
-                          <span key={t} className="text-xs px-2 py-1 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 font-medium">{t}</span>
+                      <div className="flex flex-wrap gap-1">
+                        {['Objectives', 'Attack Trees', 'Risk Analysis'].map(t => (
+                          <span key={t} className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 font-medium">{t}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.button>
+
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleMethodologyChange('maestro')}
+                    className={cn(
+                      'p-4 rounded-xl border-2 text-left transition-all relative overflow-hidden',
+                      defaultMethodology === 'maestro' ? 'border-orange-500 bg-orange-500/5' : 'border-border hover:border-orange-500/50'
+                    )}
+                  >
+                    <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-full blur-2xl" />
+                    <span className="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-gradient-to-r from-orange-500 to-red-500 text-white">
+                      AI
+                    </span>
+                    <div className="relative">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="p-1.5 rounded-lg bg-gradient-to-br from-orange-500 to-red-500">
+                          <Bot className="w-4 h-4 text-white" />
+                        </div>
+                        <h4 className="font-semibold">MAESTRO</h4>
+                        {defaultMethodology === 'maestro' && <CheckCircle2 className="w-4 h-4 text-orange-500 ml-auto" />}
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-3">
+                        CSA's Agentic AI framework.
+                      </p>
+                      <div className="flex flex-wrap gap-1">
+                        {['Autonomous', 'Multi-Agent', 'Tool Abuse', 'Memory', 'Goals', 'LLM Trust'].map(t => (
+                          <span key={t} className="text-[10px] px-1.5 py-0.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 font-medium">{t}</span>
                         ))}
                       </div>
                     </div>
@@ -1951,7 +1983,7 @@ export function SettingsModal({ isOpen, onClose }: Props) {
                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center mx-auto mb-4">
                     <Shield className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold">SecurityReview.ai</h3>
+                  <h3 className="text-xl font-bold">PadmaVue.ai</h3>
                   <p className="text-sm text-muted-foreground">Version 1.0.0</p>
                 </div>
 

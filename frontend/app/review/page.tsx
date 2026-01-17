@@ -15,10 +15,21 @@ import { DiagramEditor } from '@/components/diagram-editor';
 import { ExportModal } from '@/components/export-modal';
 import { AnalysisHistory, AnalysisSelector } from '@/components/analysis-history';
 import { OWASPBadge, OWASPInlineBadges, AIThreatSummary } from '@/components/owasp-badge';
+import { MaestroCard, MaestroBadge } from '@/components/maestro-card';
 import { useProjectStore } from '@/store/project-store';
 
 // Add Bot icon for AI indicators
 import { Bot } from 'lucide-react';
+
+// MAESTRO category colors
+const MAESTRO_COLORS: Record<string, string> = {
+  'AGENT01': 'bg-watercolor-coral',
+  'AGENT02': 'bg-watercolor-pink', 
+  'AGENT03': 'bg-watercolor-slate',
+  'AGENT04': 'bg-watercolor-blue',
+  'AGENT05': 'bg-purple-500',
+  'AGENT06': 'bg-amber-500',
+};
 
 const STRIDE_COLORS: Record<string, string> = {
   'S': 'bg-red-500', 'Spoofing': 'bg-red-500',
@@ -64,6 +75,7 @@ function ReviewPageContent() {
   const [showExportModal, setShowExportModal] = useState(false);
   const [filterSeverity, setFilterSeverity] = useState<string>('all');
   const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [filterMethodology, setFilterMethodology] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [zones, setZones] = useState<Array<{ id: string; name: string }>>([]);
   const [projectName, setProjectName] = useState<string>('');
@@ -198,9 +210,13 @@ function ReviewPageContent() {
   const filteredThreats = threats.filter(t => {
     if (filterSeverity !== 'all' && t.severity?.toLowerCase() !== filterSeverity) return false;
     if (filterCategory !== 'all' && t.category !== filterCategory) return false;
+    if (filterMethodology !== 'all' && (t.methodology || 'stride') !== filterMethodology) return false;
     if (searchQuery && !t.title.toLowerCase().includes(searchQuery.toLowerCase()) && !t.description.toLowerCase().includes(searchQuery.toLowerCase())) return false;
     return true;
   });
+  
+  // Check if MAESTRO threats exist
+  const hasMaestroThreats = threats.some(t => t.methodology === 'maestro');
 
   const categories = Array.from(new Set(threats.map(t => t.category)));
   const stats = {
@@ -283,18 +299,18 @@ function ReviewPageContent() {
                 className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border hover:bg-muted text-sm">
                 <Network className="w-4 h-4" />DFD
               </motion.button>
-              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setShowDiagramEditor(true)}
+            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setShowDiagramEditor(true)}
                 className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border hover:bg-muted text-sm">
                 <GitBranch className="w-4 h-4" />Edit
-              </motion.button>
-              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleAddThreat}
+            </motion.button>
+            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleAddThreat}
                 className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border hover:bg-muted text-sm">
                 <Plus className="w-4 h-4" />Threat
-              </motion.button>
-              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleExport}
+            </motion.button>
+            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleExport}
                 className="flex items-center gap-2 px-3 py-2 rounded-xl bg-primary text-white text-sm">
-                <Download className="w-4 h-4" />Export
-              </motion.button>
+              <Download className="w-4 h-4" />Export
+            </motion.button>
             </div>
           </div>
           
@@ -333,6 +349,20 @@ function ReviewPageContent() {
           ))}
         </div>
 
+        {/* MAESTRO Applicability Card (if analysis includes MAESTRO) */}
+        {analysis.maestro_applicability && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <MaestroCard 
+              applicability={analysis.maestro_applicability}
+              threats={threats.filter(t => t.methodology === 'maestro')}
+            />
+          </motion.div>
+        )}
+
         {/* Filters */}
         <div className="flex flex-wrap items-center gap-3 mb-6">
           <div className="relative flex-1 min-w-[200px]">
@@ -350,6 +380,14 @@ function ReviewPageContent() {
             <option value="all">All Categories</option>
             {categories.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
+          {/* Methodology Filter */}
+          <select value={filterMethodology} onChange={e => setFilterMethodology(e.target.value)}
+            className="px-4 py-2 rounded-xl bg-background dark:bg-muted border border-border focus:border-primary outline-none transition-colors cursor-pointer">
+            <option value="all">All Methodologies</option>
+            <option value="stride">STRIDE</option>
+            <option value="pasta">PASTA</option>
+            {hasMaestroThreats && <option value="maestro">MAESTRO</option>}
+          </select>
         </div>
 
         {/* Threats List */}
@@ -363,20 +401,35 @@ function ReviewPageContent() {
             filteredThreats.map((threat, idx) => {
               const severity = SEVERITY_CONFIG[threat.severity?.toLowerCase() || 'medium'];
               const isExpanded = expandedThreat === threat.id;
-              const strideColor = STRIDE_COLORS[threat.stride_category || threat.category] || 'bg-gray-500';
+              const isMaestro = threat.methodology === 'maestro';
+              const categoryColor = isMaestro 
+                ? (MAESTRO_COLORS[threat.category] || 'bg-watercolor-coral')
+                : (STRIDE_COLORS[threat.stride_category || threat.category] || 'bg-gray-500');
               
               return (
                 <motion.div key={threat.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }}
-                  className="rounded-2xl glass overflow-hidden">
+                  className={cn(
+                    'rounded-2xl glass overflow-hidden',
+                    isMaestro && 'border border-watercolor-coral/30'
+                  )}>
                   {/* Header */}
                   <div className="p-4 flex items-center gap-4 cursor-pointer hover:bg-muted/50" onClick={() => setExpandedThreat(isExpanded ? null : threat.id)}>
-                    <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center', strideColor)}>
-                      <span className="text-white font-bold">{threat.stride_category || threat.category?.charAt(0)}</span>
+                    <div className={cn('w-10 h-10 rounded-xl flex items-center justify-center', categoryColor)}>
+                      {isMaestro ? (
+                        <Bot className="w-5 h-5 text-white" />
+                      ) : (
+                        <span className="text-white font-bold">{threat.stride_category || threat.category?.charAt(0)}</span>
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <h3 className="font-semibold truncate">{threat.title}</h3>
                         {threat.status === 'mitigated' && <CheckCircle2 className="w-4 h-4 text-green-500" />}
+                        {isMaestro && (
+                          <span className="px-1.5 py-0.5 rounded text-xs bg-watercolor-coral/20 text-watercolor-coral font-medium">
+                            MAESTRO
+                          </span>
+                        )}
                       </div>
                       <p className="text-sm text-muted-foreground truncate">{threat.affected_component}</p>
                     </div>

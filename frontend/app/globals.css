@@ -3,66 +3,67 @@
 @tailwind utilities;
 
 /* ===========================================
-   SecurityReview.ai - Premium Design System
+   PadmaVue.ai - Premium Design System
    Inspired by modern experimental interfaces
    =========================================== */
 
 @layer base {
-  /* Light Theme */
+  /* Light Theme - Iced Watercolor Inspired */
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 30 20% 98%;
+    --foreground: 235 21% 20%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 235 21% 20%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --popover-foreground: 235 21% 20%;
+    --primary: 5 64% 55%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 225 24% 94%;
+    --secondary-foreground: 235 21% 25%;
+    --muted: 225 24% 94%;
+    --muted-foreground: 235 21% 45%;
+    --accent: 0 45% 75%;
+    --accent-foreground: 235 21% 20%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 225 24% 88%;
+    --input: 225 24% 88%;
+    --ring: 5 64% 55%;
     --radius: 0.75rem;
     
-    /* Custom colors */
-    --gradient-start: 217 91% 60%;
-    --gradient-end: 199 89% 48%;
-    --glow-color: 217 91% 60%;
+    /* Custom colors - Iced Watercolor Light */
+    --gradient-start: 5 64% 55%;
+    --gradient-end: 0 45% 75%;
+    --glow-color: 5 64% 55%;
   }
 
-  /* Dark Theme */
+  /* Dark Theme - Iced Watercolor Palette */
+  /* #45496A, #7D8BAE, #E5857B, #F1B2B2, #E8CCC7 */
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    --background: 235 21% 12%;
+    --foreground: 13 35% 92%;
+    --card: 235 21% 15%;
+    --card-foreground: 13 35% 92%;
+    --popover: 235 21% 14%;
+    --popover-foreground: 13 35% 92%;
+    --primary: 5 64% 69%;
+    --primary-foreground: 235 21% 12%;
+    --secondary: 235 21% 22%;
+    --secondary-foreground: 13 35% 90%;
+    --muted: 235 21% 20%;
+    --muted-foreground: 225 24% 65%;
+    --accent: 0 56% 82%;
+    --accent-foreground: 235 21% 15%;
+    --destructive: 5 64% 50%;
+    --destructive-foreground: 13 35% 95%;
+    --border: 235 21% 25%;
+    --input: 235 21% 22%;
+    --ring: 5 64% 69%;
     
-    /* Custom dark colors */
-    --gradient-start: 217 91% 60%;
-    --gradient-end: 280 87% 65%;
-    --glow-color: 217 91% 60%;
+    /* Custom dark colors - Iced Watercolor gradient */
+    --gradient-start: 5 64% 69%;
+    --gradient-end: 0 56% 82%;
+    --glow-color: 5 64% 69%;
   }
 }
 
@@ -77,11 +78,63 @@
   
   body {
     @apply bg-background text-foreground antialiased;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
   
+  /* Text Selection - Iced Watercolor */
   ::selection {
-    @apply bg-primary/30 text-foreground;
+    background: hsl(5 64% 69% / 0.35);
+    color: hsl(13 35% 95%);
+  }
+  
+  .dark ::selection {
+    background: hsl(5 64% 69% / 0.4);
+    color: hsl(13 35% 98%);
+  }
+  
+  /* Mark/Highlight styling */
+  mark {
+    background: linear-gradient(120deg, hsl(5 64% 69% / 0.3) 0%, hsl(0 56% 82% / 0.3) 100%);
+    color: inherit;
+    padding: 0.1em 0.3em;
+    border-radius: 0.2em;
+  }
+  
+  /* Smooth transitions for all interactive elements */
+  a, button, input, textarea, select {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Link styling with underline animation */
+  a:not([class]) {
+    color: hsl(var(--primary));
+    text-decoration: none;
+    position: relative;
+  }
+  
+  a:not([class])::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)));
+    transition: width 0.3s ease;
+  }
+  
+  a:not([class]):hover::after {
+    width: 100%;
+  }
+  
+  /* Headings with subtle color */
+  h1, h2, h3 {
+    color: hsl(var(--foreground));
+    transition: color 0.3s ease;
+  }
+  
+  .dark h1, .dark h2, .dark h3 {
+    color: hsl(13 35% 95%);
   }
 }
 
@@ -154,9 +207,20 @@
   background: linear-gradient(
     135deg,
     hsl(var(--primary)) 0%,
-    hsl(280 87% 65%) 50%,
-    hsl(199 89% 48%) 100%
+    hsl(var(--accent)) 50%,
+    hsl(225 24% 59%) 100%
   );
+}
+
+.dark .gradient-text {
+  background: linear-gradient(
+    135deg,
+    hsl(5 64% 69%) 0%,
+    hsl(0 56% 82%) 50%,
+    hsl(225 24% 70%) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
 }
 
 .gradient-border {
@@ -164,8 +228,8 @@
   background: linear-gradient(
     135deg,
     hsl(var(--primary)),
-    hsl(280 87% 65%),
-    hsl(199 89% 48%)
+    hsl(var(--accent)),
+    hsl(225 24% 59%)
   );
   padding: 2px;
   border-radius: var(--radius);
@@ -392,6 +456,317 @@
 .stagger-8 { animation-delay: 0.8s; }
 
 /* ===========================================
+   Fade Animations
+   =========================================== */
+.fade-in {
+  animation: fade-in 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fade-in-up {
+  animation: fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-down {
+  animation: fade-in-down 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+@keyframes fade-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===========================================
+   Bounce Animations
+   =========================================== */
+.bounce-in {
+  animation: bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+@keyframes bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.bounce-subtle {
+  animation: bounce-subtle 2s ease-in-out infinite;
+}
+
+@keyframes bounce-subtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* ===========================================
+   Typewriter Effect
+   =========================================== */
+.typewriter {
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 2px solid hsl(var(--primary));
+  animation: 
+    typewriter 3s steps(40) 1s forwards,
+    blink 0.75s step-end infinite;
+}
+
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes blink {
+  50% { border-color: transparent; }
+}
+
+/* ===========================================
+   Sparkle/Twinkle Effect
+   =========================================== */
+.sparkle {
+  position: relative;
+}
+
+.sparkle::before,
+.sparkle::after {
+  content: '✦';
+  position: absolute;
+  font-size: 0.6em;
+  animation: sparkle 1.5s ease-in-out infinite;
+  color: hsl(var(--primary));
+}
+
+.sparkle::before {
+  top: -5px;
+  right: -10px;
+  animation-delay: 0s;
+}
+
+.sparkle::after {
+  bottom: -5px;
+  left: -10px;
+  animation-delay: 0.75s;
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1) rotate(180deg); }
+}
+
+/* ===========================================
+   Rotate Animations
+   =========================================== */
+.spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.wiggle {
+  animation: wiggle 1s ease-in-out infinite;
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+/* ===========================================
+   Ripple Effect
+   =========================================== */
+.ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: hsl(var(--primary) / 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease, height 0.6s ease;
+}
+
+.ripple:active::after {
+  width: 300px;
+  height: 300px;
+}
+
+/* ===========================================
+   Gradient Animation
+   =========================================== */
+.gradient-animate {
+  background-size: 200% 200%;
+  animation: gradient-shift 5s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ===========================================
+   Text Glow Animation
+   =========================================== */
+.text-glow-animate {
+  animation: text-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes text-glow {
+  from {
+    text-shadow: 
+      0 0 5px hsl(var(--primary) / 0.5),
+      0 0 10px hsl(var(--primary) / 0.3);
+  }
+  to {
+    text-shadow: 
+      0 0 10px hsl(var(--primary) / 0.8),
+      0 0 20px hsl(var(--primary) / 0.5),
+      0 0 30px hsl(var(--primary) / 0.3);
+  }
+}
+
+/* ===========================================
+   Border Glow Animation
+   =========================================== */
+.border-glow {
+  position: relative;
+}
+
+.border-glow::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(
+    45deg,
+    hsl(var(--primary)),
+    hsl(var(--accent)),
+    hsl(225 24% 59%),
+    hsl(var(--primary))
+  );
+  background-size: 300% 300%;
+  animation: border-glow-shift 4s linear infinite;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.border-glow:hover::before {
+  opacity: 1;
+}
+
+@keyframes border-glow-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ===========================================
+   Slide Up on Scroll (for JS trigger)
+   =========================================== */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scroll-reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===========================================
+   Hover Lift Effect
+   =========================================== */
+.hover-lift {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), 
+              box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-8px);
+  box-shadow: 
+    0 20px 25px -5px hsl(var(--primary) / 0.1),
+    0 10px 10px -5px hsl(var(--primary) / 0.04);
+}
+
+/* ===========================================
+   Icon Animations
+   =========================================== */
+.icon-bounce:hover {
+  animation: icon-bounce 0.5s ease;
+}
+
+@keyframes icon-bounce {
+  0%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-4px); }
+  50% { transform: translateY(0); }
+  75% { transform: translateY(-2px); }
+}
+
+.icon-spin:hover {
+  animation: icon-spin 0.5s ease;
+}
+
+@keyframes icon-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.icon-pulse:hover {
+  animation: icon-pulse 0.4s ease;
+}
+
+@keyframes icon-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+/* ===========================================
    Severity Colors
    =========================================== */
 .severity-critical {
@@ -427,10 +802,33 @@
   @apply transition-all duration-300 ease-out;
   @apply hover:scale-[1.02] hover:shadow-lg;
   @apply active:scale-[0.98];
+  position: relative;
+  overflow: hidden;
+}
+
+.interactive::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(var(--primary) / 0.1),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.interactive:hover::before {
+  left: 100%;
 }
 
 .interactive-subtle {
   @apply transition-all duration-200 ease-out;
+  position: relative;
 }
 
 :root .interactive-subtle {
@@ -441,18 +839,84 @@
   @apply hover:bg-white/5 active:bg-white/10;
 }
 
+.interactive-subtle:hover {
+  transform: translateX(4px);
+}
+
 /* ===========================================
    Card Hover Effects
    =========================================== */
 .card-hover {
   @apply transition-all duration-500 ease-out;
+  position: relative;
+}
+
+.card-hover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    hsl(var(--primary) / 0.1),
+    transparent,
+    hsl(var(--accent) / 0.1)
+  );
+  opacity: 0;
+  transition: opacity 0.5s ease;
 }
 
 .card-hover:hover {
-  @apply -translate-y-1 shadow-2xl;
+  @apply -translate-y-2 shadow-2xl;
   box-shadow: 
     0 25px 50px -12px rgba(0, 0, 0, 0.25),
-    0 0 40px hsl(var(--primary) / 0.1);
+    0 0 60px hsl(var(--primary) / 0.15);
+}
+
+.card-hover:hover::before {
+  opacity: 1;
+}
+
+/* Card with animated border */
+.card-animated-border {
+  position: relative;
+  background: hsl(var(--card));
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.card-animated-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    var(--angle, 0deg),
+    hsl(var(--primary)),
+    hsl(var(--accent)),
+    hsl(225 24% 59%),
+    hsl(var(--primary))
+  );
+  -webkit-mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  mask: 
+    linear-gradient(#fff 0 0) content-box, 
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: rotate-gradient 4s linear infinite;
+}
+
+@keyframes rotate-gradient {
+  to { --angle: 360deg; }
+}
+
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
 }
 
 /* ===========================================
@@ -472,8 +936,17 @@
 }
 
 .blur-orb-secondary {
-  background: hsl(280 87% 65%);
+  background: hsl(var(--accent));
   animation-delay: -5s;
+}
+
+/* Dark mode specific orb colors - Iced Watercolor */
+.dark .blur-orb-primary {
+  background: hsl(5 64% 69% / 0.6);
+}
+
+.dark .blur-orb-secondary {
+  background: hsl(225 24% 59% / 0.5);
 }
 
 @keyframes orb-float {
@@ -540,4 +1013,420 @@
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   opacity: 0.02;
   pointer-events: none;
+}
+
+/* ===========================================
+   Text Accent Colors (Iced Watercolor)
+   =========================================== */
+.text-accent-coral {
+  color: hsl(5 64% 69%);
+}
+
+.text-accent-blush {
+  color: hsl(0 56% 82%);
+}
+
+.text-accent-slate {
+  color: hsl(225 24% 59%);
+}
+
+.text-accent-pink {
+  color: hsl(13 35% 85%);
+}
+
+/* Gradient text variants */
+.gradient-text-coral {
+  @apply bg-clip-text text-transparent;
+  background: linear-gradient(135deg, hsl(5 64% 69%) 0%, hsl(0 56% 82%) 100%);
+}
+
+.gradient-text-cool {
+  @apply bg-clip-text text-transparent;
+  background: linear-gradient(135deg, hsl(225 24% 59%) 0%, hsl(235 21% 50%) 100%);
+}
+
+/* ===========================================
+   Button Animations
+   =========================================== */
+.btn-animated {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-animated::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: hsl(var(--foreground) / 0.1);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s ease, height 0.6s ease;
+}
+
+.btn-animated:hover::before {
+  width: 300%;
+  height: 300%;
+}
+
+.btn-animated:active {
+  transform: scale(0.95);
+}
+
+/* Shine effect on hover */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shine::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    hsl(var(--foreground) / 0.1) 50%,
+    transparent 100%
+  );
+  transform: rotate(30deg) translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.btn-shine:hover::after {
+  transform: rotate(30deg) translateX(100%);
+}
+
+/* ===========================================
+   Input Focus Animations
+   =========================================== */
+.input-animated {
+  transition: all 0.3s ease;
+  border: 1px solid hsl(var(--border));
+}
+
+.input-animated:focus {
+  border-color: hsl(var(--primary));
+  box-shadow: 
+    0 0 0 3px hsl(var(--primary) / 0.15),
+    0 0 20px hsl(var(--primary) / 0.1);
+}
+
+/* Underline input style */
+.input-underline {
+  border: none;
+  border-bottom: 2px solid hsl(var(--border));
+  border-radius: 0;
+  background: transparent;
+  transition: border-color 0.3s ease;
+}
+
+.input-underline:focus {
+  border-bottom-color: hsl(var(--primary));
+  box-shadow: none;
+}
+
+/* ===========================================
+   Badge/Tag Animations
+   =========================================== */
+.badge-animated {
+  transition: all 0.2s ease;
+}
+
+.badge-animated:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px hsl(var(--primary) / 0.2);
+}
+
+/* Pulsing badge for notifications */
+.badge-pulse {
+  position: relative;
+}
+
+.badge-pulse::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  animation: badge-pulse 2s ease-out infinite;
+}
+
+@keyframes badge-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* ===========================================
+   Loading Animations
+   =========================================== */
+.loading-dots::after {
+  content: '';
+  animation: loading-dots 1.5s steps(4, end) infinite;
+}
+
+@keyframes loading-dots {
+  0% { content: ''; }
+  25% { content: '.'; }
+  50% { content: '..'; }
+  75% { content: '...'; }
+}
+
+.loading-bar {
+  position: relative;
+  overflow: hidden;
+  background: hsl(var(--muted));
+}
+
+.loading-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(var(--primary)),
+    transparent
+  );
+  animation: loading-bar 1.5s ease-in-out infinite;
+}
+
+@keyframes loading-bar {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
+}
+
+/* ===========================================
+   Tooltip Animation
+   =========================================== */
+.tooltip-animated {
+  opacity: 0;
+  transform: translateY(5px);
+  transition: all 0.2s ease;
+}
+
+.tooltip-trigger:hover .tooltip-animated {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===========================================
+   Checkbox/Toggle Animations
+   =========================================== */
+.toggle-animated {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toggle-animated:checked {
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+}
+
+/* ===========================================
+   Progress Bar Animation
+   =========================================== */
+.progress-animated {
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-animated::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(var(--foreground) / 0.2),
+    transparent
+  );
+  animation: progress-shine 2s ease-in-out infinite;
+}
+
+@keyframes progress-shine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ===========================================
+   Accordion Animation
+   =========================================== */
+.accordion-content {
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.accordion-arrow {
+  transition: transform 0.3s ease;
+}
+
+.accordion-open .accordion-arrow {
+  transform: rotate(180deg);
+}
+
+/* ===========================================
+   Modal/Dialog Animations
+   =========================================== */
+.modal-enter {
+  animation: modal-enter 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modal-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-backdrop {
+  animation: backdrop-fade 0.2s ease;
+}
+
+@keyframes backdrop-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ===========================================
+   Notification Slide
+   =========================================== */
+.notification-slide {
+  animation: notification-slide 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes notification-slide {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ===========================================
+   Skeleton Loading Animation
+   =========================================== */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    hsl(var(--muted)) 0%,
+    hsl(var(--muted-foreground) / 0.1) 50%,
+    hsl(var(--muted)) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ===========================================
+   Confetti Effect (for success states)
+   =========================================== */
+.confetti-particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  animation: confetti-fall 3s ease-out forwards;
+}
+
+@keyframes confetti-fall {
+  0% {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(400px) rotate(720deg);
+  }
+}
+
+/* ===========================================
+   Success Check Animation
+   =========================================== */
+.success-check {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+  animation: draw-check 0.5s ease forwards;
+}
+
+@keyframes draw-check {
+  to { stroke-dashoffset: 0; }
+}
+
+/* ===========================================
+   Number Counter Animation
+   =========================================== */
+.counter-animate {
+  display: inline-block;
+  animation: counter-pop 0.3s ease;
+}
+
+@keyframes counter-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* ===========================================
+   Reveal on Hover (for hidden content)
+   =========================================== */
+.hover-reveal-content {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+}
+
+.hover-reveal:hover .hover-reveal-content {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===========================================
+   Focus Ring Animation
+   =========================================== */
+.focus-ring-animated:focus-visible {
+  outline: none;
+  box-shadow: 
+    0 0 0 2px hsl(var(--background)),
+    0 0 0 4px hsl(var(--primary));
+  animation: focus-pulse 2s ease infinite;
+}
+
+@keyframes focus-pulse {
+  0%, 100% {
+    box-shadow: 
+      0 0 0 2px hsl(var(--background)),
+      0 0 0 4px hsl(var(--primary));
+  }
+  50% {
+    box-shadow: 
+      0 0 0 2px hsl(var(--background)),
+      0 0 0 6px hsl(var(--primary) / 0.5);
+  }
 }

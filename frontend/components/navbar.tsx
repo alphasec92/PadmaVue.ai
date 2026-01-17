@@ -72,15 +72,15 @@ export function Navbar() {
                 whileHover={{ rotate: 360 }}
                 transition={{ duration: 0.5 }}
               >
-                <div className="absolute inset-0 bg-primary/30 blur-lg rounded-full" />
-                <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
+                <div className="absolute inset-0 bg-watercolor-coral/30 blur-lg rounded-full" />
+                <div className="relative w-10 h-10 rounded-xl bg-gradient-to-br from-watercolor-coral to-watercolor-pink flex items-center justify-center shadow-lg shadow-watercolor-coral/20">
                   <Shield className="w-5 h-5 text-white" />
                 </div>
               </motion.div>
               <div className="hidden sm:block">
                 <h1 className="font-bold text-lg tracking-tight">
-                  SecurityReview
-                  <span className="text-primary">.ai</span>
+                  PadmaVue
+                  <span className="text-watercolor-coral">.ai</span>
                 </h1>
                 <p className="text-xs text-muted-foreground -mt-0.5">
                   AI-Powered Threat Analysis
@@ -101,7 +101,7 @@ export function Navbar() {
                         'relative px-4 py-2 rounded-xl flex items-center gap-2',
                         'transition-colors duration-200',
                         isActive 
-                          ? 'text-primary' 
+                          ? 'text-watercolor-coral' 
                           : 'text-muted-foreground hover:text-foreground'
                       )}
                       whileHover={{ scale: 1.05 }}
@@ -110,7 +110,7 @@ export function Navbar() {
                       {isActive && (
                         <motion.div
                           layoutId="nav-active"
-                          className="absolute inset-0 bg-primary/10 rounded-xl"
+                          className="absolute inset-0 bg-watercolor-coral/10 rounded-xl"
                           transition={{ type: 'spring', bounce: 0.25, duration: 0.4 }}
                         />
                       )}
@@ -143,7 +143,7 @@ export function Navbar() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-purple-600 text-white font-medium text-sm shadow-lg shadow-primary/25"
+                  className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-watercolor-coral to-watercolor-pink text-white font-medium text-sm shadow-lg shadow-watercolor-coral/25"
                 >
                   <Sparkles className="w-4 h-4" />
                   Start Analysis
@@ -211,7 +211,7 @@ export function Navbar() {
                           'flex items-center gap-3 px-4 py-3 rounded-xl',
                           'transition-colors duration-200',
                           isActive 
-                            ? 'bg-primary/10 text-primary' 
+                            ? 'bg-watercolor-coral/10 text-watercolor-coral' 
                             : 'hover:bg-muted'
                         )}
                       >

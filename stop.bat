@@ -1,9 +1,9 @@
 @echo off
 REM ===========================================
-REM SecurityReview.ai - Stop Script (Windows CMD)
+REM PadmaVue.ai - Stop Script (Windows CMD)
 REM ===========================================
 
-echo Stopping SecurityReview.ai...
+echo Stopping PadmaVue.ai...
 
 REM Run the PowerShell script
 powershell -ExecutionPolicy Bypass -File "%~dp0stop.ps1"

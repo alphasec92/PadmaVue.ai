@@ -1,5 +1,5 @@
 """
-Utility modules for SecurityReview.ai
+Utility modules for PadmaVue.ai
 """
 
 from app.utils.validation import (

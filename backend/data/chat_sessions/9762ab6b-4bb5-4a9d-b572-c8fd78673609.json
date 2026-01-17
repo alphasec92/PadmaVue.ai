@@ -1,0 +1,30 @@
+{
+  "session_id": "9762ab6b-4bb5-4a9d-b572-c8fd78673609",
+  "created_at": "2026-01-16T18:27:37.173807",
+  "conversation_history": [
+    {
+      "role": "user",
+      "content": "I'm building a web app with React and Node.js"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"response_type\": \"general\", \"analysis\": \"Okay, you're building a web application using React and Node.js. This is a common architecture. To start understanding the potential security risks, I need more details about the system. This combination of technologies presents several potential attack vectors.\", \"completeness_score\": 0.2, \"missing_info\": [\"What is the primary purpose of the web application?\", \"What type of data does it process or store?\", \"What is the architecture of the backend (Node.js)?\", \"How is the React frontend connected to the Node.js backend?\", \"What databases are you using?\"], \"follow_up_questions\": [\"Could you describe the main functionalities of the web application?\", \"What kind of user authentication and authorization mechanisms are you planning to implement?\"], \"ready_for_threat_model\": false, \"confidence_level\": \"low\", \"uncertainty_notes\": \"I have limited information about the specific implementation details. React and Node.js are broad technologies, and security depends heavily on configuration and implementation.\", \"world_model\": {\"system_type\": \"web application\", \"components\": [\"React frontend\", \"Node.js backend\", \"Database (unspecified)\"], \"data_types\": \"unspecified\", \"auth_method\": \"unspecified\", \"network_exposure\": \"public internet\", \"compliance\": \"unspecified\", \"ai_involved\": false}, \"sources\": [], \"web_search_used\": false, \"reasoning_level\": \"balanced\", \"reasoning_summary\": {\"key_steps\": [], \"assumptions\": [], \"evidence_used\": [], \"confidence\": \"medium\"}}"
+    }
+  ],
+  "world_model": {
+    "system_type": "web application",
+    "components": [
+      "React frontend",
+      "Node.js backend",
+      "Database (unspecified)"
+    ],
+    "data_types": "unspecified",
+    "auth_method": "unspecified",
+    "network_exposure": "public internet",
+    "compliance": "unspecified",
+    "ai_involved": false
+  },
+  "completeness_score": 0.2,
+  "ready_for_threat_model": false,
+  "updated_at": "2026-01-16T18:27:52.958604"
+}

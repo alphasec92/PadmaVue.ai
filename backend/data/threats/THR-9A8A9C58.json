@@ -1,0 +1,41 @@
+{
+  "id": "THR-9A8A9C58",
+  "category": "Denial of Service",
+  "title": "Uncontrolled Resource Consumption",
+  "description": "The system lacks mechanisms to prevent resource exhaustion, potentially leading to denial-of-service attacks. Without rate limiting, input validation, or proper resource management, an attacker could overwhelm the system with requests, causing it to crash or become unresponsive.",
+  "affected_component": "Application Servers, Database Servers, Network Infrastructure",
+  "attack_vector": "Distributed Denial of Service (DDoS) attacks, resource-intensive requests, or vulnerabilities in the application code.",
+  "dread_score": {
+    "damage": 7,
+    "reproducibility": 8,
+    "exploitability": 7,
+    "affected_users": 9,
+    "discoverability": 6
+  },
+  "overall_risk": 7.4,
+  "severity": "high",
+  "mitigations": [
+    "Implement rate limiting to restrict the number of requests from a single source.",
+    "Validate user inputs to prevent oversized or malicious data from consuming excessive resources.",
+    "Utilize a Content Delivery Network (CDN) to distribute traffic and mitigate DDoS attacks."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-20",
+      "AU-6",
+      "CP-9",
+      "SC-5",
+      "SC-7",
+      "SI-17"
+    ],
+    "OWASP_ASVS": [
+      "V11.1.1",
+      "V11.1.2",
+      "V11.1.3",
+      "V11.1.4"
+    ]
+  },
+  "analysis_id": "4db2cfb6-e4d1-46a3-a848-1cb4a06cbb53",
+  "stored_at": "2026-01-15T18:43:25.944925",
+  "_ts": "2026-01-15T18:43:25.944934"
+}

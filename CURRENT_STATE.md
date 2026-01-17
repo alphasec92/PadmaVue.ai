@@ -5,11 +5,33 @@ Last updated: 2026-01-15 (Rev 3)
 This document summarizes what the codebase does today and the current runtime shape of the system. Update it whenever you introduce behavior changes, new components, or material architecture changes.
 
 ## What This System Is
-- **SecurityReview.ai** is a local-first, AI-powered security review platform.
-- It supports **document ingestion + automated threat modeling** (STRIDE/PASTA), **DFD generation**, **OWASP compliance mappings** (including AI/LLM and Agentic AI Top 10), and **DevSecOps rule suggestions**.
+- **PadmaVue.ai** is a local-first, AI-powered security review platform.
+- It supports **document ingestion + automated threat modeling** (STRIDE/PASTA + optional MAESTRO overlay), **DFD generation**, **OWASP compliance mappings** (including AI/LLM and Agentic AI Top 10), and **DevSecOps rule suggestions**.
 - It includes **two interaction modes**:
   - **File-based upload + analysis**
   - **Conversational Security Architect (chat + questionnaire)**
+
+## MAESTRO (Agentic AI) Integration (2026-01-16)
+- **MAESTRO** (Multi-Agent Environment Security Threat Risk & Opportunity) can be enabled as an **overlay** alongside STRIDE or PASTA.
+- **AI-Driven Applicability**: The system automatically detects AI/agent components from:
+  - Project metadata and description
+  - Uploaded documents and code
+  - User responses in elicitation/architect flows
+  - Configuration (MCP servers, LLM providers, web search)
+- **No-Hallucination Guarantee**: MAESTRO threats are ONLY generated when:
+  - AI/agent signals are detected with sufficient confidence (default threshold: 60%)
+  - OR the user explicitly forces MAESTRO analysis
+- **Evidence-Based**: All applicability decisions include:
+  - Confidence score (0-100%)
+  - Detection reasons
+  - Evidence snippets from source documents
+- **MAESTRO Categories**:
+  - AGENT01: Autonomous Action Abuse
+  - AGENT02: Multi-Agent Coordination Attacks
+  - AGENT03: Tool/MCP Exploitation
+  - AGENT04: Memory/Context Manipulation
+  - AGENT05: Goal/Objective Hijacking
+  - AGENT06: LLM Decision Trust Exploitation
 
 ## Key User Workflows
 1. **Upload → Analyze → Review → DFD**: Upload documents, run threat analysis, review findings, view/edit DFD
@@ -79,7 +101,7 @@ This document summarizes what the codebase does today and the current runtime sh
 - **Entry point**: `frontend/app/`
 - **Major routes**:
   - `/` → Landing page with feature highlights and settings modal.
-  - `/upload` → File upload + methodology selection (STRIDE/PASTA).
+  - `/upload` → File upload + methodology selection (STRIDE/PASTA + optional MAESTRO overlay).
   - `/review` → Threat review, filtering, editing, export, and diagram editing. Includes "View DFD" navigation.
   - `/dfd` → Mermaid diagram renderer + export + zoom controls. **Now tied to analysis context** with methodology badge, threat count, and "View Threats" navigation.
   - `/ai-architect` → Conversational chat-based architect.

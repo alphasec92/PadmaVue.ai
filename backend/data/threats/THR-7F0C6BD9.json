@@ -1,0 +1,44 @@
+{
+  "id": "THR-7F0C6BD9",
+  "category": "Tampering",
+  "title": "Unvalidated Input \u2013 Data Modification",
+  "description": "The system does not properly validate or sanitize user input before processing or storing it. This could allow attackers to inject malicious code, modify data, or manipulate system behavior.",
+  "affected_component": "All Input Handling Components (Forms, APIs, Database Interactions)",
+  "attack_vector": "Injection attacks (SQLi, XSS, Command Injection) via unfiltered user input.  An attacker could modify data in the database or execute arbitrary code on the server.",
+  "dread_score": {
+    "damage": 9,
+    "reproducibility": 8,
+    "exploitability": 8,
+    "affected_users": 9,
+    "discoverability": 7
+  },
+  "overall_risk": 8.2,
+  "severity": "critical",
+  "mitigations": [
+    "Implement strict input validation and sanitization at all stages.",
+    "Use parameterized queries or prepared statements to prevent SQL injection.",
+    "Employ Content Security Policy (CSP) to mitigate XSS attacks."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AU-9",
+      "SC-28",
+      "SC-8",
+      "SI-10",
+      "SI-11",
+      "SI-3",
+      "SI-7"
+    ],
+    "OWASP_ASVS": [
+      "V5.1.1",
+      "V5.1.2",
+      "V5.2.1",
+      "V5.2.2",
+      "V5.3.1",
+      "V5.3.2"
+    ]
+  },
+  "analysis_id": "9673ebf4-56d0-43cd-baa8-111a5be5f5d2",
+  "stored_at": "2026-01-16T18:30:04.209620",
+  "_ts": "2026-01-16T18:30:04.209811"
+}

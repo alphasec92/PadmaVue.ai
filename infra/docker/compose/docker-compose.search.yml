@@ -2,12 +2,12 @@
 # SearXNG - Open Source Search Engine
 # ===========================================
 # 
-# Start with: docker compose -f docker-compose.search.yml up -d
+# Start with: docker compose -f infra/docker/compose/docker-compose.search.yml up -d
 # Access at: http://localhost:8080
 #
 # SearXNG is a privacy-respecting metasearch engine that aggregates
 # results from multiple search engines. It's the recommended default
-# search provider for SecurityReview.ai's web-grounded responses.
+# search provider for PadmaVue.ai's web-grounded responses.
 #
 # Configuration:
 #   Set SEARCH_PROVIDER=searxng in your backend/.env
@@ -16,7 +16,7 @@
 services:
   searxng:
     image: searxng/searxng:latest
-    container_name: securityreview-searxng
+    container_name: padmavue-searxng
     ports:
       - "8080:8080"
     volumes:
@@ -24,7 +24,7 @@ services:
     environment:
       - SEARXNG_BASE_URL=http://localhost:8080/
       # Enable JSON format (required for API access)
-      - SEARXNG_SECRET=securityreview-searxng-secret-key
+      - SEARXNG_SECRET=padmavue-searxng-secret-key
     cap_drop:
       - ALL
     cap_add:
@@ -47,10 +47,10 @@ volumes:
 # ===========================================
 #
 # 1. Start SearXNG:
-#    docker compose -f docker-compose.search.yml up -d
+#    docker compose -f infra/docker/compose/docker-compose.search.yml up -d
 #
 # 2. Wait for startup (~10 seconds):
-#    docker compose -f docker-compose.search.yml logs -f
+#    docker compose -f infra/docker/compose/docker-compose.search.yml logs -f
 #
 # 3. Configure your backend/.env:
 #    SEARCH_PROVIDER=searxng
@@ -63,7 +63,7 @@ volumes:
 #    cat > searxng-data/settings.yml << 'EOF'
 #    use_default_settings: true
 #    server:
-#      secret_key: "securityreview-searxng-secret-key"
+#      secret_key: "padmavue-searxng-secret-key"
 #      limiter: false
 #    search:
 #      formats:
@@ -71,13 +71,13 @@ volumes:
 #        - json
 #    EOF
 #
-#    Then restart: docker compose -f docker-compose.search.yml restart
+#    Then restart: docker compose -f infra/docker/compose/docker-compose.search.yml restart
 #
 # 5. Test the API:
 #    curl "http://localhost:8080/search?q=test&format=json"
 #
 # 6. Stop SearXNG:
-#    docker compose -f docker-compose.search.yml down
+#    docker compose -f infra/docker/compose/docker-compose.search.yml down
 #
 # ===========================================
 # Troubleshooting
@@ -89,7 +89,7 @@ volumes:
 #
 # Connection refused:
 #   → Check if container is running: docker ps
-#   → Check logs: docker compose -f docker-compose.search.yml logs
+#   → Check logs: docker compose -f infra/docker/compose/docker-compose.search.yml logs
 #
 # Slow searches:
 #   → SearXNG aggregates from multiple engines, initial queries may be slow

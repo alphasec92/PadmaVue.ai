@@ -1,5 +1,5 @@
 """
-Services for SecurityReview.ai
+Services for PadmaVue.ai
 Database clients, LLM providers, and document processing
 """
 

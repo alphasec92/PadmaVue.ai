@@ -1,5 +1,5 @@
 """
-SecurityReview.ai - Main FastAPI Application
+PadmaVue.ai - Main FastAPI Application
 AI-Powered Security Review Platform
 
 Security-hardened with:
@@ -180,7 +180,7 @@ async def lifespan(app: FastAPI):
     """Application lifespan manager for startup and shutdown"""
     # Startup
     logger.info(
-        "Starting SecurityReview.ai Backend",
+        "Starting PadmaVue.ai Backend",
         version="1.0.0",
         debug=app_settings.DEBUG,
         llm_provider=app_settings.LLM_PROVIDER
@@ -221,7 +221,7 @@ async def lifespan(app: FastAPI):
     yield
     
     # Shutdown
-    logger.info("Shutting down SecurityReview.ai Backend")
+    logger.info("Shutting down PadmaVue.ai Backend")
     
     if app_state.get("neo4j"):
         await app_state["neo4j"].close()
@@ -238,7 +238,7 @@ async def lifespan(app: FastAPI):
 # ============================================
 
 app = FastAPI(
-    title="SecurityReview.ai API",
+    title="PadmaVue.ai API",
     description="AI-Powered Security Review Platform - Threat Modeling, Compliance Mapping, and DevSecOps",
     version="1.0.0",
     docs_url="/docs" if app_settings.DEBUG else None,  # Disable docs in production
@@ -309,7 +309,7 @@ async def health_check():
 async def root():
     """Root endpoint with API information"""
     return {
-        "name": "SecurityReview.ai API",
+        "name": "PadmaVue.ai API",
         "version": "1.0.0",
         "description": "AI-Powered Security Review Platform",
         "docs": "/docs" if app_settings.DEBUG else "Disabled in production",

@@ -1,4 +1,4 @@
-# 🛡️ SecurityReview.ai
+# 🛡️ PadmaVue.ai
 
 **AI-Powered Security Review Platform** — Automated threat modeling, compliance mapping, and DevSecOps rule generation.
 
@@ -62,20 +62,27 @@ chmod +x start.sh
 | Requirement | Version | Check |
 |-------------|---------|-------|
 | Python | 3.11+ | `python3 --version` |
-| Node.js | 18+ | `node --version` |
-| npm | 9+ | `npm --version` |
+| Node.js | **20.9+** | `node --version` |
+| npm | 10+ | `npm --version` |
 | Docker | (Full mode only) | `docker --version` |
+
+> ⚠️ **Node.js 20.9+** is required for Next.js 16. Use `nvm install 20` to upgrade.
 
 ### Install Dependencies
 
 **macOS:**
 ```bash
-brew install python@3.11 node
+brew install python@3.11 node@20
+# Or use nvm:
+nvm install 20 && nvm use 20
 ```
 
 **Ubuntu/Debian:**
 ```bash
-sudo apt update && sudo apt install python3.11 python3.11-venv nodejs npm
+sudo apt update && sudo apt install python3.11 python3.11-venv
+# Install Node.js 20 via nvm:
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+nvm install 20
 ```
 
 **Windows:**
@@ -118,7 +125,7 @@ winget install OpenJS.NodeJS
 
 ```bash
 # Download the compose file
-curl -fsSL https://raw.githubusercontent.com/kjangiti/Securityreview.ai/main/docker-compose.hub.yml -o docker-compose.yml
+curl -fsSL https://raw.githubusercontent.com/kjangiti/PandmaVue.ai/main/infra/docker/compose/docker-compose.hub.yml -o docker-compose.yml
 
 # Start everything
 docker compose up -d
@@ -130,27 +137,20 @@ docker compose logs -f
 docker compose down
 ```
 
-**Or run directly:**
-```bash
-docker compose -f docker-compose.hub.yml up -d
-```
-
-> Images are automatically updated on every code change to `main` branch.
-
 ### Build from Source
 
 #### Lite Mode (No databases)
 ```bash
-docker compose -f compose.lite.yml up --build -d
-docker compose -f compose.lite.yml logs -f
-docker compose -f compose.lite.yml down
+docker compose -f infra/docker/compose/compose.lite.yml up --build -d
+docker compose -f infra/docker/compose/compose.lite.yml logs -f
+docker compose -f infra/docker/compose/compose.lite.yml down
 ```
 
 #### Full Mode (With Neo4j + Qdrant)
 ```bash
-docker compose -f compose.full.yml up --build -d
-docker compose -f compose.full.yml logs -f
-docker compose -f compose.full.yml down
+docker compose -f infra/docker/compose/compose.full.yml up --build -d
+docker compose -f infra/docker/compose/compose.full.yml logs -f
+docker compose -f infra/docker/compose/compose.full.yml down
 ```
 
 > **Note:** If `docker compose` fails, try `docker-compose` (older Docker versions).
@@ -170,8 +170,8 @@ Pre-built images available on GitHub Container Registry:
 
 | Image | Pull Command |
 |-------|--------------|
-| Backend | `docker pull ghcr.io/kjangiti/securityreview.ai/backend:latest` |
-| Frontend | `docker pull ghcr.io/kjangiti/securityreview.ai/frontend:latest` |
+| Backend | `docker pull ghcr.io/kjangiti/pandmavue.ai/backend:latest` |
+| Frontend | `docker pull ghcr.io/kjangiti/pandmavue.ai/frontend:latest` |
 
 **Tags available:**
 - `latest` — Latest stable build from main branch
@@ -282,23 +282,29 @@ curl -X POST http://localhost:8000/api/analyze \
 ## 📁 Project Structure
 
 ```
-Securityreview.ai/
-├── start.sh / start.ps1       # Start scripts
-├── stop.sh / stop.ps1         # Stop scripts
-├── compose.lite.yml           # Docker: backend + frontend
-├── compose.full.yml           # Docker: + Neo4j + Qdrant
+PandmaVue.ai/
+├── start.sh / start.ps1           # Start scripts
+├── stop.sh / stop.ps1             # Stop scripts
+├── infra/
+│   └── docker/
+│       └── compose/               # Docker compose files
+│           ├── compose.lite.yml   # Lite mode
+│           ├── compose.full.yml   # Full mode
+│           └── docker-compose.hub.yml
+├── scripts/
+│   └── common/                    # Shared script utilities
 ├── backend/
 │   ├── app/
-│   │   ├── agents/           # LangGraph AI agents
-│   │   ├── api/              # REST endpoints
-│   │   └── engines/          # STRIDE, PASTA, DREAD
-│   ├── venv/                 # Python virtual environment
+│   │   ├── agents/               # LangGraph AI agents
+│   │   ├── api/                  # REST endpoints
+│   │   └── engines/              # STRIDE, PASTA, DREAD
 │   └── requirements.txt
 ├── frontend/
-│   ├── app/                  # Next.js pages
-│   ├── components/           # React components
+│   ├── app/                      # Next.js pages
+│   ├── components/               # React components
 │   └── package.json
-└── env-templates/            # Configuration templates
+├── docs/                         # BRD, FRD documentation
+└── env-templates/                # Configuration templates
 ```
 
 ---
@@ -364,11 +370,30 @@ powershell -ExecutionPolicy Bypass -File start.ps1
 |---------|-------------|
 | STRIDE Analysis | Systematic threat categorization |
 | PASTA Methodology | 7-stage risk-centric analysis |
+| MAESTRO Framework | Agentic AI threat modeling (CSA) |
 | DREAD Scoring | Quantified risk (1-10 scale) |
 | Compliance Mapping | NIST 800-53, OWASP ASVS |
+| **OWASP Citations** | Deterministic reference mapping (no hallucination) |
 | DFD Generation | Mermaid data flow diagrams |
 | DevSecOps Rules | Checkov, tfsec, Semgrep |
 | MCP Integration | External security tools |
+
+### OWASP Reference Citations
+
+Reports include deterministic mappings to OWASP guidance:
+
+| Reference | Scope |
+|-----------|-------|
+| [OWASP Top 10:2025](https://owasp.org/Top10/2025/) | Web application risks |
+| [OWASP LLM Top 10](https://genai.owasp.org/llm-top-10/) | LLM/GenAI security |
+| [OWASP Agentic AI Threats](https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/) | Autonomous agent risks |
+| [OWASP Agentic Top 10](https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/) | Agentic app Top 10 |
+| [GenAI Red Teaming Guide](https://genai.owasp.org/resource/genai-red-teaming-guide/) | AI security testing |
+
+**Hard Rules:**
+- References mapped deterministically (no hallucination)
+- If mapping rules don't match, findings are flagged for manual review
+- No claims of compliance - guidance references only
 
 ---
 
@@ -376,8 +401,10 @@ powershell -ExecutionPolicy Bypass -File start.ps1
 
 - [STRIDE](https://docs.microsoft.com/en-us/azure/security/develop/threat-modeling-tool)
 - [PASTA](https://owasp.org/www-project-threat-model/)
+- [MAESTRO (CSA)](https://cloudsecurityalliance.org/blog/2025/02/06/agentic-ai-threat-modeling-framework-maestro)
 - [NIST 800-53](https://csrc.nist.gov/publications/detail/sp/800-53/rev-5/final)
 - [OWASP ASVS](https://owasp.org/www-project-application-security-verification-standard/)
+- [OWASP GenAI](https://genai.owasp.org/)
 
 ---
 
@@ -395,4 +422,4 @@ MIT License - See LICENSE file.
 
 ---
 
-Built with ❤️ by SecurityReview.ai
+Built with ❤️ by PadmaVue.ai

@@ -6,6 +6,9 @@ const nextConfig = {
   // Standalone output for Docker
   output: 'standalone',
 
+  // Server external packages (moved from experimental in Next.js 15+)
+  serverExternalPackages: ['mermaid'],
+
   // Security headers
   async headers() {
     return [
@@ -48,7 +51,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline'",  // Required for Tailwind
               "img-src 'self' data: blob:",
               "font-src 'self' data:",
-              "connect-src 'self' http://localhost:8000 ws://localhost:3000",
+              "connect-src 'self' http://localhost:8000 ws://localhost:3000 ws://localhost:3001",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",
@@ -59,9 +62,9 @@ const nextConfig = {
     ];
   },
 
-  // Image optimization
+  // Image optimization (updated for Next.js 15+)
   images: {
-    domains: [],
+    remotePatterns: [],
     formats: ['image/avif', 'image/webp'],
   },
 
@@ -76,13 +79,7 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
 
-  // Experimental features
-  experimental: {
-    // Optimize server components
-    serverComponentsExternalPackages: ['mermaid'],
-  },
-
-  // Webpack configuration
+  // Webpack configuration (for packages that need node polyfills)
   webpack: (config, { isServer }) => {
     // Fixes npm packages that depend on `fs` module
     if (!isServer) {

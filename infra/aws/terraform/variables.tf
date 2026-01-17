@@ -1,5 +1,5 @@
 # ===========================================
-# SecurityReview.ai - Terraform Variables
+# PadmaVue.ai - Terraform Variables
 # ===========================================
 
 variable "aws_region" {
@@ -22,7 +22,7 @@ variable "environment" {
 variable "app_name" {
   description = "Application name used for resource naming"
   type        = string
-  default     = "securityreview"
+  default     = "padmavue"
 }
 
 variable "domain_name" {

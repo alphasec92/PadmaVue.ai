@@ -1,14 +1,14 @@
 # ===========================================
-# SecurityReview.ai - Terraform Variables
+# PadmaVue.ai - Terraform Variables
 # Copy this file to terraform.tfvars and customize
 # ===========================================
 
 aws_region  = "us-east-1"
 environment = "production"
-app_name    = "securityreview"
+app_name    = "padmavue"
 
 # Optional: Custom domain
-# domain_name = "securityreview.example.com"
+# domain_name = "padmavue.example.com"
 
 # ECS Configuration
 backend_cpu           = 512

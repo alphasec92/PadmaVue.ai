@@ -1,5 +1,5 @@
 # Functional Requirements Document (FRD)
-## SecurityReview.ai
+## PadmaVue.ai
 
 **Document Version:** 1.1
 **Date:** January 15, 2026
@@ -27,14 +27,14 @@
 
 ### 1.1 Purpose
 
-This Functional Requirements Document (FRD) defines the detailed functional and technical specifications for SecurityReview.ai, an AI-powered security review platform. It serves as the authoritative reference for development, testing, and validation activities.
+This Functional Requirements Document (FRD) defines the detailed functional and technical specifications for PadmaVue.ai, an AI-powered security review platform. It serves as the authoritative reference for development, testing, and validation activities.
 
 ### 1.2 Scope
 
-This document covers all functional capabilities of the SecurityReview.ai platform, including:
+This document covers all functional capabilities of the PadmaVue.ai platform, including:
 - Document ingestion and processing
-- AI-powered threat modeling (STRIDE/PASTA)
-- Compliance mapping (NIST 800-53, OWASP ASVS)
+- AI-powered threat modeling (STRIDE/PASTA + optional MAESTRO overlay for Agentic AI)
+- Compliance mapping (NIST 800-53, OWASP ASVS, OWASP LLM Top 10, OWASP Agentic AI)
 - DevSecOps rule generation
 - Data flow diagram generation
 - Report export functionality
@@ -49,6 +49,7 @@ This document covers all functional capabilities of the SecurityReview.ai platfo
 | DREAD | Damage, Reproducibility, Exploitability, Affected Users, Discoverability |
 | FRD | Functional Requirements Document |
 | LLM | Large Language Model |
+| MAESTRO | Multi-Agent Environment Security Threat Risk & Opportunity |
 | MCP | Model Context Protocol |
 | PASTA | Process for Attack Simulation and Threat Analysis |
 | RAG | Retrieval-Augmented Generation |
@@ -58,8 +59,11 @@ This document covers all functional capabilities of the SecurityReview.ai platfo
 
 - NIST SP 800-53 Rev. 5: Security and Privacy Controls
 - OWASP Application Security Verification Standard (ASVS) 4.0
+- OWASP LLM AI Top 10
+- OWASP Agentic AI Security
 - Microsoft STRIDE Threat Model
 - PASTA Risk-Centric Threat Modeling Methodology
+- MAESTRO Framework for Agentic AI Security
 
 ---
 
@@ -67,7 +71,7 @@ This document covers all functional capabilities of the SecurityReview.ai platfo
 
 ### 2.1 System Description
 
-SecurityReview.ai is a web-based platform that automates security threat modeling through AI-powered analysis. The system accepts architecture documentation or conversational input, processes it through specialized AI agents, and produces comprehensive security artifacts including threat findings, compliance mappings, and DevSecOps rules.
+PadmaVue.ai is a web-based platform that automates security threat modeling through AI-powered analysis. The system accepts architecture documentation or conversational input, processes it through specialized AI agents, and produces comprehensive security artifacts including threat findings, compliance mappings, and DevSecOps rules.
 
 ### 2.2 System Context Diagram
 
@@ -79,7 +83,7 @@ SecurityReview.ai is a web-based platform that automates security threat modelin
                                   │
                                   ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                         SECURITYREVIEW.AI                               │
+│                           PADMAVUE.AI                                  │
 │                                                                         │
 │  ┌──────────────┐    ┌──────────────┐    ┌──────────────────────────┐  │
 │  │   Frontend   │◄──►│   Backend    │◄──►│   AI Processing Layer    │  │
@@ -206,8 +210,10 @@ SecurityReview.ai is a web-based platform that automates security threat modelin
 |----|-------------|----------|
 | FR-4.2.1.1 | System shall support STRIDE threat modeling methodology | Critical |
 | FR-4.2.1.2 | System shall support PASTA threat modeling methodology | Critical |
-| FR-4.2.1.3 | User shall select methodology before initiating analysis | High |
-| FR-4.2.1.4 | System shall provide methodology description to assist selection | Medium |
+| FR-4.2.1.3 | System shall support MAESTRO threat modeling methodology for Agentic AI | Critical |
+| FR-4.2.1.4 | User shall select methodology before initiating analysis | High |
+| FR-4.2.1.5 | System shall provide methodology description to assist selection | Medium |
+| FR-4.2.1.6 | System shall auto-detect AI/agent components for MAESTRO applicability | High |
 
 #### FR-4.2.2 STRIDE Analysis
 
@@ -232,6 +238,21 @@ SecurityReview.ai is a web-based platform that automates security threat modelin
 | FR-4.2.3.5 | System shall execute Stage 5: Identify Vulnerabilities | Critical |
 | FR-4.2.3.6 | System shall execute Stage 6: Enumerate Attacks | Critical |
 | FR-4.2.3.7 | System shall execute Stage 7: Perform Risk/Impact Analysis | Critical |
+
+#### FR-4.2.3.5 MAESTRO Analysis (Agentic AI)
+
+| ID | Requirement | Priority |
+|----|-------------|----------|
+| FR-4.2.3.5.1 | System shall identify **AGENT01** Autonomous Action Abuse threats | Critical |
+| FR-4.2.3.5.2 | System shall identify **AGENT02** Multi-Agent Coordination Attack threats | Critical |
+| FR-4.2.3.5.3 | System shall identify **AGENT03** Tool/MCP Exploitation threats | Critical |
+| FR-4.2.3.5.4 | System shall identify **AGENT04** Memory/Context Manipulation threats | Critical |
+| FR-4.2.3.5.5 | System shall identify **AGENT05** Goal/Objective Hijacking threats | Critical |
+| FR-4.2.3.5.6 | System shall identify **AGENT06** LLM Decision Trust Exploitation threats | Critical |
+| FR-4.2.3.5.7 | System shall detect AI/agent components from documents, code, and config | High |
+| FR-4.2.3.5.8 | System shall map MAESTRO threats to OWASP LLM Top 10 | High |
+
+> Reference: [CSA MAESTRO Framework](https://cloudsecurityalliance.org/blog/2025/02/06/agentic-ai-threat-modeling-framework-maestro)
 
 #### FR-4.2.4 Threat Output
 
@@ -417,7 +438,49 @@ SecurityReview.ai is a web-based platform that automates security threat modelin
 | Data Flow Diagram | Mermaid diagram with annotations | Yes |
 | DevSecOps Rules | Generated scanning rules | Yes |
 | Mitigations | Recommended security controls | Yes |
+| OWASP References | External reference citations | Yes |
 | Appendix | Methodology reference | Optional |
+
+#### FR-4.7.4 OWASP Reference Citations
+
+| ID | Requirement | Priority |
+|----|-------------|----------|
+| FR-4.7.4.1 | System shall include OWASP reference citations in reports | High |
+| FR-4.7.4.2 | References shall be mapped deterministically (no hallucination) | Critical |
+| FR-4.7.4.3 | References shall only be applied when mapping rules match | Critical |
+| FR-4.7.4.4 | Unmapped findings shall be flagged for manual review | High |
+| FR-4.7.4.5 | Reference format shall vary by report type | High |
+
+#### FR-4.7.5 Reference Library (Canonical Sources)
+
+| Reference ID | Title | URL |
+|--------------|-------|-----|
+| OWASP_TOP10_2025 | OWASP Top 10:2025 | https://owasp.org/Top10/2025/ |
+| OWASP_LLM_TOP10 | OWASP LLM Top 10 | https://genai.owasp.org/llm-top-10/ |
+| OWASP_AGENTIC_THREATS | Agentic AI Threats | https://genai.owasp.org/resource/agentic-ai-threats-and-mitigations/ |
+| OWASP_AGENTIC_TOP10_2026 | OWASP Top 10 for Agentic Apps | https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/ |
+| OWASP_GENAI_INITIATIVES | GenAI Security Initiatives | https://genai.owasp.org/initiatives/ |
+| OWASP_GENAI_REDTEAM | GenAI Red Teaming Guide | https://genai.owasp.org/resource/genai-red-teaming-guide/ |
+
+#### FR-4.7.6 Reference Mapping by Report Type
+
+| Report Type | Reference Behavior |
+|-------------|-------------------|
+| Full | All finding references + External References appendix |
+| Executive | Top 5-10 finding references + Standards & Guidance summary |
+| Technical | All finding references + OWASP Mapping Methodology notes |
+| Compliance | Control/Governance references + Finding-to-Reference mapping table |
+
+#### FR-4.7.7 Deterministic Mapping Rules
+
+| Finding Attribute | Mapped References |
+|-------------------|-------------------|
+| MAESTRO category (AGENT01-06) | OWASP_AGENTIC_THREATS, OWASP_AGENTIC_TOP10_2026 |
+| LLM/AI keywords detected | OWASP_LLM_TOP10 |
+| Agentic/autonomous keywords | OWASP_AGENTIC_THREATS, OWASP_AGENTIC_TOP10_2026 |
+| Web app security keywords | OWASP_TOP10_2025 |
+| API security keywords | OWASP_API_TOP10_2023 |
+| STRIDE categories | OWASP_TOP10_2025, OWASP_API_TOP10_2023 |
 
 ---
 
@@ -1325,8 +1388,8 @@ Response (200):
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
-| 1.0 | 2026-01-14 | SecurityReview.ai Team | Initial document creation |
-| 1.1 | 2026-01-15 | SecurityReview.ai Team | Updated Project data model with source, architecture_types, methodology fields; Added analysis list API with project names; Added analysis history UI requirements (UI-8.1.4.7-13); Added DFD page context requirements (UI-8.1.5.5-10); Enhanced error categories with user messages and response structure; Updated status to Active |
+| 1.0 | 2026-01-14 | PadmaVue.ai Team | Initial document creation |
+| 1.1 | 2026-01-15 | PadmaVue.ai Team | Updated Project data model with source, architecture_types, methodology fields; Added analysis list API with project names; Added analysis history UI requirements (UI-8.1.4.7-13); Added DFD page context requirements (UI-8.1.5.5-10); Enhanced error categories with user messages and response structure; Updated status to Active |
 
 ---
 

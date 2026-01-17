@@ -1,0 +1,47 @@
+{
+  "id": "THR-FF170868",
+  "category": "Spoofing",
+  "title": "Credential Stuffing via Weak Authentication",
+  "description": "Attackers leverage lists of compromised usernames and passwords (credential stuffing) to gain unauthorized access to the system. Due to the lack of information on authentication mechanisms, the system is vulnerable to this common attack.",
+  "affected_component": "Authentication Module",
+  "attack_vector": "Brute-force or dictionary attacks against username/password combinations. Exploitation of known vulnerabilities in the authentication logic.",
+  "dread_score": {
+    "damage": 8,
+    "reproducibility": 9,
+    "exploitability": 7,
+    "affected_users": 9,
+    "discoverability": 6
+  },
+  "overall_risk": 7.8,
+  "severity": "high",
+  "mitigations": [
+    "Implement Multi-Factor Authentication (MFA) for all users.",
+    "Enforce strong password policies (length, complexity, rotation).",
+    "Rate limiting and account lockout policies to mitigate brute-force attacks."
+  ],
+  "compliance_mappings": {
+    "NIST_800_53": [
+      "AC-17",
+      "AC-3",
+      "IA-2",
+      "IA-2(1)",
+      "IA-2(2)",
+      "IA-5",
+      "IA-8",
+      "SC-5",
+      "SC-7",
+      "SC-8"
+    ],
+    "OWASP_ASVS": [
+      "V2.1.1",
+      "V2.1.2",
+      "V2.2.1",
+      "V2.3.1",
+      "V2.5.1",
+      "V2.7.1"
+    ]
+  },
+  "analysis_id": "2c1f6f20-7fc9-444a-be2d-ad578f054e6f",
+  "stored_at": "2026-01-15T22:09:58.395677",
+  "_ts": "2026-01-15T22:09:58.395682"
+}

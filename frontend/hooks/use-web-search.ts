@@ -3,9 +3,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { api, WebSearchStatus } from '@/lib/api';
 
-const WEB_SEARCH_KEY = 'securityreview_web_search_enabled';
-const REASONING_LEVEL_KEY = 'securityreview_reasoning_level';
-const SHOW_REASONING_KEY = 'securityreview_show_reasoning';
+const WEB_SEARCH_KEY = 'padmavue_web_search_enabled';
+const REASONING_LEVEL_KEY = 'padmavue_reasoning_level';
+const SHOW_REASONING_KEY = 'padmavue_show_reasoning';
 
 // ===========================================
 // Types

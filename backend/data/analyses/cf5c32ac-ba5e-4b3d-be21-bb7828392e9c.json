@@ -7,23 +7,24 @@
     {
       "id": "THR-A4C64108",
       "category": "Spoofing",
-      "title": "Weak Authentication Mechanism",
+      "title": "Weak Authentication Mechanism ",
       "description": "The system lacks documented authentication and authorization mechanisms. This creates an opportunity for attackers to impersonate legitimate users, potentially gaining unauthorized access to sensitive data or performing malicious actions. The absence of multi-factor authentication (MFA) and weak password policies exacerbates this risk.",
       "affected_component": "Authentication Service, User Database",
       "attack_vector": "Exploitation of vulnerabilities in the authentication service, brute-force attacks against weak passwords, or credential stuffing attacks using leaked credentials from other systems.",
       "dread_score": {
-        "damage": 9,
-        "reproducibility": 8,
-        "exploitability": 7,
-        "affected_users": 10,
-        "discoverability": 6
+        "damage": 9.0,
+        "reproducibility": 8.0,
+        "exploitability": 7.0,
+        "affected_users": 10.0,
+        "discoverability": 6.0
       },
       "overall_risk": 8.0,
-      "severity": "critical",
+      "severity": "high",
       "mitigations": [
         "Implement strong password policies (minimum length, complexity, regular rotation).",
         "Enforce Multi-Factor Authentication (MFA) for all users.",
-        "Regularly audit authentication logs for suspicious activity and compromised credentials."
+        "Regularly audit authentication logs for suspicious activity and compromised credentials.",
+        "sawfdvasdfbadsfba"
       ],
       "compliance_mappings": {
         "NIST_800_53": [
@@ -47,7 +48,11 @@
           "V2.5.1",
           "V2.7.1"
         ]
-      }
+      },
+      "analysis_id": "cf5c32ac-ba5e-4b3d-be21-bb7828392e9c",
+      "stored_at": "2026-01-15T02:40:11.901401",
+      "status": "identified",
+      "updated_at": "2026-01-15T22:09:48.846060"
     },
     {
       "id": "THR-53A82632",
@@ -950,5 +955,5 @@
   "source_data": null,
   "created_at": "2026-01-15T02:39:09.058789",
   "completed_at": "2026-01-15T02:40:11.909537",
-  "_ts": "2026-01-15T02:40:11.913757"
+  "_ts": "2026-01-15T22:09:48.847632"
 }

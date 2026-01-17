@@ -1,0 +1,466 @@
+{
+  "id": "4f371498-fffc-48b3-8469-f31036ef7f58",
+  "project_id": "db94a354-213f-426f-9d92-adbf0b8c7cfa",
+  "methodology": "stride",
+  "status": "completed",
+  "created_at": "2026-01-15T22:12:22.911869",
+  "completed_at": "2026-01-15T22:12:22.911987",
+  "summary": {
+    "total_threats": 12,
+    "critical": 3,
+    "high": 6,
+    "medium": 3,
+    "low": 0,
+    "architecture_types": [
+      "web_app",
+      "serverless",
+      "batch_job"
+    ],
+    "data_types": [
+      "financial"
+    ]
+  },
+  "threats": [
+    {
+      "id": "THREAT-001",
+      "category": "Spoofing",
+      "stride_category": "S",
+      "title": "Authentication Bypass",
+      "description": "Attacker may bypass authentication mechanisms to impersonate legitimate users",
+      "affected_component": "Authentication System",
+      "attack_vector": "Credential stuffing, brute force, session hijacking, token theft",
+      "severity": "high",
+      "mitigations": [
+        "Implement multi-factor authentication (MFA)",
+        "Use secure session management",
+        "Enforce strong password policies",
+        "Implement account lockout after failed attempts",
+        "Use secure token storage"
+      ],
+      "overall_risk": 7.0,
+      "dread_score": {
+        "damage": 8.0,
+        "reproducibility": 6,
+        "exploitability": 5,
+        "affected_users": 7,
+        "discoverability": 5
+      },
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AC-1"
+        ],
+        "OWASP_ASVS": [
+          "V1.1"
+        ]
+      },
+      "status": "open"
+    },
+    {
+      "id": "THREAT-002",
+      "category": "Spoofing",
+      "stride_category": "S",
+      "title": "API Key Compromise",
+      "description": "API keys or service credentials may be compromised and used for unauthorized access",
+      "affected_component": "API Gateway",
+      "attack_vector": "Key exposure in logs, source code, or client-side storage",
+      "severity": "high",
+      "mitigations": [
+        "Rotate API keys regularly",
+        "Never expose keys in client-side code",
+        "Use secrets management solutions",
+        "Implement key scoping and least privilege"
+      ],
+      "overall_risk": 7.0,
+      "dread_score": {
+        "damage": 8.0,
+        "reproducibility": 6,
+        "exploitability": 5,
+        "affected_users": 7,
+        "discoverability": 5
+      },
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AC-1"
+        ],
+        "OWASP_ASVS": [
+          "V1.1"
+        ]
+      },
+      "status": "open"
+    },
+    {
+      "id": "THREAT-003",
+      "category": "Tampering",
+      "stride_category": "T",
+      "title": "Data Manipulation in Transit",
+      "description": "Attacker may intercept and modify data as it flows between components",
+      "affected_component": "Network Communication",
+      "attack_vector": "Man-in-the-middle attacks, SSL stripping",
+      "severity": "high",
+      "mitigations": [
+        "Enforce TLS 1.3 for all communications",
+        "Implement certificate pinning",
+        "Use HSTS headers",
+        "Validate data integrity with checksums"
+      ],
+      "overall_risk": 7.0,
+      "dread_score": {
+        "damage": 8.0,
+        "reproducibility": 6,
+        "exploitability": 5,
+        "affected_users": 7,
+        "discoverability": 5
+      },
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AC-1"
+        ],
+        "OWASP_ASVS": [
+          "V1.1"
+        ]
+      },
+      "status": "open"
+    },
+    {
+      "id": "THREAT-004",
+      "category": "Tampering",
+      "stride_category": "T",
+      "title": "SQL/NoSQL Injection",
+      "description": "Attacker may inject malicious queries to manipulate or extract database data",
+      "affected_component": "Database Layer",
+      "attack_vector": "Unsanitized user input in database queries",
+      "severity": "critical",
+      "mitigations": [
+        "Use parameterized queries/prepared statements",
+        "Implement input validation and sanitization",
+        "Apply principle of least privilege for database accounts",
+        "Use ORM frameworks with built-in protection"
+      ],
+      "overall_risk": 9.0,
+      "dread_score": {
+        "damage": 10,
+        "reproducibility": 6,
+        "exploitability": 5,
+        "affected_users": 7,
+        "discoverability": 5
+      },
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AC-1"
+        ],
+        "OWASP_ASVS": [
+          "V1.1"
+        ]
+      },
+      "status": "open"
+    },
+    {
+      "id": "THREAT-005",
+      "category": "Repudiation",
+      "stride_category": "R",
+      "title": "Insufficient Audit Logging",
+      "description": "System may lack sufficient logging to attribute actions to specific users",
+      "affected_component": "Logging System",
+      "attack_vector": "Absence of audit trail allows denial of malicious actions",
+      "severity": "medium",
+      "mitigations": [
+        "Implement comprehensive audit logging",
+        "Log all authentication and authorization events",
+        "Use centralized, tamper-proof log storage",
+        "Include timestamps, user IDs, and IP addresses"
+      ],
+      "overall_risk": 5.0,
+      "dread_score": {
+        "damage": 6.0,
+        "reproducibility": 6,
+        "exploitability": 5,
+        "affected_users": 7,
+        "discoverability": 5
+      },
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AC-1"
+        ],
+        "OWASP_ASVS": [
+          "V1.1"
+        ]
+      },
+      "status": "open"
+    },
+    {
+      "id": "THREAT-006",
+      "category": "Information Disclosure",
+      "stride_category": "I",
+      "title": "Sensitive Data Exposure",
+      "description": "Sensitive information may be exposed through APIs, logs, or error messages",
+      "affected_component": "API/Application Layer",
+      "attack_vector": "Verbose error messages, API enumeration, log exposure",
+      "severity": "high",
+      "mitigations": [
+        "Implement proper error handling without sensitive details",
+        "Mask PII in logs",
+        "Use data classification and protection",
+        "Implement rate limiting on APIs"
+      ],
+      "overall_risk": 7.0,
+      "dread_score": {
+        "damage": 8.0,
+        "reproducibility": 6,
+        "exploitability": 5,
+        "affected_users": 7,
+        "discoverability": 5
+      },
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AC-1"
+        ],
+        "OWASP_ASVS": [
+          "V1.1"
+        ]
+      },
+      "status": "open"
+    },
+    {
+      "id": "THREAT-007",
+      "category": "Information Disclosure",
+      "stride_category": "I",
+      "title": "Insecure Data Storage",
+      "description": "Data at rest may be accessible to unauthorized parties",
+      "affected_component": "Database/Storage",
+      "attack_vector": "Unencrypted storage, weak access controls",
+      "severity": "high",
+      "mitigations": [
+        "Encrypt data at rest using AES-256",
+        "Implement proper access controls",
+        "Use hardware security modules (HSM) for keys",
+        "Regular security assessments"
+      ],
+      "overall_risk": 7.0,
+      "dread_score": {
+        "damage": 8.0,
+        "reproducibility": 6,
+        "exploitability": 5,
+        "affected_users": 7,
+        "discoverability": 5
+      },
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AC-1"
+        ],
+        "OWASP_ASVS": [
+          "V1.1"
+        ]
+      },
+      "status": "open"
+    },
+    {
+      "id": "THREAT-008",
+      "category": "Denial of Service",
+      "stride_category": "D",
+      "title": "Resource Exhaustion",
+      "description": "Attacker may exhaust system resources causing service unavailability",
+      "affected_component": "Application Server",
+      "attack_vector": "DDoS, algorithmic complexity attacks, resource-intensive requests",
+      "severity": "medium",
+      "mitigations": [
+        "Implement rate limiting",
+        "Use CDN and DDoS protection",
+        "Set resource quotas and timeouts",
+        "Implement circuit breakers"
+      ],
+      "overall_risk": 5.0,
+      "dread_score": {
+        "damage": 6.0,
+        "reproducibility": 6,
+        "exploitability": 5,
+        "affected_users": 7,
+        "discoverability": 5
+      },
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AC-1"
+        ],
+        "OWASP_ASVS": [
+          "V1.1"
+        ]
+      },
+      "status": "open"
+    },
+    {
+      "id": "THREAT-009",
+      "category": "Elevation of Privilege",
+      "stride_category": "E",
+      "title": "Broken Access Control",
+      "description": "Attacker may access resources or functions beyond their authorization level",
+      "affected_component": "Authorization System",
+      "attack_vector": "IDOR, privilege escalation, missing function-level access control",
+      "severity": "critical",
+      "mitigations": [
+        "Implement role-based access control (RBAC)",
+        "Deny by default, allow explicitly",
+        "Validate authorization on every request",
+        "Regular access control audits"
+      ],
+      "overall_risk": 9.0,
+      "dread_score": {
+        "damage": 10,
+        "reproducibility": 6,
+        "exploitability": 5,
+        "affected_users": 7,
+        "discoverability": 5
+      },
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AC-1"
+        ],
+        "OWASP_ASVS": [
+          "V1.1"
+        ]
+      },
+      "status": "open"
+    },
+    {
+      "id": "THREAT-010",
+      "category": "Information Disclosure",
+      "stride_category": "I",
+      "title": "Personal Data Breach",
+      "description": "Personal or sensitive data may be exposed leading to regulatory violations",
+      "affected_component": "Data Processing Layer",
+      "attack_vector": "SQL injection, misconfigured access, insider threats",
+      "severity": "critical",
+      "mitigations": [
+        "Implement data encryption at rest and in transit",
+        "Apply data masking/tokenization",
+        "Enforce strict access controls",
+        "Regular data protection impact assessments"
+      ],
+      "overall_risk": 9.0,
+      "dread_score": {
+        "damage": 10,
+        "reproducibility": 6,
+        "exploitability": 5,
+        "affected_users": 7,
+        "discoverability": 5
+      },
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AC-1"
+        ],
+        "OWASP_ASVS": [
+          "V1.1"
+        ]
+      },
+      "status": "open"
+    },
+    {
+      "id": "THREAT-011",
+      "category": "Tampering",
+      "stride_category": "T",
+      "title": "Cross-Site Scripting (XSS)",
+      "description": "Attacker may inject malicious scripts that execute in users' browsers",
+      "affected_component": "Web Frontend",
+      "attack_vector": "Stored/reflected XSS through user input",
+      "severity": "high",
+      "mitigations": [
+        "Implement Content Security Policy (CSP)",
+        "Escape output properly",
+        "Use modern frameworks with built-in XSS protection",
+        "Input validation and sanitization"
+      ],
+      "overall_risk": 7.0,
+      "dread_score": {
+        "damage": 8.0,
+        "reproducibility": 6,
+        "exploitability": 5,
+        "affected_users": 7,
+        "discoverability": 5
+      },
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AC-1"
+        ],
+        "OWASP_ASVS": [
+          "V1.1"
+        ]
+      },
+      "status": "open"
+    },
+    {
+      "id": "THREAT-012",
+      "category": "Spoofing",
+      "stride_category": "S",
+      "title": "Cross-Site Request Forgery (CSRF)",
+      "description": "Attacker may trick users into performing unintended actions",
+      "affected_component": "Web Application",
+      "attack_vector": "Malicious links or forms submitted from attacker-controlled sites",
+      "severity": "medium",
+      "mitigations": [
+        "Implement CSRF tokens",
+        "Use SameSite cookie attribute",
+        "Verify Origin/Referer headers",
+        "Require re-authentication for sensitive operations"
+      ],
+      "overall_risk": 5.0,
+      "dread_score": {
+        "damage": 6.0,
+        "reproducibility": 6,
+        "exploitability": 5,
+        "affected_users": 7,
+        "discoverability": 5
+      },
+      "compliance_mappings": {
+        "NIST_800_53": [
+          "AC-1"
+        ],
+        "OWASP_ASVS": [
+          "V1.1"
+        ]
+      },
+      "status": "open"
+    }
+  ],
+  "dfd_mermaid": "flowchart TD\n    subgraph External[External Entities]\n        User[\"\ud83d\udc64 User\"]\n        Admin[\"\ud83d\udc64 Admin\"]\n    end\n    subgraph Frontend[Frontend Tier]\n        WebApp[\"\ud83c\udf10 Web Application\"]\n    end\n    subgraph Backend[Backend Tier]\n        API[\"\u2699\ufe0f API Server\"]\n        Auth[\"\ud83d\udd10 Auth Service\"]\n    end\n    subgraph Data[Data Tier]\n        DB[(\"\ud83d\uddc4\ufe0f Database\")]\n    end\n\n    User --> WebApp\n    Admin --> WebApp\n    WebApp --> API\n    API --> Auth\n    API --> DB",
+  "compliance_summary": {},
+  "source_data": {
+    "methodology": "stride",
+    "architecture_type": [
+      "web_app",
+      "serverless",
+      "batch_job"
+    ],
+    "system_description": "nrdgnrgdn",
+    "components": null,
+    "uses_ai": "no",
+    "ai_type": null,
+    "ai_provider": null,
+    "ai_data_handling": null,
+    "ai_security_concerns": null,
+    "data_types": [
+      "financial"
+    ],
+    "data_storage": null,
+    "data_flow_description": "gfndfgn",
+    "auth_method": [
+      "oauth",
+      "jwt"
+    ],
+    "auth_provider": [
+      "auth0"
+    ],
+    "authorization": [
+      "rbac"
+    ],
+    "network_exposure": null,
+    "encryption": null,
+    "secrets_management": [
+      "env_vars"
+    ],
+    "logging_monitoring": null,
+    "compliance_frameworks": null,
+    "security_concerns": null,
+    "additional_info": "ngfd",
+    "architecture_type_custom": null,
+    "auth_method_custom": null
+  },
+  "_ts": "2026-01-15T22:12:22.915402"
+}

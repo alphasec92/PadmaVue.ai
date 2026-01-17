@@ -1,6 +1,6 @@
 #!/bin/bash
 # ===========================================
-# SecurityReview.ai - Backend Development Server
+# PadmaVue.ai - Backend Development Server
 # Runs with virtual environment
 # ===========================================
 
@@ -19,7 +19,7 @@ BACKEND_DIR="$PROJECT_ROOT/backend"
 VENV_DIR="$BACKEND_DIR/venv"
 
 echo -e "${BLUE}=========================================${NC}"
-echo -e "${BLUE}SecurityReview.ai - Backend Dev Server${NC}"
+echo -e "${BLUE}PadmaVue.ai - Backend Dev Server${NC}"
 echo -e "${BLUE}=========================================${NC}"
 echo ""
 

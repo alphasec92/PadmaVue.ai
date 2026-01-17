@@ -86,7 +86,7 @@ class MCPServerConfig:
 
 class MCPClient:
     """
-    Universal MCP Client for SecurityReview.ai
+    Universal MCP Client for PadmaVue.ai
     
     Connects to external MCP servers to discover and invoke security tools,
     access knowledge resources, and use prompt templates.
@@ -143,7 +143,7 @@ class MCPClient:
                     "prompts": {}
                 },
                 "clientInfo": {
-                    "name": "SecurityReview.ai",
+                    "name": "PadmaVue.ai",
                     "version": "1.0.0"
                 }
             })

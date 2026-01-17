@@ -28,7 +28,7 @@ SENSITIVE_KEYS = frozenset({'password', 'secret', 'api_key', 'token', 'authoriza
 
 def add_context(_, __, event_dict):
     """Add app context"""
-    event_dict.update(app="SecurityReview.ai", version="1.0.0")
+    event_dict.update(app="PadmaVue.ai", version="1.0.0")
     return event_dict
 
 

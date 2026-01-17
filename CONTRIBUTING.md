@@ -1,11 +1,11 @@
-# Contributing to SecurityReview.ai
+# Contributing to PadmaVue.ai
 
 Thank you for your interest in contributing! This document provides guidelines for contributions.
 
 ## Getting Started
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/yourusername/Securityreview.ai.git`
+2. Clone your fork: `git clone https://github.com/yourusername/PadmaVue.ai.git`
 3. Create a branch: `git checkout -b feature/your-feature`
 4. Make your changes
 5. Run tests: `cd backend && pytest`
@@ -15,8 +15,8 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 ```bash
 # Clone and setup
-git clone https://github.com/yourusername/Securityreview.ai.git
-cd Securityreview.ai
+git clone https://github.com/yourusername/PadmaVue.ai.git
+cd PadmaVue.ai
 ./start.sh --reset
 ```
 

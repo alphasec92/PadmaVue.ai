@@ -1,5 +1,5 @@
 {
-  "family": "securityreview-frontend",
+  "family": "padmavue-frontend",
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "256",
@@ -29,7 +29,7 @@
         },
         {
           "name": "NEXT_PUBLIC_APP_NAME",
-          "value": "SecurityReview.ai"
+          "value": "PadmaVue.ai"
         },
         {
           "name": "NEXT_PUBLIC_ENABLE_MOCK_MODE",
@@ -39,7 +39,7 @@
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/securityreview-frontend",
+          "awslogs-group": "/ecs/padmavue-frontend",
           "awslogs-region": "${AWS_REGION}",
           "awslogs-stream-prefix": "ecs"
         }

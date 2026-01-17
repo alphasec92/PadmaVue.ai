@@ -50,7 +50,12 @@ class AnalysisRequest(BaseModel):
     """Request model for security analysis"""
     project_id: str
     analysis_type: str = Field(default="full")
-    methodology: str = Field(default="stride")
+    methodology: str = Field(default="stride")  # Primary: "stride" or "pasta"
+    # MAESTRO (Agentic AI) overlay settings
+    include_maestro: bool = Field(default=False, description="Include MAESTRO agentic AI threat analysis")
+    force_maestro: bool = Field(default=False, description="Force MAESTRO even if not auto-detected")
+    maestro_confidence_threshold: float = Field(default=0.6, ge=0.0, le=1.0, description="Confidence threshold for MAESTRO applicability")
+    # Other settings
     include_dfd: bool = Field(default=True)
     include_compliance: bool = Field(default=True)
     include_devsecops: bool = Field(default=True)
@@ -78,6 +83,17 @@ class ThreatFinding(BaseModel):
     business_impact: Optional[str] = None
 
 
+class MaestroApplicabilityResponse(BaseModel):
+    """MAESTRO applicability decision with evidence"""
+    applicable: bool
+    confidence: float
+    status: str  # "detected" | "not_detected" | "forced"
+    reasons: List[str]
+    evidence: List[Dict[str, Any]]
+    signals: Optional[Dict[str, Any]] = None
+    checked_at: Optional[str] = None
+
+
 class AnalysisResponse(BaseModel):
     """Response model for security analysis"""
     analysis_id: str
@@ -92,6 +108,9 @@ class AnalysisResponse(BaseModel):
     dfd_mermaid: Optional[str] = None
     devsecops_rules: Optional[Dict[str, Any]] = None
     pasta_stages: Optional[Dict[str, Any]] = None
+    # MAESTRO (Agentic AI) results
+    maestro_applicability: Optional[MaestroApplicabilityResponse] = None
+    maestro_threats: Optional[List[Dict[str, Any]]] = None
 
 
 class AnalysisStatus(BaseModel):
@@ -239,7 +258,11 @@ async def analyze_project(
             include_compliance=request.include_compliance,
             include_devsecops=request.include_devsecops,
             compliance_frameworks=frameworks,
-            severity_threshold=severity_threshold
+            severity_threshold=severity_threshold,
+            # MAESTRO (Agentic AI) overlay parameters
+            include_maestro=request.include_maestro,
+            force_maestro=request.force_maestro,
+            maestro_confidence_threshold=request.maestro_confidence_threshold
         )
         
         # Save threats individually for detailed tracking
@@ -297,6 +320,13 @@ async def analyze_project(
                    methodology=methodology,
                    threats_found=len(result.get('threats', [])))
         
+        # Build MAESTRO applicability response if present
+        maestro_applicability = None
+        if result.get("maestro_applicability"):
+            maestro_applicability = MaestroApplicabilityResponse(
+                **result["maestro_applicability"]
+            )
+        
         return AnalysisResponse(
             analysis_id=final_analysis.id,
             project_id=final_analysis.project_id,
@@ -309,7 +339,10 @@ async def analyze_project(
             compliance_summary=final_analysis.compliance_summary,
             dfd_mermaid=final_analysis.dfd_mermaid,
             devsecops_rules=final_analysis.devsecops_rules,
-            pasta_stages=final_analysis.pasta_stages if methodology == "pasta" else None
+            pasta_stages=final_analysis.pasta_stages if methodology == "pasta" else None,
+            # MAESTRO results
+            maestro_applicability=maestro_applicability,
+            maestro_threats=result.get("maestro_threats", [])
         )
         
     except AnalysisError as e:

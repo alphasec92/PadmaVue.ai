@@ -1,6 +1,6 @@
 @echo off
 REM ===========================================
-REM SecurityReview.ai - Start Script (Windows CMD)
+REM PadmaVue.ai - Start Script (Windows CMD)
 REM ===========================================
 REM Usage: start.bat [options]
 REM   /full      Full mode with Neo4j + Qdrant
@@ -11,7 +11,7 @@ REM ===========================================
 
 echo.
 echo ===========================================================
-echo              SecurityReview.ai
+echo                   PadmaVue.ai
 echo          AI-Powered Threat Modeling Platform
 echo ===========================================================
 echo.
