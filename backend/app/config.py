@@ -42,7 +42,7 @@ class Settings(BaseSettings):
         default="http://localhost:3000",
         description="Comma-separated list of allowed CORS origins"
     )
-    RATE_LIMIT_PER_MINUTE: int = Field(default=300, description="Rate limit per IP per minute")
+    RATE_LIMIT_PER_MINUTE: int = Field(default=600, description="Rate limit per IP per minute")
     
     # ==========================================
     # Storage Configuration

@@ -116,8 +116,16 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         ]
     
     async def dispatch(self, request: Request, call_next):
-        # Skip rate limiting for health checks
-        if request.url.path in ["/health", "/", "/docs", "/redoc", "/openapi.json"]:
+        # Skip rate limiting for health checks and status/polling endpoints
+        skip_paths = ["/health", "/", "/docs", "/redoc", "/openapi.json"]
+        # Also skip lightweight status/polling endpoints to avoid rate limiting frontend polls
+        skip_suffixes = ["/status", "/providers"]
+        
+        if request.url.path in skip_paths:
+            return await call_next(request)
+        
+        # Skip status polling endpoints (lightweight GET requests)
+        if request.method == "GET" and any(request.url.path.endswith(suffix) for suffix in skip_suffixes):
             return await call_next(request)
         
         client_ip = self._get_client_ip(request)

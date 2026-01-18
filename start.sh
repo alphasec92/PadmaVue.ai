@@ -218,6 +218,12 @@ setup_frontend() {
     
     cd "$SCRIPT_DIR/frontend"
     
+    # Clean .next cache if reset requested (prevents Turbopack permission errors)
+    if [ "${RESET_MODE:-false}" = true ] && [ -d ".next" ]; then
+        print_info "Cleaning Next.js cache..."
+        rm -rf .next
+    fi
+    
     # Install node_modules if missing or reset requested
     if [ ! -d "node_modules" ] || [ "${RESET_MODE:-false}" = true ]; then
         print_info "Installing Node.js packages..."
@@ -413,6 +419,17 @@ start_frontend() {
     print_step "Starting frontend server..."
     
     cd "$SCRIPT_DIR/frontend"
+    
+    # Clean up stale Next.js artifacts (prevents lock file and permission errors)
+    if [ -d ".next" ]; then
+        # Remove stale lock file from previous crashed sessions
+        rm -f .next/dev/lock 2>/dev/null
+        
+        # On macOS, remove quarantine attributes that can cause Turbopack permission errors
+        if [[ "$(uname)" == "Darwin" ]]; then
+            xattr -rd com.apple.quarantine .next 2>/dev/null || true
+        fi
+    fi
     
     # Check port 3000
     if port_in_use 3000; then
