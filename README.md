@@ -124,8 +124,8 @@ winget install OpenJS.NodeJS
 **No building required!** Pull and run pre-built images directly:
 
 ```bash
-# Download the compose file
-curl -fsSL https://raw.githubusercontent.com/kjangiti/PandmaVue.ai/main/infra/docker/compose/docker-compose.hub.yml -o docker-compose.yml
+# Download the compose file (update URL for your fork)
+curl -fsSL https://raw.githubusercontent.com/YOUR_USERNAME/PadmaVue.ai/main/infra/docker/compose/docker-compose.hub.yml -o docker-compose.yml
 
 # Start everything
 docker compose up -d
@@ -166,12 +166,12 @@ docker compose -f infra/docker/compose/compose.full.yml down
 
 ### Docker Images
 
-Pre-built images available on GitHub Container Registry:
+Pre-built images available on GitHub Container Registry (update paths for your fork):
 
 | Image | Pull Command |
 |-------|--------------|
-| Backend | `docker pull ghcr.io/kjangiti/pandmavue.ai/backend:latest` |
-| Frontend | `docker pull ghcr.io/kjangiti/pandmavue.ai/frontend:latest` |
+| Backend | `docker pull ghcr.io/YOUR_USERNAME/padmavue.ai/backend:latest` |
+| Frontend | `docker pull ghcr.io/YOUR_USERNAME/padmavue.ai/frontend:latest` |
 
 **Tags available:**
 - `latest` — Latest stable build from main branch
@@ -197,6 +197,17 @@ ollama serve
 1. Download from https://ollama.com
 2. Run: `ollama pull llama3.2`
 3. Run: `ollama serve`
+
+**During setup**, the script shows your available models:
+```
+Available models:
+  1) llama3.2:latest       ...
+  2) deepseek-r1:latest    ...
+  3) gpt-oss:20b           ...
+
+Select model (number or name, default: llama3.2): 
+```
+Enter a **number** (e.g., `1`) or **model name** (e.g., `llama3.2`).
 
 ### Option 2: LM Studio (Free, Local)
 1. Download from https://lmstudio.ai
@@ -282,7 +293,7 @@ curl -X POST http://localhost:8000/api/analyze \
 ## 📁 Project Structure
 
 ```
-PandmaVue.ai/
+PadmaVue.ai/
 ├── start.sh / start.ps1           # Start scripts
 ├── stop.sh / stop.ps1             # Stop scripts
 ├── infra/
@@ -329,7 +340,60 @@ See `env-templates/backend.env` for all options.
 
 ---
 
+## 🌐 Web Search (Grounded Responses)
+
+Enable web search for fact-checked AI responses with citations.
+
+### Setup SearXNG (Recommended - Free & Self-hosted)
+
+```bash
+# Start SearXNG search engine
+docker compose -f infra/docker/compose/docker-compose.search.yml up -d
+
+# Add to backend/.env:
+# SEARCH_PROVIDER=searxng
+
+# Restart backend to apply
+./stop.sh && ./start.sh
+```
+
+### Alternative: Paid Search Providers
+
+Configure in **⚙️ Settings** or `backend/.env`:
+- **Tavily** - AI-optimized search (`TAVILY_API_KEY`)
+- **Serper** - Google Search API (`SERPER_API_KEY`)
+- **Brave** - Privacy-focused (`BRAVE_API_KEY`)
+- **Bing** - Microsoft Search (`BING_API_KEY`)
+
+### Features
+
+- 🔍 **Grounded Responses** - AI answers backed by real-time web search
+- 📚 **Citations** - Sources linked in every response
+- ✅ **Fact-checking** - Reduces AI hallucinations
+- 🔒 **Privacy** - SearXNG is self-hosted, no data sent externally
+
+---
+
 ## ❓ Troubleshooting
+
+### "LLM Provider Not Configured"
+
+This appears when no AI model is configured. **Solutions:**
+
+1. **Use the Settings UI** — Click the **"Configure in Settings"** button shown in the error
+2. **Or configure manually:**
+   ```bash
+   # For Ollama (free, local)
+   ollama serve                          # Start Ollama
+   # Then in backend/.env:
+   LLM_PROVIDER=ollama
+   OLLAMA_MODEL=llama3.2
+   ```
+3. **Or use Mock Mode** for testing (no AI needed):
+   ```bash
+   # In backend/.env:
+   LLM_PROVIDER=mock
+   ```
 
 ### "Backend not connected"
 ```bash
@@ -377,6 +441,8 @@ powershell -ExecutionPolicy Bypass -File start.ps1
 | DFD Generation | Mermaid data flow diagrams |
 | DevSecOps Rules | Checkov, tfsec, Semgrep |
 | MCP Integration | External security tools |
+| **AI/ML Threat Modeling** | Specialized questions for AI agents, MCP, tool-calling |
+| **Web Search** | Grounded responses with citations (SearXNG) |
 
 ### OWASP Reference Citations
 
@@ -416,9 +482,27 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 See [SECURITY.md](SECURITY.md) for reporting vulnerabilities.
 
+## 🔄 Dependabot
+
+This repository uses [Dependabot](https://docs.github.com/en/code-security/dependabot) for automated dependency updates.
+
+### Enabling Dependabot
+
+1. Go to your repository on GitHub
+2. Navigate to **Settings** → **Code security and analysis**
+3. Enable **Dependabot alerts** for vulnerability notifications
+4. Enable **Dependabot security updates** for automatic security patches
+5. Enable **Dependabot version updates** for weekly dependency updates
+
+The configuration file is at `.github/dependabot.yml` and covers:
+- Python dependencies (backend)
+- npm dependencies (frontend)
+- Docker base images
+- GitHub Actions
+
 ## 📄 License
 
-MIT License - See LICENSE file.
+MIT License - See [LICENSE](LICENSE) file.
 
 ---
 

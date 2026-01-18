@@ -5,7 +5,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 ## Getting Started
 
 1. Fork the repository
-2. Clone your fork: `git clone https://github.com/yourusername/PadmaVue.ai.git`
+2. Clone your fork: `git clone https://github.com/YOUR_USERNAME/PadmaVue.ai.git`
 3. Create a branch: `git checkout -b feature/your-feature`
 4. Make your changes
 5. Run tests: `cd backend && pytest`
@@ -14,8 +14,8 @@ Thank you for your interest in contributing! This document provides guidelines f
 ## Development Setup
 
 ```bash
-# Clone and setup
-git clone https://github.com/yourusername/PadmaVue.ai.git
+# Clone and setup (replace YOUR_USERNAME with your GitHub username)
+git clone https://github.com/YOUR_USERNAME/PadmaVue.ai.git
 cd PadmaVue.ai
 ./start.sh --reset
 ```

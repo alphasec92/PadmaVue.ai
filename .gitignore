@@ -2,6 +2,8 @@
 .env
 .env.local
 .env.*.local
+.env.configured
+*.env.configured
 
 # Python virtual environments
 backend/venv/
@@ -46,6 +48,7 @@ yarn-error.log*
 # Runtime data
 .pid
 *.pid
+.*.pid
 pids/
 *.seed
 
@@ -53,6 +56,20 @@ pids/
 backend/uploads/
 backend/temp/
 /tmp/
+
+# Runtime data storage (user/analysis data)
+backend/data/
+backend/logs/
+data/
+logs/
+uploads/
+
+# Claude Code
+.claude/
+
+# Docker data volumes
+infra/docker/compose/searxng-data/
+**/searxng-data/
 
 # OS files
 .DS_Store

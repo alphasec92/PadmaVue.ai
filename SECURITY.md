@@ -6,8 +6,8 @@
 
 If you discover a security vulnerability in PadmaVue.ai, please report it responsibly:
 
-1. **Email**: Send details to [security@padmavue.ai](mailto:security@padmavue.ai)
-2. **GitHub Security Advisory**: Use [GitHub's private vulnerability reporting](https://github.com/yourusername/PadmaVue.ai/security/advisories/new)
+1. **GitHub Security Advisory** (Recommended): Use [GitHub's private vulnerability reporting](../../security/advisories/new)
+2. **Email**: Contact the repository maintainer directly
 
 ### What to Include
 

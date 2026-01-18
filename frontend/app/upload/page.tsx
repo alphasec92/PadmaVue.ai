@@ -29,6 +29,7 @@ import { cn } from '@/lib/utils';
 import { MethodologySelector, type MethodologySettings } from '@/components/methodology-selector';
 import { useProjectStore } from '@/store/project-store';
 import { api } from '@/lib/api';
+import { SettingsModal } from '@/components/settings-modal';
 
 const acceptedFileTypes = {
   'application/pdf': ['.pdf'],
@@ -63,6 +64,7 @@ interface ErrorDetails {
   message: string;
   cause?: string;
   solution?: string;
+  isLLMConfig?: boolean;
 }
 
 // Parse error into detailed format
@@ -88,11 +90,18 @@ function parseError(err: any): ErrorDetails {
   }
   
   // LLM not configured
-  if (message.includes('LLM') || message.includes('provider') || message.includes('No LLM')) {
+  if (message.toLowerCase().includes('llm') || 
+      message.toLowerCase().includes('provider not configured') || 
+      message.toLowerCase().includes('no llm') ||
+      message.toLowerCase().includes('mock mode') ||
+      message.toLowerCase().includes('api key') ||
+      message.toLowerCase().includes('ollama') && message.toLowerCase().includes('not running') ||
+      message.toLowerCase().includes('connection refused')) {
     return {
-      message: 'LLM provider not configured',
+      message: 'LLM Provider Not Configured',
       cause: 'No AI model is configured to process your request',
-      solution: 'Click the ⚙️ Settings icon in the navbar to configure an LLM provider (Ollama, OpenAI, etc.)'
+      solution: 'Configure an LLM provider (Ollama, OpenAI, Anthropic, etc.) to enable AI-powered threat modeling.',
+      isLLMConfig: true
     };
   }
   
@@ -155,6 +164,7 @@ export default function UploadPage() {
   const [error, setError] = useState<ErrorDetails | null>(null);
   const [inputMode, setInputMode] = useState<'files' | 'chat'>('files');
   const [backendStatus, setBackendStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
+  const [showSettings, setShowSettings] = useState(false);
 
   // Check backend on mount
   useEffect(() => {
@@ -231,13 +241,15 @@ export default function UploadPage() {
 
       // Store project info
       setProjectId(ingestResponse.project_id);
-      setMethodology(methodologySettings.primary);
+      // Map maestro to stride for the store (maestro is an overlay, not a base methodology)
+      const baseMethodology = methodologySettings.primary === 'maestro' ? 'stride' : methodologySettings.primary;
+      setMethodology(baseMethodology);
 
       // Step 2: Run security analysis with MAESTRO overlay if enabled
       setUploadProgress(60);
       const analysisResponse = await api.analyze({
         project_id: ingestResponse.project_id,
-        methodology: methodologySettings.primary,
+        methodology: baseMethodology,
         include_dfd: true,
         include_compliance: true,
         include_devsecops: true,
@@ -562,12 +574,26 @@ export default function UploadPage() {
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="p-4 rounded-xl bg-destructive/10 border border-destructive/30"
+                className={cn(
+                  "p-4 rounded-xl",
+                  error.isLLMConfig 
+                    ? "bg-amber-500/10 border border-amber-500/30"
+                    : "bg-destructive/10 border border-destructive/30"
+                )}
               >
                 <div className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+                  {error.isLLMConfig ? (
+                    <Settings className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                  ) : (
+                    <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+                  )}
                   <div className="flex-1">
-                    <p className="font-medium text-destructive">{error.message}</p>
+                    <p className={cn(
+                      "font-medium",
+                      error.isLLMConfig ? "text-amber-600 dark:text-amber-400" : "text-destructive"
+                    )}>
+                      {error.message}
+                    </p>
                     {error.cause && (
                       <p className="text-sm text-muted-foreground mt-1">
                         <span className="font-medium">Cause:</span> {error.cause}
@@ -582,12 +608,35 @@ export default function UploadPage() {
                         <p className="text-sm text-muted-foreground whitespace-pre-wrap">{error.solution}</p>
                       </div>
                     )}
+                    {error.isLLMConfig && (
+                      <div className="mt-3 flex items-center gap-3">
+                        <button
+                          onClick={() => {
+                            setShowSettings(true);
+                            setError(null);
+                          }}
+                          className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-medium transition-colors"
+                        >
+                          <Settings className="w-4 h-4" />
+                          Configure in Settings
+                        </button>
+                        <span className="text-xs text-muted-foreground">
+                          Choose Ollama, OpenAI, Anthropic, or another provider
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <button 
                     onClick={() => setError(null)} 
-                    className="p-1 rounded-lg hover:bg-destructive/20"
+                    className={cn(
+                      "p-1 rounded-lg",
+                      error.isLLMConfig ? "hover:bg-amber-500/20" : "hover:bg-destructive/20"
+                    )}
                   >
-                    <X className="w-4 h-4 text-destructive" />
+                    <X className={cn(
+                      "w-4 h-4",
+                      error.isLLMConfig ? "text-amber-500" : "text-destructive"
+                    )} />
                   </button>
                 </div>
               </motion.div>
@@ -653,7 +702,7 @@ export default function UploadPage() {
                     {uploadProgress < 50 
                       ? 'Uploading and ingesting your documents...' 
                       : uploadProgress < 90 
-                        ? `Running ${selectedMethodology.toUpperCase()} threat analysis...`
+                        ? `Running ${methodologySettings.primary.toUpperCase()} threat analysis...`
                         : 'Generating threat model and DFD...'}
                   </p>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -671,6 +720,9 @@ export default function UploadPage() {
           </AnimatePresence>
         </div>
       </div>
+
+      {/* Settings Modal */}
+      <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
     </div>
   );
 }

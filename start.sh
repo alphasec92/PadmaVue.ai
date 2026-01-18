@@ -281,11 +281,39 @@ configure_ollama() {
             
             echo ""
             echo "Available models:"
-            ollama list 2>/dev/null || echo "  (run 'ollama pull llama3.2' to download a model)"
+            
+            # Get list of models and display with numbers
+            local models=()
+            local i=1
+            while IFS= read -r line; do
+                if [[ -n "$line" && ! "$line" =~ ^NAME ]]; then
+                    local model_name_only=$(echo "$line" | awk '{print $1}')
+                    models+=("$model_name_only")
+                    printf "  %d) %s\n" "$i" "$line"
+                    ((i++))
+                fi
+            done < <(ollama list 2>/dev/null)
+            
+            if [[ ${#models[@]} -eq 0 ]]; then
+                echo "  (No models installed. Run 'ollama pull llama3.2' to download a model)"
+            fi
             echo ""
             
-            read -rp "Model name (default: llama3.2): " model_name
-            model_name=${model_name:-llama3.2}
+            read -rp "Select model (number or name, default: llama3.2): " model_input
+            model_input=${model_input:-llama3.2}
+            
+            # Check if input is a number
+            if [[ "$model_input" =~ ^[0-9]+$ ]]; then
+                local idx=$((model_input - 1))
+                if [[ $idx -ge 0 && $idx -lt ${#models[@]} ]]; then
+                    model_name="${models[$idx]}"
+                else
+                    print_warning "Invalid selection, using default: llama3.2"
+                    model_name="llama3.2"
+                fi
+            else
+                model_name="$model_input"
+            fi
             
             if ! ollama list 2>/dev/null | grep -q "$model_name"; then
                 print_info "Pulling model $model_name..."

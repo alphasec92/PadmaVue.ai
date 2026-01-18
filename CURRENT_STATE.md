@@ -1,6 +1,6 @@
 # CURRENT_STATE
 
-Last updated: 2026-01-15 (Rev 3)
+Last updated: 2026-01-18 (Rev 4)
 
 This document summarizes what the codebase does today and the current runtime shape of the system. Update it whenever you introduce behavior changes, new components, or material architecture changes.
 
@@ -90,8 +90,17 @@ This document summarizes what the codebase does today and the current runtime sh
 - Provider configuration is applied **in memory** (not persisted to `.env`).
 
 #### Web Search (Grounded Responses)
-- Optional web-grounded responses via providers like **SearXNG** or paid search APIs.
+- Optional web-grounded responses via providers like **SearXNG** (recommended) or paid search APIs (Tavily, Serper, Brave, Bing).
+- **Setup SearXNG**: `docker compose -f infra/docker/compose/docker-compose.search.yml up -d`
+- Configure `SEARCH_PROVIDER=searxng` in `backend/.env` and restart.
 - Configured through `SEARCH_PROVIDER` and related env vars in `backend/app/config.py`.
+- **Endpoints**:
+  - `GET /api/architect-chat/web-search/status` - Check provider availability
+  - `GET /api/architect-chat/web-search/providers` - List available providers
+  - `GET /api/architect-chat/web-search/test` - Test search connectivity with sample query
+- **Settings**: Frontend settings modal includes:
+  - "Always Enable for Grounded Responses" toggle (persisted to localStorage)
+  - "Test Web Search Connection" button
 
 #### MCP Integration
 - MCP server definitions in `backend/app/api/mcp.py`.
@@ -237,6 +246,55 @@ This document summarizes what the codebase does today and the current runtime sh
 - **Updated**: Review page displays OWASP mappings for each threat
 - **Updated**: Threat cards show inline OWASP badge count and AI indicator
 - **Updated**: Threat type in API includes `owasp_mappings` field
+
+## Recent Fixes (2026-01-18)
+
+### LLM Configuration Error UX
+- **Added**: User-friendly error handling when LLM provider is not configured
+- **Added**: `isLLMConfigError()` helper function to detect LLM configuration errors
+- **Added**: "Configure in Settings" button that opens Settings modal directly from error messages
+- **Updated**: Error styling uses amber color (warning) instead of red for config issues
+- **Files changed**: 
+  - `frontend/app/ai-architect/page.tsx`
+  - `frontend/app/upload/page.tsx`
+  - `frontend/app/architect/page.tsx`
+
+### Start Script Enhancements
+- **Added**: Model selection by number in setup scripts
+- **Updated**: `start.sh` and `start.ps1` now display numbered model list:
+  ```
+  Available models:
+    1) llama3.2:latest       ...
+    2) deepseek-r1:latest    ...
+  Select model (number or name, default: llama3.2):
+  ```
+- Users can enter number (e.g., `1`) or model name (e.g., `llama3.2`)
+
+### Web Search Improvements
+- **Added**: "Always Enable for Grounded Responses" toggle in Settings
+- **Added**: `defaultEnabled` state in `useWebSearch` hook persisted to localStorage
+- **Added**: `testConnection()` function to verify web search provider connectivity
+- **Added**: `/api/architect-chat/web-search/test` endpoint for testing search providers
+- **Updated**: Settings modal shows test button and setup instructions for SearXNG
+
+### AI/ML Threat Model Builder Expansion
+- **Added**: New questions for AI agents, MCP, and tool-calling capabilities
+- **Added**: `ai_agent_capabilities` question covering:
+  - Tool/Function Calling
+  - MCP (Model Context Protocol)
+  - Direct API Access
+  - Code Execution
+  - File System Access
+  - Database Access
+  - Autonomous Decisions
+- **Added**: `ai_mcp_servers` textarea for listing MCP servers/tools
+- **Updated**: `ai_type` question includes AI Agent, Multi-Agent, RAG options
+- **Updated**: `ai_security_concerns` includes OWASP LLM Top 10 (2025) and Agentic AI categories
+- **Added**: `ai_guardrails` question for safety measures
+
+### Rate Limiting Fixes
+- **Fixed**: Frontend polling endpoints (`/status`, `/providers`) now exempt from rate limiting
+- **Increased**: Default rate limit from 300 to 600 requests per minute for development
 
 ## How to Keep This Current
 - Update this file whenever:

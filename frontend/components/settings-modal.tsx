@@ -117,6 +117,98 @@ interface ConnectionDebug {
   steps?: string[];
 }
 
+// Test Web Search Button Component
+function TestWebSearchButton() {
+  const [testing, setTesting] = useState(false);
+  const [result, setResult] = useState<{ success: boolean; message: string; results?: any[] } | null>(null);
+  
+  const runTest = async () => {
+    setTesting(true);
+    setResult(null);
+    try {
+      const response = await api.testWebSearch();
+      setResult(response);
+    } catch (error) {
+      setResult({
+        success: false,
+        message: error instanceof Error ? error.message : 'Test failed'
+      });
+    } finally {
+      setTesting(false);
+    }
+  };
+  
+  return (
+    <div className="mt-3">
+      <button
+        onClick={runTest}
+        disabled={testing}
+        className={cn(
+          "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all",
+          "bg-muted hover:bg-muted/80 border border-border"
+        )}
+      >
+        {testing ? (
+          <>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            Testing connection...
+          </>
+        ) : (
+          <>
+            <Wifi className="w-4 h-4" />
+            Test Web Search Connection
+          </>
+        )}
+      </button>
+      
+      {result && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className={cn(
+            "mt-3 p-3 rounded-lg border text-sm",
+            result.success 
+              ? "bg-emerald-500/10 border-emerald-500/30" 
+              : "bg-red-500/10 border-red-500/30"
+          )}
+        >
+          <div className="flex items-start gap-2">
+            {result.success ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5" />
+            ) : (
+              <XCircle className="w-4 h-4 text-red-500 mt-0.5" />
+            )}
+            <div>
+              <p className={cn(
+                "font-medium",
+                result.success ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"
+              )}>
+                {result.message}
+              </p>
+              {result.results && result.results.length > 0 && (
+                <div className="mt-2 space-y-1">
+                  <p className="text-xs text-muted-foreground">Sample results:</p>
+                  {result.results.slice(0, 2).map((r, i) => (
+                    <a 
+                      key={i} 
+                      href={r.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="block text-xs text-primary hover:underline truncate"
+                    >
+                      {r.title}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </div>
+  );
+}
+
 interface Props { isOpen: boolean; onClose: () => void; }
 
 type Tab = 'llm' | 'mcp' | 'methodology' | 'appearance' | 'about';
@@ -1741,46 +1833,91 @@ export function SettingsModal({ isOpen, onClose }: Props) {
                     </p>
                   </div>
 
-                  <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-muted/30">
-                    <div className="flex items-center gap-3">
-                      <div className={cn(
-                        "p-2 rounded-lg",
-                        webSearch.enabled ? "bg-emerald-500/20" : "bg-muted"
-                      )}>
-                        <Search className={cn(
-                          "w-5 h-5",
-                          webSearch.enabled ? "text-emerald-500" : "text-muted-foreground"
-                        )} />
+                  <div className="space-y-3">
+                    {/* Current Session Toggle */}
+                    <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-muted/30">
+                      <div className="flex items-center gap-3">
+                        <div className={cn(
+                          "p-2 rounded-lg",
+                          webSearch.enabled ? "bg-emerald-500/20" : "bg-muted"
+                        )}>
+                          <Search className={cn(
+                            "w-5 h-5",
+                            webSearch.enabled ? "text-emerald-500" : "text-muted-foreground"
+                          )} />
+                        </div>
+                        <div>
+                          <p className="font-medium">Web Search (Current Session)</p>
+                          <p className="text-xs text-muted-foreground">
+                            {webSearch.isLoading ? (
+                              'Checking availability...'
+                            ) : webSearch.isAvailable ? (
+                              <span className="text-emerald-500">Available ({webSearch.status?.provider})</span>
+                            ) : (
+                              <span className="text-amber-500">Not configured</span>
+                            )}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium">Web Search</p>
-                        <p className="text-xs text-muted-foreground">
-                          {webSearch.isLoading ? (
-                            'Checking availability...'
-                          ) : webSearch.isAvailable ? (
-                            <span className="text-emerald-500">Available ({webSearch.status?.provider})</span>
-                          ) : (
-                            <span className="text-amber-500">Not configured</span>
-                          )}
-                        </p>
-                      </div>
+                      
+                      {/* Toggle Switch */}
+                      <button
+                        onClick={() => webSearch.setEnabled(!webSearch.enabled)}
+                        className={cn(
+                          "relative w-12 h-6 rounded-full transition-colors",
+                          webSearch.enabled ? "bg-emerald-500" : "bg-muted-foreground/30"
+                        )}
+                      >
+                        <motion.div
+                          initial={false}
+                          animate={{ x: webSearch.enabled ? 24 : 2 }}
+                          transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                          className="absolute top-1 w-4 h-4 rounded-full bg-white shadow"
+                        />
+                      </button>
                     </div>
-                    
-                    {/* Toggle Switch */}
-                    <button
-                      onClick={() => webSearch.setEnabled(!webSearch.enabled)}
-                      className={cn(
-                        "relative w-12 h-6 rounded-full transition-colors",
-                        webSearch.enabled ? "bg-emerald-500" : "bg-muted-foreground/30"
-                      )}
-                    >
-                      <motion.div
-                        initial={false}
-                        animate={{ x: webSearch.enabled ? 24 : 2 }}
-                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                        className="absolute top-1 w-4 h-4 rounded-full bg-white shadow"
-                      />
-                    </button>
+
+                    {/* Default Enable Toggle - Always use for grounded responses */}
+                    <div className="flex items-center justify-between p-4 rounded-xl border border-primary/30 bg-primary/5">
+                      <div className="flex items-center gap-3">
+                        <div className={cn(
+                          "p-2 rounded-lg",
+                          webSearch.defaultEnabled ? "bg-primary/20" : "bg-muted"
+                        )}>
+                          <Globe className={cn(
+                            "w-5 h-5",
+                            webSearch.defaultEnabled ? "text-primary" : "text-muted-foreground"
+                          )} />
+                        </div>
+                        <div>
+                          <p className="font-medium">Always Enable for Grounded Responses</p>
+                          <p className="text-xs text-muted-foreground">
+                            Automatically enable web search in all new chats for fact-checked answers
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {/* Toggle Switch */}
+                      <button
+                        onClick={() => webSearch.setDefaultEnabled(!webSearch.defaultEnabled)}
+                        className={cn(
+                          "relative w-12 h-6 rounded-full transition-colors",
+                          webSearch.defaultEnabled ? "bg-primary" : "bg-muted-foreground/30"
+                        )}
+                      >
+                        <motion.div
+                          initial={false}
+                          animate={{ x: webSearch.defaultEnabled ? 24 : 2 }}
+                          transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                          className="absolute top-1 w-4 h-4 rounded-full bg-white shadow"
+                        />
+                      </button>
+                    </div>
+
+                    {/* Test Connection Button */}
+                    {webSearch.isAvailable && (
+                      <TestWebSearchButton />
+                    )}
                   </div>
 
                   {/* Available Providers */}
@@ -1843,14 +1980,14 @@ export function SettingsModal({ isOpen, onClose }: Props) {
                           </p>
                           <div className="mt-2 p-2 bg-muted rounded-lg space-y-2">
                             <div className="flex items-center justify-between">
-                              <code className="text-xs font-mono">docker compose -f docker-compose.search.yml up -d</code>
+                              <code className="text-xs font-mono break-all">docker compose -f infra/docker/compose/docker-compose.search.yml up -d</code>
                               <button
                                 onClick={() => {
-                                  navigator.clipboard.writeText('docker compose -f docker-compose.search.yml up -d');
+                                  navigator.clipboard.writeText('docker compose -f infra/docker/compose/docker-compose.search.yml up -d');
                                   setCopied(true);
                                   setTimeout(() => setCopied(false), 2000);
                                 }}
-                                className="p-1 rounded hover:bg-muted-foreground/10"
+                                className="p-1 rounded hover:bg-muted-foreground/10 flex-shrink-0"
                                 title="Copy command"
                               >
                                 {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}

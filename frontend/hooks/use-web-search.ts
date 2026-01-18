@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { api, WebSearchStatus } from '@/lib/api';
 
 const WEB_SEARCH_KEY = 'padmavue_web_search_enabled';
+const WEB_SEARCH_DEFAULT_KEY = 'padmavue_web_search_default'; // Always enable by default in new chats
 const REASONING_LEVEL_KEY = 'padmavue_reasoning_level';
 const SHOW_REASONING_KEY = 'padmavue_show_reasoning';
 
@@ -55,6 +56,10 @@ export interface UseWebSearchResult {
   setEnabled: (enabled: boolean) => void;
   toggle: () => void;
   
+  // Default setting (always enable for new chats)
+  defaultEnabled: boolean;
+  setDefaultEnabled: (enabled: boolean) => void;
+  
   // Backend status
   status: WebSearchStatus | null;
   providers: SearchProvider[];
@@ -67,23 +72,34 @@ export interface UseWebSearchResult {
   // Actions
   refreshStatus: () => Promise<void>;
   refreshProviders: () => Promise<void>;
+  testConnection: () => Promise<{ success: boolean; message: string }>;
 }
 
 export function useWebSearch(): UseWebSearchResult {
   // User preference from localStorage
   const [enabled, setEnabledState] = useState<boolean>(false);
+  const [defaultEnabled, setDefaultEnabledState] = useState<boolean>(false);
   
   // Backend status
   const [status, setStatus] = useState<WebSearchStatus | null>(null);
   const [providers, setProviders] = useState<SearchProvider[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Load preference from localStorage on mount
+  // Load preferences from localStorage on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      // Load default enabled setting
+      const storedDefault = localStorage.getItem(WEB_SEARCH_DEFAULT_KEY);
+      const isDefaultEnabled = storedDefault === 'true';
+      setDefaultEnabledState(isDefaultEnabled);
+      
+      // Load current session enabled setting, or use default if not set
       const stored = localStorage.getItem(WEB_SEARCH_KEY);
       if (stored !== null) {
         setEnabledState(stored === 'true');
+      } else if (isDefaultEnabled) {
+        // If no session preference but default is enabled, enable it
+        setEnabledState(true);
       }
     }
   }, []);
@@ -131,10 +147,36 @@ export function useWebSearch(): UseWebSearchResult {
     }
   }, []);
   
+  // Set default enabled with localStorage persistence
+  const setDefaultEnabled = useCallback((value: boolean) => {
+    setDefaultEnabledState(value);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(WEB_SEARCH_DEFAULT_KEY, String(value));
+      // Also update current session if enabling default
+      if (value) {
+        setEnabledState(true);
+        localStorage.setItem(WEB_SEARCH_KEY, 'true');
+      }
+    }
+  }, []);
+  
   // Toggle helper
   const toggle = useCallback(() => {
     setEnabled(!enabled);
   }, [enabled, setEnabled]);
+  
+  // Test web search connection
+  const testConnection = useCallback(async (): Promise<{ success: boolean; message: string }> => {
+    try {
+      const result = await api.testWebSearch();
+      return result;
+    } catch (error) {
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Failed to test web search connection'
+      };
+    }
+  }, []);
   
   // Computed values
   const isAvailable = status?.available ?? false;
@@ -144,6 +186,8 @@ export function useWebSearch(): UseWebSearchResult {
     enabled,
     setEnabled,
     toggle,
+    defaultEnabled,
+    setDefaultEnabled,
     status,
     providers,
     isAvailable,
@@ -151,6 +195,7 @@ export function useWebSearch(): UseWebSearchResult {
     isActive,
     refreshStatus,
     refreshProviders,
+    testConnection,
   };
 }
 

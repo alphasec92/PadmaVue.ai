@@ -996,3 +996,59 @@ async def get_reasoning_status():
         ]
     }
 
+
+@router.get("/web-search/test")
+async def test_web_search():
+    """
+    Test web search connectivity by performing a sample search.
+    Returns success status and sample results if available.
+    """
+    search_service = get_web_search_service()
+    
+    if not search_service.is_available:
+        provider = search_service.provider_name
+        if provider == "none":
+            return {
+                "success": False,
+                "message": "Web search not configured. Set SEARCH_PROVIDER in .env (recommended: searxng)",
+                "provider": provider,
+                "setup_instructions": [
+                    "1. Start SearXNG: docker compose -f infra/docker/compose/docker-compose.search.yml up -d",
+                    "2. Add to .env: SEARCH_PROVIDER=searxng",
+                    "3. Restart the backend"
+                ]
+            }
+        return {
+            "success": False,
+            "message": f"Provider '{provider}' is not properly configured",
+            "provider": provider
+        }
+    
+    try:
+        # Perform a test search
+        results = await search_service.search("OWASP Top 10 security", max_results=3)
+        
+        if results:
+            return {
+                "success": True,
+                "message": f"Web search is working! Found {len(results)} results.",
+                "provider": search_service.provider_name,
+                "results": [
+                    {"title": r.title, "url": r.url, "snippet": r.snippet[:100] + "..."}
+                    for r in results[:3]
+                ]
+            }
+        else:
+            return {
+                "success": False,
+                "message": "Search returned no results. The provider may be misconfigured.",
+                "provider": search_service.provider_name
+            }
+    except Exception as e:
+        logger.error("web_search_test_failed", error=str(e))
+        return {
+            "success": False,
+            "message": f"Search test failed: {str(e)}",
+            "provider": search_service.provider_name
+        }
+

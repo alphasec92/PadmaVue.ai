@@ -252,8 +252,42 @@ function Configure-Ollama {
             $null = Invoke-RestMethod -Uri "http://localhost:11434/api/tags" -TimeoutSec 2 -ErrorAction Stop
             Write-Success "Ollama is running"
             
-            $model = Read-Host "Model name (default: llama3.2)"
-            if ([string]::IsNullOrWhiteSpace($model)) { $model = "llama3.2" }
+            Write-Host ""
+            Write-Host "Available models:"
+            
+            # Get list of models
+            $modelList = @()
+            $ollamaOutput = & ollama list 2>$null
+            $i = 1
+            foreach ($line in $ollamaOutput) {
+                if ($line -and -not $line.StartsWith("NAME")) {
+                    $modelName = ($line -split '\s+')[0]
+                    $modelList += $modelName
+                    Write-Host ("  {0}) {1}" -f $i, $line)
+                    $i++
+                }
+            }
+            
+            if ($modelList.Count -eq 0) {
+                Write-Host "  (No models installed. Run 'ollama pull llama3.2' to download a model)"
+            }
+            Write-Host ""
+            
+            $modelInput = Read-Host "Select model (number or name, default: llama3.2)"
+            if ([string]::IsNullOrWhiteSpace($modelInput)) { $modelInput = "llama3.2" }
+            
+            # Check if input is a number
+            if ($modelInput -match '^\d+$') {
+                $idx = [int]$modelInput - 1
+                if ($idx -ge 0 -and $idx -lt $modelList.Count) {
+                    $model = $modelList[$idx]
+                } else {
+                    Write-Warning "Invalid selection, using default: llama3.2"
+                    $model = "llama3.2"
+                }
+            } else {
+                $model = $modelInput
+            }
             
             Update-Env "LLM_PROVIDER" "ollama"
             Update-Env "OLLAMA_MODEL" $model

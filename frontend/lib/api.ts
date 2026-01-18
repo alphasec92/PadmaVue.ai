@@ -664,6 +664,10 @@ class ApiClient {
     return this.request('/api/architect-chat/web-search/providers');
   }
 
+  async testWebSearch(): Promise<{ success: boolean; message: string; results?: any[] }> {
+    return this.request('/api/architect-chat/web-search/test');
+  }
+
   // ============ Reasoning / Thinking Time ============
 
   async getReasoningStatus(): Promise<ReasoningStatus> {

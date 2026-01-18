@@ -6,10 +6,31 @@ import {
   Shield, Sparkles, CheckCircle2, ChevronRight, ChevronDown,
   Server, Database, Lock, Globe, Key, FileText, AlertTriangle,
   Cloud, Users, RefreshCw, Zap, ArrowRight, Info, Loader2,
-  Building, Network, Eye, ShieldCheck, HelpCircle, Brain, Bot, Cpu, Edit3, XCircle
+  Building, Network, Eye, ShieldCheck, HelpCircle, Brain, Bot, Cpu, Edit3, XCircle,
+  Plug, Send, Settings
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { api } from '@/lib/api';
+import { SettingsModal } from '@/components/settings-modal';
+
+// Helper to detect LLM configuration errors
+const isLLMConfigError = (error: string): boolean => {
+  const patterns = [
+    /llm.*not configured/i,
+    /provider.*not configured/i,
+    /no.*provider/i,
+    /mock.*mode/i,
+    /configure.*llm/i,
+    /api.*key.*required/i,
+    /api.*key.*missing/i,
+    /api.*key.*invalid/i,
+    /authentication.*failed/i,
+    /ollama.*not.*running/i,
+    /connection.*refused.*11434/i,
+    /failed.*connect.*ollama/i,
+  ];
+  return patterns.some(p => p.test(error));
+};
 
 // ===========================================
 // Question Configuration
@@ -92,6 +113,7 @@ const QUESTIONS: Question[] = [
       { value: 'yes_new', label: 'Yes - Introducing new AI solution', description: 'Building or adding AI capabilities', icon: Brain },
       { value: 'yes_backend', label: 'Yes - Using AI in backend', description: 'AI/ML for processing or decisions', icon: Cpu },
       { value: 'yes_llm', label: 'Yes - Using LLM/GenAI', description: 'ChatGPT, Claude, custom LLM', icon: Bot },
+      { value: 'yes_agents', label: 'Yes - AI Agents/Autonomous', description: 'Agents, MCP, tool-calling', icon: Zap },
       { value: 'yes_training', label: 'Yes - Training/deploying models', description: 'ML model development', icon: Brain },
       { value: 'no', label: 'No - Not AI related', description: 'Traditional software', icon: Server },
     ],
@@ -106,14 +128,49 @@ const QUESTIONS: Question[] = [
     showIf: (answers) => answers.uses_ai && answers.uses_ai !== 'no',
     options: [
       { value: 'llm', label: 'Large Language Model (LLM)', description: 'GPT, Claude, Llama, etc.', icon: Bot },
+      { value: 'ai_agent', label: 'AI Agent / Autonomous System', description: 'Agents that take actions', icon: Zap },
+      { value: 'multi_agent', label: 'Multi-Agent System', description: 'Multiple coordinating agents', icon: Users },
+      { value: 'rag', label: 'RAG (Retrieval Augmented Gen)', description: 'LLM + document retrieval', icon: Database },
+      { value: 'embedding', label: 'Embeddings/Vector Search', description: 'Semantic search, similarity', icon: Database },
       { value: 'classification', label: 'Classification/Prediction', description: 'ML models for categorization', icon: Brain },
       { value: 'recommendation', label: 'Recommendation System', description: 'Personalized suggestions', icon: Users },
       { value: 'computer_vision', label: 'Computer Vision', description: 'Image/video analysis', icon: Eye },
       { value: 'nlp', label: 'NLP (non-LLM)', description: 'Text analysis, sentiment', icon: FileText },
       { value: 'anomaly', label: 'Anomaly Detection', description: 'Fraud, outlier detection', icon: AlertTriangle },
-      { value: 'embedding', label: 'Embeddings/Vector Search', description: 'Semantic search, RAG', icon: Database },
       { value: 'other', label: 'Other (specify below)', icon: Edit3, isOther: true },
     ],
+  },
+  {
+    id: 'ai_agent_capabilities',
+    category: 'AI & Machine Learning',
+    question: 'Does the AI have tool/function calling or agent capabilities?',
+    description: 'Can the AI take actions or call external systems?',
+    type: 'multiselect',
+    allowOther: true,
+    showIf: (answers) => answers.uses_ai && answers.uses_ai !== 'no',
+    options: [
+      { value: 'tool_calling', label: 'Tool/Function Calling', description: 'AI can invoke functions', icon: Zap },
+      { value: 'mcp', label: 'MCP (Model Context Protocol)', description: 'Standardized tool protocol', icon: Plug },
+      { value: 'api_access', label: 'Direct API Access', description: 'AI calls external APIs', icon: Globe },
+      { value: 'code_execution', label: 'Code Execution', description: 'AI runs generated code', icon: Cpu },
+      { value: 'file_system', label: 'File System Access', description: 'AI reads/writes files', icon: FileText },
+      { value: 'database_access', label: 'Database Access', description: 'AI queries databases', icon: Database },
+      { value: 'web_browsing', label: 'Web Browsing', description: 'AI browses websites', icon: Globe },
+      { value: 'email_actions', label: 'Email/Communication', description: 'AI sends emails/messages', icon: Send },
+      { value: 'autonomous_decisions', label: 'Autonomous Decisions', description: 'AI acts without approval', icon: Brain },
+      { value: 'none', label: 'No tool access', description: 'Text generation only', icon: Bot },
+      { value: 'other', label: 'Other (specify below)', icon: Edit3, isOther: true },
+    ],
+  },
+  {
+    id: 'ai_mcp_servers',
+    category: 'AI & Machine Learning',
+    question: 'What MCP servers or tools does the AI connect to?',
+    description: 'List any MCP servers, tools, or integrations',
+    type: 'textarea',
+    showIf: (answers) => answers.ai_agent_capabilities?.includes('mcp') || answers.ai_agent_capabilities?.includes('tool_calling'),
+    placeholder: 'e.g., filesystem MCP server, GitHub MCP, database MCP, custom API tools...',
+    examples: ['Memory server for persistent context', 'GitHub MCP for code access', 'Slack MCP for notifications'],
   },
   {
     id: 'ai_provider',
@@ -124,13 +181,16 @@ const QUESTIONS: Question[] = [
     allowOther: true,
     showIf: (answers) => answers.uses_ai && answers.uses_ai !== 'no',
     options: [
-      { value: 'openai', label: 'OpenAI (GPT)', description: 'ChatGPT, GPT-4', icon: Bot },
-      { value: 'anthropic', label: 'Anthropic (Claude)', icon: Bot },
+      { value: 'openai', label: 'OpenAI (GPT)', description: 'ChatGPT, GPT-4, GPT-4o', icon: Bot },
+      { value: 'anthropic', label: 'Anthropic (Claude)', description: 'Claude 3.5, Claude 4', icon: Bot },
       { value: 'google', label: 'Google (Gemini, Vertex AI)', icon: Cloud },
       { value: 'aws', label: 'AWS (Bedrock, SageMaker)', icon: Cloud },
       { value: 'azure', label: 'Azure OpenAI / ML', icon: Cloud },
       { value: 'huggingface', label: 'Hugging Face', icon: Brain },
       { value: 'self_hosted', label: 'Self-hosted models', description: 'Ollama, vLLM, etc.', icon: Server },
+      { value: 'openrouter', label: 'OpenRouter', description: 'Multi-provider gateway', icon: Globe },
+      { value: 'langchain', label: 'LangChain / LangGraph', description: 'Agent orchestration', icon: Zap },
+      { value: 'llamaindex', label: 'LlamaIndex', description: 'RAG framework', icon: Database },
       { value: 'custom', label: 'Custom trained models', icon: Cpu },
       { value: 'other', label: 'Other (specify below)', icon: Edit3, isOther: true },
     ],
@@ -149,7 +209,29 @@ const QUESTIONS: Question[] = [
       { value: 'business_docs', label: 'Business documents', description: 'Internal docs, reports', icon: FileText },
       { value: 'code', label: 'Source code', description: 'Code analysis/generation', icon: Cpu },
       { value: 'customer_data', label: 'Customer data', description: 'CRM, transactions', icon: Building },
+      { value: 'conversation_history', label: 'Conversation history', description: 'Chat context, memory', icon: Database },
+      { value: 'vector_embeddings', label: 'Vector embeddings', description: 'RAG document chunks', icon: Database },
+      { value: 'system_prompts', label: 'System prompts', description: 'AI instructions, personas', icon: Bot },
+      { value: 'tool_results', label: 'Tool/MCP results', description: 'Data from tool calls', icon: Zap },
       { value: 'public_only', label: 'Public data only', description: 'No sensitive data', icon: Globe },
+      { value: 'other', label: 'Other (specify below)', icon: Edit3, isOther: true },
+    ],
+  },
+  {
+    id: 'ai_memory_storage',
+    category: 'AI & Machine Learning',
+    question: 'How is AI context/memory managed?',
+    description: 'How does the AI remember information?',
+    type: 'multiselect',
+    allowOther: true,
+    showIf: (answers) => answers.uses_ai && answers.uses_ai !== 'no',
+    options: [
+      { value: 'stateless', label: 'Stateless (no memory)', description: 'Each request is independent', icon: Server },
+      { value: 'session_context', label: 'Session context', description: 'In-memory conversation', icon: Bot },
+      { value: 'vector_store', label: 'Vector database', description: 'Pinecone, Qdrant, ChromaDB', icon: Database },
+      { value: 'persistent_memory', label: 'Persistent memory', description: 'Long-term memory storage', icon: Database },
+      { value: 'knowledge_graph', label: 'Knowledge graph', description: 'Neo4j, graph database', icon: Database },
+      { value: 'file_based', label: 'File-based context', description: 'Docs loaded per session', icon: FileText },
       { value: 'other', label: 'Other (specify below)', icon: Edit3, isOther: true },
     ],
   },
@@ -157,18 +239,50 @@ const QUESTIONS: Question[] = [
     id: 'ai_security_concerns',
     category: 'AI & Machine Learning',
     question: 'AI-specific security concerns?',
-    description: 'What AI risks are you worried about?',
+    description: 'What AI risks are you worried about? (OWASP LLM Top 10)',
     type: 'multiselect',
     allowOther: true,
     showIf: (answers) => answers.uses_ai && answers.uses_ai !== 'no',
     options: [
-      { value: 'prompt_injection', label: 'Prompt Injection', description: 'Malicious prompts', icon: AlertTriangle },
-      { value: 'data_leakage', label: 'Data Leakage to AI', description: 'Sensitive data in prompts', icon: Eye },
-      { value: 'model_theft', label: 'Model Theft/Extraction', description: 'Protecting proprietary models', icon: Lock },
-      { value: 'bias', label: 'Bias & Fairness', description: 'Discriminatory outputs', icon: Users },
-      { value: 'hallucination', label: 'Hallucinations', description: 'False/made-up info', icon: Brain },
-      { value: 'cost_abuse', label: 'Cost/Token Abuse', description: 'API cost attacks', icon: Building },
-      { value: 'compliance', label: 'AI Compliance', description: 'EU AI Act, regulations', icon: FileText },
+      { value: 'prompt_injection', label: 'Prompt Injection (LLM01)', description: 'Malicious prompts hijacking AI', icon: AlertTriangle },
+      { value: 'sensitive_disclosure', label: 'Sensitive Info Disclosure (LLM02)', description: 'AI leaking confidential data', icon: Eye },
+      { value: 'supply_chain', label: 'Supply Chain (LLM03)', description: 'Compromised models/plugins', icon: Plug },
+      { value: 'data_poisoning', label: 'Data/Model Poisoning (LLM04)', description: 'Training data manipulation', icon: Database },
+      { value: 'improper_output', label: 'Improper Output Handling (LLM05)', description: 'XSS, injection from AI output', icon: Cpu },
+      { value: 'excessive_agency', label: 'Excessive Agency (LLM06)', description: 'AI has too much autonomy', icon: Zap },
+      { value: 'system_prompt_leak', label: 'System Prompt Leakage (LLM07)', description: 'Exposing AI instructions', icon: Lock },
+      { value: 'vector_weakness', label: 'Vector/Embedding Attacks (LLM08)', description: 'RAG poisoning, embedding attacks', icon: Database },
+      { value: 'hallucination', label: 'Misinformation/Hallucination (LLM09)', description: 'AI generating false info', icon: Brain },
+      { value: 'unbounded_consumption', label: 'Unbounded Consumption (LLM10)', description: 'Token/cost abuse, DoS', icon: Building },
+      { value: 'agent_autonomy', label: 'Uncontrolled Agent Autonomy', description: 'Agent taking harmful actions', icon: Zap },
+      { value: 'tool_abuse', label: 'Tool/API Abuse by Agents', description: 'Agent misusing tools', icon: Plug },
+      { value: 'memory_manipulation', label: 'Agent Memory Manipulation', description: 'Poisoning persistent memory', icon: Database },
+      { value: 'multi_agent_attack', label: 'Multi-Agent Coordination Attacks', description: 'Exploiting agent communication', icon: Users },
+      { value: 'goal_misalignment', label: 'Goal Misalignment', description: 'Agent pursuing wrong objectives', icon: AlertTriangle },
+      { value: 'mcp_security', label: 'MCP Server Security', description: 'Unauthorized tool access', icon: Plug },
+      { value: 'compliance', label: 'AI Compliance (EU AI Act)', description: 'Regulatory requirements', icon: FileText },
+      { value: 'other', label: 'Other (specify below)', icon: Edit3, isOther: true },
+    ],
+  },
+  {
+    id: 'ai_guardrails',
+    category: 'AI & Machine Learning',
+    question: 'What AI guardrails or safety measures exist?',
+    description: 'Current safety controls in place',
+    type: 'multiselect',
+    allowOther: true,
+    showIf: (answers) => answers.uses_ai && answers.uses_ai !== 'no',
+    options: [
+      { value: 'input_validation', label: 'Input validation/filtering', description: 'Sanitizing user prompts', icon: Shield },
+      { value: 'output_filtering', label: 'Output filtering', description: 'Checking AI responses', icon: Shield },
+      { value: 'rate_limiting', label: 'Rate limiting', description: 'Limiting API calls', icon: Building },
+      { value: 'content_moderation', label: 'Content moderation', description: 'Blocking harmful content', icon: AlertTriangle },
+      { value: 'human_in_loop', label: 'Human-in-the-loop', description: 'Human approval for actions', icon: Users },
+      { value: 'tool_permissions', label: 'Tool/MCP permissions', description: 'Restricting tool access', icon: Lock },
+      { value: 'action_limits', label: 'Action limits', description: 'Capping agent actions', icon: Zap },
+      { value: 'audit_logging', label: 'AI audit logging', description: 'Logging all AI interactions', icon: FileText },
+      { value: 'sandboxing', label: 'Sandboxed execution', description: 'Isolated AI environment', icon: Server },
+      { value: 'none', label: 'No guardrails yet', description: 'Need to implement', icon: AlertTriangle },
       { value: 'other', label: 'Other (specify below)', icon: Edit3, isOther: true },
     ],
   },
@@ -665,6 +779,7 @@ export default function ArchitectPage() {
   const [generating, setGenerating] = useState(false);
   const [methodology, setMethodology] = useState<'stride' | 'pasta'>('stride');
   const [result, setResult] = useState<any>(null);
+  const [showSettings, setShowSettings] = useState(false);
 
   // Load saved answers from localStorage
   useEffect(() => {
@@ -904,13 +1019,29 @@ export default function ArchitectPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="mt-8 p-6 bg-red-500/10 border border-red-500/30 rounded-xl"
+              className={cn(
+                "mt-8 p-6 rounded-xl",
+                isLLMConfigError(result.error || '')
+                  ? "bg-amber-500/10 border border-amber-500/30"
+                  : "bg-red-500/10 border border-red-500/30"
+              )}
             >
               <div className="flex items-start gap-3">
-                <XCircle className="w-6 h-6 text-red-500 mt-0.5" />
+                {isLLMConfigError(result.error || '') ? (
+                  <Settings className="w-6 h-6 text-amber-500 mt-0.5" />
+                ) : (
+                  <XCircle className="w-6 h-6 text-red-500 mt-0.5" />
+                )}
                 <div className="flex-1">
-                  <h3 className="font-semibold text-red-600 dark:text-red-400 text-lg">
-                    ❌ Failed to Generate Threat Model
+                  <h3 className={cn(
+                    "font-semibold text-lg",
+                    isLLMConfigError(result.error || '')
+                      ? "text-amber-600 dark:text-amber-400"
+                      : "text-red-600 dark:text-red-400"
+                  )}>
+                    {isLLMConfigError(result.error || '')
+                      ? "⚙️ LLM Provider Not Configured"
+                      : "❌ Failed to Generate Threat Model"}
                   </h3>
                   <p className="text-sm text-foreground mt-2">
                     <strong>Error:</strong> {result.error}
@@ -924,6 +1055,23 @@ export default function ArchitectPage() {
                     <p className="text-sm text-green-600 dark:text-green-400 mt-2">
                       <strong>Solution:</strong> {result.solution}
                     </p>
+                  )}
+                  {isLLMConfigError(result.error || '') && (
+                    <div className="mt-4 flex items-center gap-3">
+                      <button
+                        onClick={() => {
+                          setShowSettings(true);
+                          setResult(null);
+                        }}
+                        className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-medium transition-colors"
+                      >
+                        <Settings className="w-4 h-4" />
+                        Configure in Settings
+                      </button>
+                      <span className="text-xs text-muted-foreground">
+                        Choose Ollama, OpenAI, Anthropic, or another provider
+                      </span>
+                    </div>
                   )}
                   <button
                     onClick={() => setResult(null)}
@@ -1020,6 +1168,9 @@ export default function ArchitectPage() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* Settings Modal */}
+      <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
     </div>
   );
 }

@@ -11,7 +11,27 @@ import {
 import { cn } from '@/lib/utils';
 import { api } from '@/lib/api';
 import { useWebSearch, useReasoning, ReasoningSummary } from '@/hooks/use-web-search';
+import { SettingsModal } from '@/components/settings-modal';
 import Link from 'next/link';
+
+// Helper to detect LLM configuration errors
+const isLLMConfigError = (error: string): boolean => {
+  const patterns = [
+    /llm.*not configured/i,
+    /provider.*not configured/i,
+    /no.*provider/i,
+    /mock.*mode/i,
+    /configure.*llm/i,
+    /api.*key.*required/i,
+    /api.*key.*missing/i,
+    /api.*key.*invalid/i,
+    /authentication.*failed/i,
+    /ollama.*not.*running/i,
+    /connection.*refused.*11434/i,
+    /failed.*connect.*ollama/i,
+  ];
+  return patterns.some(p => p.test(error));
+};
 
 interface Message {
   role: 'user' | 'assistant';
@@ -62,6 +82,7 @@ export default function AIArchitectPage() {
   const [error, setError] = useState<string | null>(null);
   const [projectName, setProjectName] = useState('');
   const [projectNameError, setProjectNameError] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   // Web Search (Grounded Responses)
@@ -611,16 +632,49 @@ export default function AIArchitectPage() {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl flex items-start gap-3"
+                  className={cn(
+                    "p-4 rounded-xl flex items-start gap-3",
+                    isLLMConfigError(error) 
+                      ? "bg-amber-500/10 border border-amber-500/30" 
+                      : "bg-red-500/10 border border-red-500/30"
+                  )}
                 >
-                  <XCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-medium text-red-600 dark:text-red-400">Error</p>
+                  {isLLMConfigError(error) ? (
+                    <Settings className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                  ) : (
+                    <XCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                  )}
+                  <div className="flex-1">
+                    <p className={cn(
+                      "font-medium",
+                      isLLMConfigError(error) 
+                        ? "text-amber-600 dark:text-amber-400" 
+                        : "text-red-600 dark:text-red-400"
+                    )}>
+                      {isLLMConfigError(error) ? "LLM Provider Not Configured" : "Error"}
+                    </p>
                     <p className="text-sm text-muted-foreground">{error}</p>
+                    {isLLMConfigError(error) && (
+                      <div className="mt-3 flex items-center gap-3">
+                        <button
+                          onClick={() => {
+                            setShowSettings(true);
+                            setError(null);
+                          }}
+                          className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-medium transition-colors"
+                        >
+                          <Settings className="w-4 h-4" />
+                          Configure in Settings
+                        </button>
+                        <span className="text-xs text-muted-foreground">
+                          Choose Ollama, OpenAI, Anthropic, or another provider
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <button
                     onClick={() => setError(null)}
-                    className="ml-auto text-muted-foreground hover:text-foreground"
+                    className="text-muted-foreground hover:text-foreground flex-shrink-0"
                   >
                     ×
                   </button>
@@ -957,6 +1011,9 @@ export default function AIArchitectPage() {
           </div>
         </div>
       </div>
+
+      {/* Settings Modal */}
+      <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
     </div>
   );
 }
