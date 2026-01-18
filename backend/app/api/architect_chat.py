@@ -94,6 +94,26 @@ Your role is to:
 - Compliance requirements (GDPR, HIPAA, PCI-DSS, SOC2, etc.)
 - AI/ML components if any (LLMs, ML models, training data)
 
+## Chain-of-Thought Reasoning (REQUIRED):
+Before providing your final answer, you MUST think through the problem step by step.
+Show your reasoning process inside <thinking> tags BEFORE the JSON response.
+
+Example format:
+<thinking>
+1. Understanding the question: [what the user is asking]
+2. Key considerations: [relevant factors to analyze]
+3. Analysis approach: [how you'll analyze this]
+4. Reasoning steps:
+   - First, I notice...
+   - This suggests...
+   - Considering the security implications...
+5. Conclusion: [your determination]
+</thinking>
+
+{your JSON response here}
+
+IMPORTANT: The <thinking> block must come BEFORE your JSON response. This shows your reasoning process.
+
 ## Response Format:
 Always respond with valid JSON in this exact format:
 {
@@ -295,6 +315,7 @@ class ChatResponse(BaseModel):
     confidence_level: str = "high"
     reasoning_summary: Optional[Dict[str, Any]] = None
     reasoning_level: str = "balanced"
+    thinking: Optional[str] = None  # Chain-of-thought reasoning from LLM
 
 
 class GenerateRequest(BaseModel):
@@ -540,13 +561,24 @@ async def analyze_with_llm(
             max_tokens=policy.max_tokens
         )
         
+        # Extract thinking block (chain-of-thought) from response
+        thinking_content = None
+        response_for_json = response
+        
+        thinking_match = re.search(r'<thinking>(.*?)</thinking>', response, re.DOTALL | re.IGNORECASE)
+        if thinking_match:
+            thinking_content = thinking_match.group(1).strip()
+            # Remove thinking block from response for JSON parsing
+            response_for_json = re.sub(r'<thinking>.*?</thinking>', '', response, flags=re.DOTALL | re.IGNORECASE).strip()
+            logger.info("chain_of_thought_extracted", thinking_length=len(thinking_content))
+        
         # Parse JSON response
         result = None
         try:
-            json_start = response.find('{')
-            json_end = response.rfind('}') + 1
+            json_start = response_for_json.find('{')
+            json_end = response_for_json.rfind('}') + 1
             if json_start >= 0 and json_end > json_start:
-                json_str = response[json_start:json_end]
+                json_str = response_for_json[json_start:json_end]
                 result = json.loads(json_str)
         except json.JSONDecodeError:
             pass
@@ -555,7 +587,7 @@ async def analyze_with_llm(
         if not result:
             result = {
                 "response_type": "general",
-                "analysis": response,
+                "analysis": response_for_json if not thinking_content else response_for_json,
                 "completeness_score": 0.3,
                 "missing_info": ["Could not parse LLM response properly"],
                 "follow_up_questions": ["Can you tell me more about your system architecture?"],
@@ -565,6 +597,9 @@ async def analyze_with_llm(
                 "world_model": {},
                 "sources": []
             }
+        
+        # Add thinking content to result
+        result["thinking"] = thinking_content
         
         # Grounding check
         analysis_text = result.get("analysis", "")
@@ -827,7 +862,8 @@ async def chat(message: ChatMessage):
         sources=sources,
         confidence_level=llm_response.get("confidence_level", "high"),
         reasoning_summary=llm_response.get("reasoning_summary"),
-        reasoning_level=llm_response.get("reasoning_level", "balanced")
+        reasoning_level=llm_response.get("reasoning_level", "balanced"),
+        thinking=llm_response.get("thinking")
     )
 
 

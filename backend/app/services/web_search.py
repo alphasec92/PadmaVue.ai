@@ -409,6 +409,128 @@ class BingProvider(SearchProvider):
 
 
 # ===========================================
+# DuckDuckGo Provider (Zero-Config Fallback)
+# ===========================================
+
+class DuckDuckGoProvider(SearchProvider):
+    """
+    DuckDuckGo Search - Zero-config, no API key required.
+    Uses DuckDuckGo HTML search with basic parsing.
+    Serves as automatic fallback when no other provider is configured.
+    """
+    
+    def __init__(self):
+        self.base_url = "https://html.duckduckgo.com/html/"
+    
+    @property
+    def name(self) -> str:
+        return "duckduckgo"
+    
+    @property
+    def requires_api_key(self) -> bool:
+        return False
+    
+    @property
+    def is_open_source(self) -> bool:
+        return False  # DDG is not open source, but free to use
+    
+    @property
+    def is_configured(self) -> bool:
+        return True  # Always configured - no setup required
+    
+    async def search(self, query: str, max_results: int = 5) -> List[SearchResult]:
+        """
+        Search DuckDuckGo by parsing HTML results.
+        This is a zero-config fallback that works out of the box.
+        """
+        try:
+            async with httpx.AsyncClient(timeout=15.0, follow_redirects=True) as client:
+                response = await client.post(
+                    self.base_url,
+                    data={"q": query, "b": ""},
+                    headers={
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                    }
+                )
+                response.raise_for_status()
+                html = response.text
+                
+                results = []
+                
+                # Parse results from HTML
+                # DuckDuckGo HTML format: <a class="result__a" href="...">title</a>
+                # <a class="result__snippet">snippet</a>
+                import re
+                
+                # Find result blocks
+                result_pattern = re.compile(
+                    r'<a[^>]*class="result__a"[^>]*href="([^"]*)"[^>]*>([^<]*)</a>.*?'
+                    r'<a[^>]*class="result__snippet"[^>]*>([^<]*(?:<[^>]*>[^<]*)*)</a>',
+                    re.DOTALL | re.IGNORECASE
+                )
+                
+                # Also try simpler pattern for snippet
+                simple_pattern = re.compile(
+                    r'<a[^>]*class="result__a"[^>]*href="([^"]*)"[^>]*>([^<]*)</a>',
+                    re.IGNORECASE
+                )
+                
+                matches = result_pattern.findall(html)
+                
+                if not matches:
+                    # Try simpler extraction
+                    matches = simple_pattern.findall(html)
+                    for i, match in enumerate(matches[:max_results], 1):
+                        url, title = match
+                        # Skip DDG tracking URLs
+                        if url.startswith('//duckduckgo.com'):
+                            continue
+                        # Clean up URL
+                        if url.startswith('//'):
+                            url = 'https:' + url
+                        results.append(SearchResult(
+                            title=title.strip(),
+                            url=url,
+                            snippet="",
+                            source="DuckDuckGo",
+                            citation_id=len(results) + 1
+                        ))
+                else:
+                    for i, match in enumerate(matches[:max_results], 1):
+                        url, title, snippet = match
+                        # Skip DDG tracking URLs
+                        if url.startswith('//duckduckgo.com'):
+                            continue
+                        # Clean up URL
+                        if url.startswith('//'):
+                            url = 'https:' + url
+                        # Clean HTML from snippet
+                        snippet = re.sub(r'<[^>]+>', '', snippet).strip()[:500]
+                        results.append(SearchResult(
+                            title=title.strip(),
+                            url=url,
+                            snippet=snippet,
+                            source="DuckDuckGo",
+                            citation_id=len(results) + 1
+                        ))
+                
+                logger.info("DuckDuckGo search complete", 
+                           query=query[:50], 
+                           results_count=len(results))
+                return results[:max_results]
+                
+        except httpx.ConnectError:
+            logger.error("DuckDuckGo not reachable - check internet connection")
+            return []
+        except httpx.HTTPError as e:
+            logger.error("DuckDuckGo search failed", error=str(e), query=query[:50])
+            return []
+        except Exception as e:
+            logger.error("DuckDuckGo search error", error=str(e))
+            return []
+
+
+# ===========================================
 # Mock Provider (Testing)
 # ===========================================
 
@@ -499,6 +621,7 @@ class WebSearchService:
             "serper": SerperProvider,
             "brave": BraveProvider,
             "bing": BingProvider,
+            "duckduckgo": DuckDuckGoProvider,
             "mock": MockProvider,
         }
         provider_class = providers.get(provider_name.lower())
@@ -514,6 +637,11 @@ class WebSearchService:
             
             if provider_name != "none":
                 self._provider = self._create_provider(provider_name)
+            else:
+                # Auto-fallback to DuckDuckGo when no provider configured
+                # This enables zero-config web search out of the box
+                logger.info("No search provider configured, using DuckDuckGo as fallback")
+                self._provider = DuckDuckGoProvider()
         
         return self._provider
     
@@ -537,21 +665,34 @@ class WebSearchService:
     def get_status(self) -> Dict[str, Any]:
         """Get search service status"""
         provider = self.provider
+        configured_provider = getattr(settings, 'SEARCH_PROVIDER', 'none').lower()
+        is_fallback = configured_provider == "none" and provider is not None
+        
         return {
             "available": self.is_available,
             "provider": self.provider_name,
             "configured": provider.is_configured if provider else False,
             "requires_api_key": provider.requires_api_key if provider else True,
             "is_open_source": provider.is_open_source if provider else False,
+            "is_fallback": is_fallback,
+            "message": "Using DuckDuckGo (zero-config fallback)" if is_fallback else None,
         }
     
     def get_available_providers(self) -> List[Dict[str, Any]]:
         """Get list of all available search providers with their status"""
         providers = [
             {
+                "id": "duckduckgo",
+                "name": "DuckDuckGo",
+                "description": "Zero-config search, works out of the box (default fallback)",
+                "requires_api_key": False,
+                "is_open_source": False,
+                "config_fields": []
+            },
+            {
                 "id": "searxng",
                 "name": "SearXNG",
-                "description": "Self-hosted, open-source metasearch engine (recommended)",
+                "description": "Self-hosted, open-source metasearch engine (recommended for privacy)",
                 "requires_api_key": False,
                 "is_open_source": True,
                 "config_fields": [

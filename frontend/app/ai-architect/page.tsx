@@ -46,6 +46,7 @@ interface Message {
   confidenceLevel?: string;
   reasoningSummary?: ReasoningSummary;
   reasoningLevel?: string;
+  thinking?: string;  // Chain-of-thought reasoning from LLM
 }
 
 interface Session {
@@ -215,6 +216,7 @@ export default function AIArchitectPage() {
         confidence_level: string;
         reasoning_summary?: ReasoningSummary;
         reasoning_level: string;
+        thinking?: string;
       }>('/api/architect-chat/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -243,7 +245,8 @@ export default function AIArchitectPage() {
         sources: response.sources,
         confidenceLevel: response.confidence_level,
         reasoningSummary: response.reasoning_summary,
-        reasoningLevel: response.reasoning_level
+        reasoningLevel: response.reasoning_level,
+        thinking: response.thinking
       }]);
       
       // Refresh sessions list
@@ -517,55 +520,100 @@ export default function AIArchitectPage() {
                           </div>
                         )}
                         
-                        {/* Reasoning Summary (collapsible) */}
-                        {msg.reasoningSummary && reasoning.showSummary && (
-                          <details className="mt-4 pt-3 border-t border-border/50">
-                            <summary className="text-sm font-medium cursor-pointer flex items-center gap-1.5 text-muted-foreground hover:text-foreground">
-                              <Sparkles className="w-3.5 h-3.5" />
-                              Reasoning Summary
-                              <span className="text-xs ml-2 px-1.5 py-0.5 rounded bg-muted">
+                        {/* Chain of Thought / Thinking Process (collapsible) */}
+                        {(msg.thinking || msg.reasoningSummary) && reasoning.showSummary && (
+                          <details className="mt-4 pt-3 border-t border-border/50 group">
+                            <summary className="text-sm font-medium cursor-pointer flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors">
+                              <Brain className="w-3.5 h-3.5 text-purple-500" />
+                              <span>Thinking Process</span>
+                              <span className="text-xs ml-2 px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-500">
                                 {msg.reasoningLevel || 'balanced'}
                               </span>
+                              <ChevronRight className="w-3.5 h-3.5 ml-auto transition-transform group-open:rotate-90" />
                             </summary>
-                            <div className="mt-2 text-sm space-y-2 text-muted-foreground">
-                              {msg.reasoningSummary.key_steps?.length > 0 && (
-                                <div>
-                                  <p className="font-medium text-foreground text-xs uppercase tracking-wide">Key Steps</p>
-                                  <ul className="mt-1 space-y-1">
-                                    {msg.reasoningSummary.key_steps.slice(0, 5).map((step, i) => (
-                                      <li key={i} className="flex items-start gap-1.5">
-                                        <span className="text-primary">•</span>
-                                        <span>{step}</span>
-                                      </li>
-                                    ))}
-                                  </ul>
+                            <div className="mt-3 text-sm">
+                              {/* Show actual thinking if available */}
+                              {msg.thinking ? (
+                                <div className="bg-muted/30 rounded-lg p-4 border border-purple-500/20">
+                                  <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border/50">
+                                    <Brain className="w-4 h-4 text-purple-500" />
+                                    <span className="text-xs font-medium text-purple-500 uppercase tracking-wide">
+                                      Chain of Thought
+                                    </span>
+                                  </div>
+                                  <div className="space-y-2 text-muted-foreground whitespace-pre-wrap font-mono text-xs leading-relaxed">
+                                    {msg.thinking.split('\n').map((line, i) => {
+                                      // Highlight numbered steps
+                                      const isStep = /^\d+\./.test(line.trim());
+                                      const isBullet = /^[-•*]/.test(line.trim());
+                                      const isHeader = line.trim().endsWith(':') && line.trim().length < 50;
+                                      
+                                      return (
+                                        <div 
+                                          key={i} 
+                                          className={cn(
+                                            "transition-colors",
+                                            isStep && "text-foreground font-medium",
+                                            isBullet && "pl-4 text-muted-foreground",
+                                            isHeader && "text-purple-400 font-semibold mt-2"
+                                          )}
+                                        >
+                                          {line || '\u00A0'}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
                                 </div>
-                              )}
-                              {msg.reasoningSummary.assumptions?.length > 0 && (
-                                <div>
-                                  <p className="font-medium text-foreground text-xs uppercase tracking-wide">Assumptions</p>
-                                  <ul className="mt-1 space-y-1">
-                                    {msg.reasoningSummary.assumptions.slice(0, 3).map((assumption, i) => (
-                                      <li key={i} className="flex items-start gap-1.5">
-                                        <span className="text-amber-500">•</span>
-                                        <span>{assumption}</span>
-                                      </li>
-                                    ))}
-                                  </ul>
+                              ) : msg.reasoningSummary ? (
+                                // Fallback to structured reasoning summary
+                                <div className="space-y-3 text-muted-foreground">
+                                  {msg.reasoningSummary.key_steps?.length > 0 && (
+                                    <div>
+                                      <p className="font-medium text-foreground text-xs uppercase tracking-wide flex items-center gap-1.5">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
+                                        Key Steps
+                                      </p>
+                                      <ul className="mt-1.5 space-y-1">
+                                        {msg.reasoningSummary.key_steps.slice(0, 5).map((step, i) => (
+                                          <li key={i} className="flex items-start gap-2 text-sm">
+                                            <span className="text-purple-500 font-mono text-xs">{i + 1}.</span>
+                                            <span>{step}</span>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+                                  {msg.reasoningSummary.assumptions?.length > 0 && (
+                                    <div>
+                                      <p className="font-medium text-foreground text-xs uppercase tracking-wide flex items-center gap-1.5">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                        Assumptions
+                                      </p>
+                                      <ul className="mt-1.5 space-y-1">
+                                        {msg.reasoningSummary.assumptions.slice(0, 3).map((assumption, i) => (
+                                          <li key={i} className="flex items-start gap-2 text-sm">
+                                            <span className="text-amber-500">•</span>
+                                            <span>{assumption}</span>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+                                  {msg.reasoningSummary.confidence && (
+                                    <div className="flex items-center gap-2 pt-2 border-t border-border/30">
+                                      <span className="text-xs font-medium">Confidence:</span>
+                                      <span className={cn(
+                                        "text-xs font-medium px-2 py-0.5 rounded-full",
+                                        msg.reasoningSummary.confidence === 'high' && 'bg-emerald-500/10 text-emerald-500',
+                                        msg.reasoningSummary.confidence === 'medium' && 'bg-amber-500/10 text-amber-500',
+                                        msg.reasoningSummary.confidence === 'low' && 'bg-red-500/10 text-red-500'
+                                      )}>
+                                        {msg.reasoningSummary.confidence}
+                                      </span>
+                                    </div>
+                                  )}
                                 </div>
-                              )}
-                              {msg.reasoningSummary.confidence && (
-                                <p className="text-xs">
-                                  <span className="font-medium">Confidence:</span>{' '}
-                                  <span className={cn(
-                                    msg.reasoningSummary.confidence === 'high' && 'text-emerald-500',
-                                    msg.reasoningSummary.confidence === 'medium' && 'text-amber-500',
-                                    msg.reasoningSummary.confidence === 'low' && 'text-red-500'
-                                  )}>
-                                    {msg.reasoningSummary.confidence}
-                                  </span>
-                                </p>
-                              )}
+                              ) : null}
                             </div>
                           </details>
                         )}
