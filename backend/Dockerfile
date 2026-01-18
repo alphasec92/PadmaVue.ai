@@ -4,7 +4,7 @@
 # ===========================================
 
 # Build stage
-FROM python:3.11-slim as builder
+FROM python:3.14-slim as builder
 
 # Set build-time variables
 ARG DEBIAN_FRONTEND=noninteractive
@@ -27,7 +27,7 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
 # ===========================================
 # Production stage
 # ===========================================
-FROM python:3.11-slim as production
+FROM python:3.14-slim as production
 
 # Security: Create non-root user
 RUN groupadd --gid 1000 appgroup \
