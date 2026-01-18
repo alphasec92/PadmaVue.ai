@@ -4,7 +4,7 @@
 # ===========================================
 
 # Build stage
-FROM node:20-alpine AS builder
+FROM node:25-alpine AS builder
 
 # Security: Don't run as root during build
 RUN addgroup --system --gid 1001 nodejs \
@@ -28,7 +28,7 @@ RUN npm run build
 # ===========================================
 # Production stage
 # ===========================================
-FROM node:20-alpine AS production
+FROM node:25-alpine AS production
 
 # Security: Create non-root user
 RUN addgroup --system --gid 1001 nodejs \
