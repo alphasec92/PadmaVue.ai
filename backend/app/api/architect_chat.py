@@ -587,7 +587,7 @@ async def analyze_with_llm(
         if not result:
             result = {
                 "response_type": "general",
-                "analysis": response_for_json if not thinking_content else response_for_json,
+                "analysis": response_for_json,
                 "completeness_score": 0.3,
                 "missing_info": ["Could not parse LLM response properly"],
                 "follow_up_questions": ["Can you tell me more about your system architecture?"],

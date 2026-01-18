@@ -480,7 +480,9 @@ class DuckDuckGoProvider(SearchProvider):
                 if not matches:
                     # Try simpler extraction
                     matches = simple_pattern.findall(html)
-                    for i, match in enumerate(matches[:max_results], 1):
+                    for match in matches:
+                        if len(results) >= max_results:
+                            break
                         url, title = match
                         # Skip DDG tracking URLs
                         if url.startswith('//duckduckgo.com'):
@@ -496,7 +498,9 @@ class DuckDuckGoProvider(SearchProvider):
                             citation_id=len(results) + 1
                         ))
                 else:
-                    for i, match in enumerate(matches[:max_results], 1):
+                    for match in matches:
+                        if len(results) >= max_results:
+                            break
                         url, title, snippet = match
                         # Skip DDG tracking URLs
                         if url.startswith('//duckduckgo.com'):
