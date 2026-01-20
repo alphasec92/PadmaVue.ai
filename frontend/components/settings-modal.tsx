@@ -25,7 +25,7 @@ const FALLBACK_PROVIDERS: Provider[] = [
     default_model: 'llama3.2',
     available_models: ['llama3.2', 'llama3.1', 'llama3', 'mistral', 'codellama', 'phi3', 'gemma2', 'qwen2'],
     config_fields: [
-      { name: 'base_url', label: 'Server URL', type: 'text', required: false, default: 'http://localhost:11434', placeholder: 'http://localhost:11434' },
+      { name: 'base_url', label: 'Server URL', type: 'text', required: false, default: 'http://localhost:11434', placeholder: 'http://localhost:11434 (auto-detects Docker)' },
       { name: 'model', label: 'Model', type: 'combobox', required: true }
     ]
   },

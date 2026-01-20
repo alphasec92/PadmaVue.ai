@@ -129,6 +129,7 @@ async def configure_provider(config: ProviderConfig):
     This sets the provider at runtime (does not persist to .env file).
     The configuration is stored in memory and used for subsequent requests.
     """
+    import os
     global _runtime_config
     
     # Validate provider
@@ -141,12 +142,21 @@ async def configure_provider(config: ProviderConfig):
     if provider_info.requires_api_key and not config.api_key:
         raise HTTPException(status_code=400, detail="API key is required for this provider")
     
+    # Translate localhost to host.docker.internal if running in Docker
+    base_url = config.base_url
+    if base_url and ("localhost" in base_url or "127.0.0.1" in base_url):
+        if os.path.exists("/.dockerenv") or os.environ.get("DOCKER_CONTAINER"):
+            base_url = base_url.replace("localhost", "host.docker.internal").replace("127.0.0.1", "host.docker.internal")
+            logger.info("Docker detected, translating URL for config", 
+                       original=config.base_url, 
+                       translated=base_url)
+    
     # Store configuration
     _runtime_config = {
         "provider": config.provider,
         "api_key": config.api_key,
         "model": config.model or provider_info.default_model,
-        "base_url": config.base_url,
+        "base_url": base_url,
         "project_id": config.project_id,
         "region": config.region,
         "access_key": config.access_key,
@@ -183,14 +193,24 @@ async def test_provider(config: ProviderConfig):
     Sends a simple test prompt to verify the provider is working.
     """
     import time
+    import os
     
     try:
+        # Translate localhost to host.docker.internal if running in Docker
+        base_url = config.base_url
+        if base_url and ("localhost" in base_url or "127.0.0.1" in base_url):
+            if os.path.exists("/.dockerenv") or os.environ.get("DOCKER_CONTAINER"):
+                base_url = base_url.replace("localhost", "host.docker.internal").replace("127.0.0.1", "host.docker.internal")
+                logger.info("Docker detected, translating URL", 
+                           original=config.base_url, 
+                           translated=base_url)
+        
         # Create provider with config
         provider = get_llm_provider({
             "provider": config.provider,
             "api_key": config.api_key,
             "model": config.model,
-            "base_url": config.base_url,
+            "base_url": base_url,
             "project_id": config.project_id,
             "region": config.region,
             "access_key": config.access_key,
@@ -198,15 +218,22 @@ async def test_provider(config: ProviderConfig):
             "location": config.location,
         })
         
-        # Test with a simple prompt
+        # Test with a simple prompt that works with most models
         start_time = time.time()
         response = await provider.generate(
-            prompt="Say 'Hello, PadmaVue.ai!' in exactly those words.",
-            max_tokens=50
+            prompt="Hello! Please respond with a short greeting.",
+            max_tokens=100
         )
         latency_ms = (time.time() - start_time) * 1000
         
-        if response and len(response) > 0:
+        # Log the response for debugging
+        logger.info("Provider test response",
+                   provider=config.provider,
+                   model=config.model,
+                   response_length=len(response) if response else 0,
+                   response_preview=response[:100] if response else "EMPTY")
+        
+        if response and len(response.strip()) > 0:
             return TestResult(
                 success=True,
                 message="Provider is working correctly",
@@ -231,6 +258,14 @@ async def test_provider(config: ProviderConfig):
 async def list_ollama_models(base_url: str = "http://localhost:11434"):
     """List available models from Ollama"""
     try:
+        # If running in Docker and URL uses localhost, translate to host.docker.internal
+        # This allows containers to reach Ollama running on the host machine
+        if "localhost" in base_url or "127.0.0.1" in base_url:
+            # Check if we're likely in Docker (common indicators)
+            import os
+            if os.path.exists("/.dockerenv") or os.environ.get("DOCKER_CONTAINER"):
+                base_url = base_url.replace("localhost", "host.docker.internal").replace("127.0.0.1", "host.docker.internal")
+        
         provider = OllamaProvider(base_url=base_url)
         models = await provider.list_models()
         return {

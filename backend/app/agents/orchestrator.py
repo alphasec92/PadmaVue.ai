@@ -87,10 +87,18 @@ class SecurityOrchestrator:
     6. Guardrail Agent - Output validation
     """
     
-    def __init__(self):
-        self.llm = get_llm_provider()
+    def __init__(self, runtime_config: Dict[str, Any] = None):
+        # Get LLM provider from runtime config (user's settings)
+        from app.api.settings import get_runtime_config
+        config = runtime_config or get_runtime_config() or {}
         
-        # Initialize agents
+        # Log which provider is being used
+        provider_name = config.get('provider', 'mock') if config else 'mock'
+        logger.info("Initializing orchestrator with LLM provider", provider=provider_name)
+        
+        self.llm = get_llm_provider(config)
+        
+        # Initialize agents with the configured LLM
         self.elicitation_agent = ElicitationAgent(self.llm)
         self.threat_agent = ThreatAgent(self.llm)
         self.compliance_agent = ComplianceAgent(self.llm)

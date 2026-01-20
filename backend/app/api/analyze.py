@@ -15,6 +15,7 @@ import structlog
 from app.config import settings
 from app.agents.orchestrator import SecurityOrchestrator
 from app.agents.threat import ThreatAgent
+from app.api.settings import get_runtime_config
 from app.storage.repository import (
     project_repo,
     analysis_repo,
@@ -236,8 +237,9 @@ async def analyze_project(
             status="in_progress"
         )
         
-        # Initialize orchestrator
-        orchestrator = SecurityOrchestrator()
+        # Initialize orchestrator with runtime LLM config
+        runtime_config = get_runtime_config()
+        orchestrator = SecurityOrchestrator(runtime_config=runtime_config)
         
         # Prepare project data
         project_data = {
@@ -555,7 +557,9 @@ async def compare_methodologies(
         'metadata': project.metadata
     }
     
-    orchestrator = SecurityOrchestrator()
+    # Initialize orchestrator with runtime LLM config
+    runtime_config = get_runtime_config()
+    orchestrator = SecurityOrchestrator(runtime_config=runtime_config)
     
     # Run STRIDE
     stride_result = await orchestrator.analyze(

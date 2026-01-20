@@ -37,6 +37,8 @@ build/
 frontend/.next/
 frontend/out/
 frontend/public/generated/
+frontend/tsconfig.tsbuildinfo
+*.tsbuildinfo
 
 # Logs
 logs/

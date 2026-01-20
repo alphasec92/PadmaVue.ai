@@ -565,50 +565,80 @@ export default function AIArchitectPage() {
                                   </div>
                                 </div>
                               ) : msg.reasoningSummary ? (
-                                // Fallback to structured reasoning summary
-                                <div className="space-y-3 text-muted-foreground">
+                                // Detailed reasoning summary
+                                <div className="space-y-4 text-muted-foreground">
+                                  {/* Analysis Steps */}
                                   {msg.reasoningSummary.key_steps?.length > 0 && (
-                                    <div>
-                                      <p className="font-medium text-foreground text-xs uppercase tracking-wide flex items-center gap-1.5">
+                                    <div className="bg-purple-500/5 rounded-lg p-3 border border-purple-500/10">
+                                      <p className="font-medium text-foreground text-xs uppercase tracking-wide flex items-center gap-1.5 mb-2">
                                         <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
-                                        Key Steps
+                                        Analysis Steps
                                       </p>
-                                      <ul className="mt-1.5 space-y-1">
-                                        {msg.reasoningSummary.key_steps.slice(0, 5).map((step, i) => (
+                                      <ul className="space-y-1.5">
+                                        {msg.reasoningSummary.key_steps.slice(0, 8).map((step, i) => (
                                           <li key={i} className="flex items-start gap-2 text-sm">
-                                            <span className="text-purple-500 font-mono text-xs">{i + 1}.</span>
-                                            <span>{step}</span>
+                                            <span className="text-purple-500 font-mono text-xs min-w-[18px]">{i + 1}.</span>
+                                            <span className="text-foreground/80">{step}</span>
                                           </li>
                                         ))}
                                       </ul>
                                     </div>
                                   )}
+                                  
+                                  {/* Assumptions Made */}
                                   {msg.reasoningSummary.assumptions?.length > 0 && (
-                                    <div>
-                                      <p className="font-medium text-foreground text-xs uppercase tracking-wide flex items-center gap-1.5">
+                                    <div className="bg-amber-500/5 rounded-lg p-3 border border-amber-500/10">
+                                      <p className="font-medium text-foreground text-xs uppercase tracking-wide flex items-center gap-1.5 mb-2">
                                         <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                                        Assumptions
+                                        Context & Assumptions
                                       </p>
-                                      <ul className="mt-1.5 space-y-1">
-                                        {msg.reasoningSummary.assumptions.slice(0, 3).map((assumption, i) => (
+                                      <ul className="space-y-1.5">
+                                        {msg.reasoningSummary.assumptions.slice(0, 5).map((assumption, i) => (
                                           <li key={i} className="flex items-start gap-2 text-sm">
-                                            <span className="text-amber-500">•</span>
-                                            <span>{assumption}</span>
+                                            <span className="text-amber-500">→</span>
+                                            <span className="text-foreground/80">{assumption}</span>
                                           </li>
                                         ))}
                                       </ul>
                                     </div>
                                   )}
+                                  
+                                  {/* Evidence & References */}
+                                  {msg.reasoningSummary.evidence_used?.length > 0 && (
+                                    <div className="bg-blue-500/5 rounded-lg p-3 border border-blue-500/10">
+                                      <p className="font-medium text-foreground text-xs uppercase tracking-wide flex items-center gap-1.5 mb-2">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                        References & Methodology
+                                      </p>
+                                      <ul className="space-y-1.5">
+                                        {msg.reasoningSummary.evidence_used.slice(0, 5).map((evidence, i) => (
+                                          <li key={i} className="flex items-start gap-2 text-sm">
+                                            <span className="text-blue-500">✓</span>
+                                            <span className="text-foreground/80">{evidence}</span>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+                                  
+                                  {/* Confidence Level */}
                                   {msg.reasoningSummary.confidence && (
-                                    <div className="flex items-center gap-2 pt-2 border-t border-border/30">
-                                      <span className="text-xs font-medium">Confidence:</span>
-                                      <span className={cn(
-                                        "text-xs font-medium px-2 py-0.5 rounded-full",
-                                        msg.reasoningSummary.confidence === 'high' && 'bg-emerald-500/10 text-emerald-500',
-                                        msg.reasoningSummary.confidence === 'medium' && 'bg-amber-500/10 text-amber-500',
-                                        msg.reasoningSummary.confidence === 'low' && 'bg-red-500/10 text-red-500'
-                                      )}>
-                                        {msg.reasoningSummary.confidence}
+                                    <div className="flex items-center justify-between pt-3 border-t border-border/30">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-xs font-medium">Analysis Confidence:</span>
+                                        <span className={cn(
+                                          "text-xs font-semibold px-2.5 py-1 rounded-full",
+                                          msg.reasoningSummary.confidence === 'high' && 'bg-emerald-500/15 text-emerald-500 border border-emerald-500/20',
+                                          msg.reasoningSummary.confidence === 'medium' && 'bg-amber-500/15 text-amber-500 border border-amber-500/20',
+                                          msg.reasoningSummary.confidence === 'low' && 'bg-red-500/15 text-red-500 border border-red-500/20'
+                                        )}>
+                                          {msg.reasoningSummary.confidence === 'high' ? '● High' : 
+                                           msg.reasoningSummary.confidence === 'medium' ? '◐ Medium' : '○ Low'}
+                                        </span>
+                                      </div>
+                                      <span className="text-xs text-muted-foreground">
+                                        {msg.reasoningLevel === 'deep' ? 'Deep Analysis' : 
+                                         msg.reasoningLevel === 'fast' ? 'Quick Analysis' : 'Balanced Analysis'}
                                       </span>
                                     </div>
                                   )}

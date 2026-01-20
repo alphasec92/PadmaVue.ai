@@ -7,6 +7,7 @@ Implements Grounded Responses and Thinking Time Control
 import json
 import uuid
 import re
+import asyncio
 from typing import Optional, Dict, Any, List
 from datetime import datetime
 
@@ -508,15 +509,38 @@ async def analyze_with_llm(
         # Get runtime config for LLM
         from app.api.settings import get_runtime_config
         runtime_config = get_runtime_config() or {}
-        llm = get_llm_provider(runtime_config)
+        provider_name = runtime_config.get('provider', 'mock') if runtime_config else 'mock'
         
-        # Get reasoning policy
+        # Try to get LLM provider, fallback to mock on failure
+        try:
+            llm = get_llm_provider(runtime_config)
+            # Test connection for non-mock providers
+            if provider_name != 'mock':
+                try:
+                    # Quick test to see if provider is reachable
+                    if hasattr(llm, 'list_models'):
+                        await asyncio.wait_for(llm.list_models(), timeout=5.0)
+                except (asyncio.TimeoutError, Exception) as test_error:
+                    logger.warning("llm_provider_unreachable", 
+                                 provider=provider_name, 
+                                 error=str(test_error),
+                                 falling_back_to_mock=True)
+                    llm = get_llm_provider({"provider": "mock"})
+                    provider_name = "mock"
+        except Exception as init_error:
+            logger.warning("llm_provider_init_failed",
+                         provider=provider_name,
+                         error=str(init_error),
+                         falling_back_to_mock=True)
+            llm = get_llm_provider({"provider": "mock"})
+            provider_name = "mock"
+        
+        # Get reasoning policy (use actual provider name, not the fallback)
         reasoning_service = get_reasoning_service()
         try:
             level = ReasoningLevel(reasoning_level.lower())
         except ValueError:
             level = ReasoningLevel.BALANCED
-        provider_name = runtime_config.get('provider', 'mock') if runtime_config else 'mock'
         policy = reasoning_service.get_policy(provider_name, level)
         
         search_results = []
@@ -555,11 +579,32 @@ async def analyze_with_llm(
         messages.append({"role": "user", "content": user_message})
         
         # Get LLM response with reasoning policy settings
-        response = await llm.chat(
-            messages, 
-            temp=policy.temperature, 
-            max_tokens=policy.max_tokens
-        )
+        # Wrap in try-except to handle connection errors gracefully
+        try:
+            response = await llm.chat(
+                messages, 
+                temp=policy.temperature, 
+                max_tokens=policy.max_tokens
+            )
+        except Exception as llm_error:
+            # If LLM call fails and we're not already using mock, fallback to mock
+            if provider_name != 'mock':
+                logger.warning("llm_chat_failed",
+                             provider=provider_name,
+                             error=str(llm_error),
+                             falling_back_to_mock=True)
+                mock_llm = get_llm_provider({"provider": "mock"})
+                response = await mock_llm.chat(
+                    messages,
+                    temp=policy.temperature,
+                    max_tokens=policy.max_tokens
+                )
+                # Add a note that we fell back to mock
+                if isinstance(response, str):
+                    response = f"[Note: Original LLM provider ({provider_name}) unavailable, using mock responses]\n\n{response}"
+            else:
+                # Re-raise if mock also fails (shouldn't happen)
+                raise
         
         # Extract thinking block (chain-of-thought) from response
         thinking_content = None
@@ -630,7 +675,9 @@ async def analyze_with_llm(
             source_titles = [r.title for r in search_results] if search_results else []
             summary = reasoning_service.extract_summary_from_response(
                 result.get("analysis", ""),
-                sources=source_titles
+                sources=source_titles,
+                world_model=result.get("world_model", {}),
+                completeness_score=result.get("completeness_score", 0.0)
             )
             result["reasoning_summary"] = summary.to_dict()
         else:
@@ -638,9 +685,23 @@ async def analyze_with_llm(
         
         return result
         
+    except HTTPException:
+        # Re-raise HTTP exceptions as-is
+        raise
     except Exception as e:
-        logger.error("llm_analysis_failed", error=str(e))
-        raise HTTPException(500, f"LLM analysis failed: {str(e)}")
+        logger.error("llm_analysis_failed", error=str(e), error_type=type(e).__name__)
+        # Try to provide helpful error message
+        error_msg = str(e)
+        if "connection" in error_msg.lower() or "timeout" in error_msg.lower():
+            raise HTTPException(
+                503, 
+                f"LLM provider unavailable: {error_msg}. Please check your LLM provider configuration in Settings or use Mock mode for testing."
+            )
+        else:
+            raise HTTPException(
+                500, 
+                f"LLM analysis failed: {error_msg}. If this persists, try switching to Mock mode in Settings."
+            )
 
 
 async def generate_threats_with_llm(world_model: Dict) -> Dict:
@@ -648,13 +709,50 @@ async def generate_threats_with_llm(world_model: Dict) -> Dict:
     try:
         # Get runtime config for LLM
         from app.api.settings import get_runtime_config
-        runtime_config = get_runtime_config()
-        llm = get_llm_provider(runtime_config)
+        runtime_config = get_runtime_config() or {}
+        provider_name = runtime_config.get('provider', 'mock') if runtime_config else 'mock'
+        
+        # Try to get LLM provider, fallback to mock on failure
+        try:
+            llm = get_llm_provider(runtime_config)
+            # Test connection for non-mock providers
+            if provider_name != 'mock':
+                try:
+                    if hasattr(llm, 'list_models'):
+                        await asyncio.wait_for(llm.list_models(), timeout=5.0)
+                except (asyncio.TimeoutError, Exception) as test_error:
+                    logger.warning("llm_provider_unreachable",
+                                 provider=provider_name,
+                                 error=str(test_error),
+                                 falling_back_to_mock=True)
+                    llm = get_llm_provider({"provider": "mock"})
+                    provider_name = "mock"
+        except Exception as init_error:
+            logger.warning("llm_provider_init_failed",
+                         provider=provider_name,
+                         error=str(init_error),
+                         falling_back_to_mock=True)
+            llm = get_llm_provider({"provider": "mock"})
+            provider_name = "mock"
         
         context = json.dumps(world_model, indent=2)
         prompt = THREAT_GENERATION_PROMPT.format(context=context)
         
-        response = await llm.generate(prompt, temp=0.2, max_tokens=4000)
+        # Wrap LLM call in try-except for graceful fallback
+        try:
+            response = await llm.generate(prompt, temp=0.2, max_tokens=4000)
+        except Exception as llm_error:
+            # If LLM call fails and we're not already using mock, fallback to mock
+            if provider_name != 'mock':
+                logger.warning("llm_generate_failed",
+                             provider=provider_name,
+                             error=str(llm_error),
+                             falling_back_to_mock=True)
+                mock_llm = get_llm_provider({"provider": "mock"})
+                response = await mock_llm.generate(prompt, temp=0.2, max_tokens=4000)
+            else:
+                # Re-raise if mock also fails (shouldn't happen)
+                raise
         
         # Parse JSON response
         try:
