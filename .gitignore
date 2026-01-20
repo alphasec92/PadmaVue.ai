@@ -69,6 +69,15 @@ uploads/
 # Claude Code
 .claude/
 
+# Cursor IDE
+.cursor/
+
+# Local configuration (user-specific)
+backend/.env
+frontend/.env
+llm-config.json
+mcp-config.json
+
 # Docker data volumes
 infra/docker/compose/searxng-data/
 **/searxng-data/
