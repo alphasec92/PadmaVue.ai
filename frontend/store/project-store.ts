@@ -29,6 +29,10 @@ interface Threat {
   methodology?: 'stride' | 'pasta' | 'maestro';
   evidence?: Array<{ source: string; snippet: string }>;
   trust_level?: 'high' | 'medium' | 'low';
+  // Enhanced schema fields for scenario-driven threat modeling
+  scenario?: string;                    // PadmaVue.ai-specific attack narrative
+  specific_mitigations?: string[];      // Technical, prescriptive fixes
+  references?: string[];                // OWASP/CWE markdown-formatted links
 }
 
 // MAESTRO Applicability Result

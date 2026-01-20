@@ -483,18 +483,64 @@ function ReviewPageContent() {
                               ))}
                             </div>
 
-                            <h4 className="font-medium mb-2">Mitigations ({threat.mitigations?.length || 0})</h4>
+                            {/* Attack Scenario Section */}
+                            {threat.scenario && (
+                              <div className="mb-4">
+                                <h4 className="font-medium mb-2 flex items-center gap-2">
+                                  <Target className="w-4 h-4 text-red-500" />
+                                  Attack Scenario
+                                </h4>
+                                <div className="p-3 rounded-lg bg-red-500/5 border border-red-500/20">
+                                  <p className="text-sm text-muted-foreground leading-relaxed">{threat.scenario}</p>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Technical Mitigations Section */}
+                            <h4 className="font-medium mb-2">
+                              {threat.specific_mitigations?.length ? 'Technical Mitigations' : 'Mitigations'} ({(threat.specific_mitigations || threat.mitigations)?.length || 0})
+                            </h4>
                             <div className="space-y-2">
-                              {threat.mitigations?.map((m, i) => (
+                              {(threat.specific_mitigations || threat.mitigations)?.map((m, i) => (
                                 <div key={i} className="flex items-start gap-2 text-sm">
                                   <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
-                                  <span>{m}</span>
+                                  <span className={threat.specific_mitigations ? 'font-mono text-xs bg-muted px-1 py-0.5 rounded' : ''}>{m}</span>
                                 </div>
                               ))}
-                              {(!threat.mitigations || threat.mitigations.length === 0) && (
+                              {(!(threat.specific_mitigations || threat.mitigations) || (threat.specific_mitigations || threat.mitigations).length === 0) && (
                                 <p className="text-sm text-muted-foreground">No mitigations defined</p>
                               )}
                             </div>
+
+                            {/* References Section */}
+                            {threat.references && threat.references.length > 0 && (
+                              <div className="mt-4">
+                                <h4 className="font-medium mb-2 flex items-center gap-2">
+                                  <FileSearch className="w-4 h-4 text-blue-500" />
+                                  Security References
+                                </h4>
+                                <div className="space-y-1">
+                                  {threat.references.map((ref, i) => {
+                                    // Parse markdown link format: [Title](URL)
+                                    const match = ref.match(/\[(.+?)\]\((.+?)\)/);
+                                    return match ? (
+                                      <a
+                                        key={i}
+                                        href={match[2]}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-2 text-sm text-blue-500 hover:text-blue-400 hover:underline transition-colors"
+                                      >
+                                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                                        {match[1]}
+                                      </a>
+                                    ) : (
+                                      <span key={i} className="text-sm text-muted-foreground">{ref}</span>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            )}
                             
                             {/* OWASP Mappings Section */}
                             {threat.owasp_mappings && (
