@@ -70,23 +70,92 @@ function Test-Dependencies {
     $errors = 0
     
     # Check Python
-    if (Test-Command "python") {
-        $pythonVersion = python --version 2>&1
-        if ($pythonVersion -match "Python (\d+)\.(\d+)") {
-            $pyMajor = [int]$Matches[1]
-            $pyMinor = [int]$Matches[2]
-            if ($pyMajor -lt $MinPythonMajor -or ($pyMajor -eq $MinPythonMajor -and $pyMinor -lt $MinPythonMinor)) {
-                Write-Error "Python $pyMajor.$pyMinor found, but $MinPythonMajor.$MinPythonMinor+ required"
-                $errors++
-            } else {
-                $script:PythonCmd = "python"
-                Write-Success "Python $pyMajor.$pyMinor"
+    $pythonFound = $false
+    
+    # Helper function to test Python command
+    function Test-PythonCommand($cmd) {
+        try {
+            # Get the actual command path to check if it's a real Python or Windows Store stub
+            $cmdInfo = Get-Command $cmd -ErrorAction SilentlyContinue
+            if (-not $cmdInfo) {
+                return @{ Found = $false; Valid = $false; Cmd = $null }
             }
+            
+            # Check if it's the Windows Store stub (usually points to AppInstaller)
+            $cmdPath = $cmdInfo.Source
+            if ($cmdPath -match "AppInstaller|WindowsApps\\python\.exe$|Microsoft\\WindowsApps") {
+                # This is likely the Windows Store stub, skip it
+                return @{ Found = $false; Valid = $false; Cmd = $null }
+            }
+            
+            # Try to get version using Start-Process to suppress Windows Store errors
+            $oldErrorAction = $ErrorActionPreference
+            $ErrorActionPreference = "SilentlyContinue"
+            try {
+                $processInfo = New-Object System.Diagnostics.ProcessStartInfo
+                $processInfo.FileName = $cmd
+                $processInfo.Arguments = "--version"
+                $processInfo.UseShellExecute = $false
+                $processInfo.RedirectStandardOutput = $true
+                $processInfo.RedirectStandardError = $true
+                $processInfo.CreateNoWindow = $true
+                $process = New-Object System.Diagnostics.Process
+                $process.StartInfo = $processInfo
+                $null = $process.Start()
+                $pythonOutput = $process.StandardOutput.ReadToEnd()
+                $process.WaitForExit(2000)
+                if (-not $process.HasExited) {
+                    $process.Kill()
+                }
+                $process.Dispose()
+                $ErrorActionPreference = $oldErrorAction
+            } catch {
+                $ErrorActionPreference = $oldErrorAction
+                return @{ Found = $false; Valid = $false; Cmd = $null }
+            }
+            
+            # Check if output contains actual Python version
+            if ($pythonOutput -match "Python (\d+)\.(\d+)") {
+                $pyMajor = [int]$Matches[1]
+                $pyMinor = [int]$Matches[2]
+                if ($pyMajor -lt $MinPythonMajor -or ($pyMajor -eq $MinPythonMajor -and $pyMinor -lt $MinPythonMinor)) {
+                    Write-Error "Python $pyMajor.$pyMinor found, but $MinPythonMajor.$MinPythonMinor+ required"
+                    return @{ Found = $false; Valid = $false; Cmd = $null }
+                } else {
+                    return @{ Found = $true; Valid = $true; Cmd = $cmd; Major = $pyMajor; Minor = $pyMinor }
+                }
+            }
+        } catch {
+            # Command failed
         }
-    } elseif (Test-Command "python3") {
-        $script:PythonCmd = "python3"
-        Write-Success "Python 3 found"
-    } else {
+        return @{ Found = $false; Valid = $false; Cmd = $null }
+    }
+    
+    # Try python command
+    if (Test-Command "python") {
+        $result = Test-PythonCommand "python"
+        if ($result.Found -and $result.Valid) {
+            $script:PythonCmd = $result.Cmd
+            Write-Success "Python $($result.Major).$($result.Minor)"
+            $pythonFound = $true
+        } elseif ($result.Found -and -not $result.Valid) {
+            $errors++
+        }
+    }
+    
+    # Try python3 command if python didn't work
+    if (-not $pythonFound -and (Test-Command "python3")) {
+        $result = Test-PythonCommand "python3"
+        if ($result.Found -and $result.Valid) {
+            $script:PythonCmd = $result.Cmd
+            Write-Success "Python $($result.Major).$($result.Minor)"
+            $pythonFound = $true
+        } elseif ($result.Found -and -not $result.Valid) {
+            $errors++
+        }
+    }
+    
+    if (-not $pythonFound) {
         Write-Error "Python not found"
         $errors++
     }
@@ -118,18 +187,9 @@ function Test-Dependencies {
     }
     
     if ($errors -gt 0) {
-        Write-Host ""
-        Write-Error "Missing or outdated dependencies. Install them first:"
-        Write-Host ""
-        Write-Host "  # Using winget:"
-        Write-Host "  winget install Python.Python.3.11"
-        Write-Host "  winget install OpenJS.NodeJS"
-        Write-Host ""
-        Write-Host "  # Or download manually:"
-        Write-Host "  Python 3.11+: https://python.org/downloads"
-        Write-Host "  Node.js 20+:  https://nodejs.org"
-        exit 1
+        return $false
     }
+    return $true
 }
 
 # ===========================================
@@ -521,8 +581,47 @@ Write-Info "Starting in Lite Mode (no Neo4j/Qdrant)"
 Write-Host "  Use -Full for Full Mode with Neo4j + Qdrant"
 Write-Host ""
 
-# Check dependencies
-Test-Dependencies
+# Check dependencies with retry
+$maxRetries = 3
+$retryCount = 0
+$dependenciesOk = $false
+
+while (-not $dependenciesOk -and $retryCount -lt $maxRetries) {
+    $dependenciesOk = Test-Dependencies
+    
+    if (-not $dependenciesOk) {
+        Write-Host ""
+        Write-Error "Missing or outdated dependencies detected."
+        Write-Host ""
+        Write-Host "Installation options:" -ForegroundColor Yellow
+        Write-Host ""
+        Write-Host "  # Using winget (recommended):"
+        Write-Host "  winget install Python.Python.3.11"
+        Write-Host "  winget install OpenJS.NodeJS"
+        Write-Host ""
+        Write-Host "  # Or download manually:"
+        Write-Host "  Python 3.11+: https://python.org/downloads"
+        Write-Host "  Node.js 18+:  https://nodejs.org"
+        Write-Host ""
+        
+        if ($retryCount -lt $maxRetries - 1) {
+            Write-Host "After installing dependencies, press Enter to retry..." -ForegroundColor Cyan
+            Write-Host "Or press Ctrl+C to exit." -ForegroundColor Gray
+            $null = Read-Host
+            $retryCount++
+            Write-Host ""
+            Write-Info "Retrying dependency check... ($retryCount/$maxRetries)"
+            Write-Host ""
+        } else {
+            Write-Error "Maximum retries reached. Please install dependencies and run the script again."
+            exit 1
+        }
+    }
+}
+
+if (-not $dependenciesOk) {
+    exit 1
+}
 
 # Setup
 if (-not $Frontend) {

@@ -92,6 +92,9 @@ const nextConfig = {
     }
     return config;
   },
+
+  // Turbopack configuration (empty to silence warnings when using webpack)
+  turbopack: {},
 };
 
 module.exports = nextConfig;

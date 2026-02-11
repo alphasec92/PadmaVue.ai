@@ -82,7 +82,7 @@ class LLMProvider(ABC):
 # ===========================================
 
 class MockProvider(LLMProvider):
-    """Mock provider for development"""
+    """Mock provider for development - provides useful default responses"""
     async def generate(self, prompt: str, system: str = None, temp: float = 0.7, max_tokens: int = 2000) -> str:
         p = prompt.lower()
         if "threat" in p or "stride" in p:
@@ -92,6 +92,44 @@ class MockProvider(LLMProvider):
         if "diagram" in p or "mermaid" in p:
             return "flowchart TB\n  User-->App-->API-->DB"
         return "Mock response - configure real LLM for production"
+    
+    async def chat(self, messages: List[Dict], temp: float = 0.7, max_tokens: int = 2000) -> str:
+        """Mock chat implementation that returns valid JSON for architect chat"""
+        # Get the last user message
+        user_message = ""
+        for msg in reversed(messages):
+            if msg.get("role") == "user":
+                user_message = msg.get("content", "").lower()
+                break
+        
+        # Return appropriate mock response based on context
+        if any(word in user_message for word in ["threat", "stride", "security"]):
+            return '''{
+                "response_type": "analysis",
+                "analysis": "[Mock Mode] I can help you identify security threats. To provide a comprehensive threat model, I'll need more details about your system architecture, data flows, and security requirements. Please describe your system components and how they interact.",
+                "completeness_score": 0.3,
+                "missing_info": ["System architecture details", "Data flow information", "Authentication mechanisms", "Data sensitivity classification"],
+                "follow_up_questions": ["What type of application is this (web, mobile, API)?", "What sensitive data does your system handle?", "How do users authenticate?", "What third-party services do you integrate with?"],
+                "ready_for_threat_model": false,
+                "confidence_level": "medium",
+                "world_model": {}
+            }'''
+        
+        # Default mock response for any conversation
+        return '''{
+            "response_type": "general",
+            "analysis": "[Mock Mode - Configure LLM in Settings for real analysis] I understand you want to discuss your system architecture. To help you with threat modeling, please tell me about: 1) The type of application you're building, 2) Key components and their interactions, 3) Data types being processed, 4) Authentication and authorization mechanisms.",
+            "completeness_score": 0.2,
+            "missing_info": ["Application type", "System components", "Data flows", "Security controls"],
+            "follow_up_questions": ["What kind of system are you building?", "What technologies are you using?", "What data does your system process?"],
+            "ready_for_threat_model": false,
+            "confidence_level": "low",
+            "world_model": {}
+        }'''
+    
+    async def list_models(self) -> List[str]:
+        """Return mock model list"""
+        return ["mock-v1", "mock-security-analyst", "mock-architect"]
 
 
 class OpenAIProvider(LLMProvider):
@@ -99,11 +137,20 @@ class OpenAIProvider(LLMProvider):
         self.api_key, self.model, self.base_url = api_key, model, base_url
     
     async def generate(self, prompt: str, system: str = None, temp: float = 0.7, max_tokens: int = 2000) -> str:
-        from openai import AsyncOpenAI
-        client = AsyncOpenAI(api_key=self.api_key, base_url=self.base_url) if self.base_url else AsyncOpenAI(api_key=self.api_key)
-        msgs = ([{"role": "system", "content": system}] if system else []) + [{"role": "user", "content": prompt}]
-        r = await client.chat.completions.create(model=self.model, messages=msgs, temperature=temp, max_tokens=max_tokens)
-        return r.choices[0].message.content
+        try:
+            from openai import AsyncOpenAI
+            client = AsyncOpenAI(api_key=self.api_key, base_url=self.base_url) if self.base_url else AsyncOpenAI(api_key=self.api_key)
+            msgs = ([{"role": "system", "content": system}] if system else []) + [{"role": "user", "content": prompt}]
+            r = await client.chat.completions.create(model=self.model, messages=msgs, temperature=temp, max_tokens=max_tokens)
+            return r.choices[0].message.content
+        except Exception as e:
+            error_msg = str(e).lower()
+            if "api key" in error_msg or "authentication" in error_msg or "unauthorized" in error_msg:
+                raise ValueError(f"OpenAI API key invalid or missing: {e}")
+            elif "connection" in error_msg or "network" in error_msg or "timeout" in error_msg:
+                raise ConnectionError(f"Cannot connect to OpenAI API: {e}")
+            else:
+                raise RuntimeError(f"OpenAI API error: {e}")
 
 
 class AnthropicProvider(LLMProvider):
@@ -111,13 +158,22 @@ class AnthropicProvider(LLMProvider):
         self.api_key, self.model = api_key, model
     
     async def generate(self, prompt: str, system: str = None, temp: float = 0.7, max_tokens: int = 2000) -> str:
-        from anthropic import AsyncAnthropic
-        r = await AsyncAnthropic(api_key=self.api_key).messages.create(
-            model=self.model, max_tokens=max_tokens, temperature=temp,
-            system=system or "You are a security analysis assistant.",
-            messages=[{"role": "user", "content": prompt}]
-        )
-        return r.content[0].text
+        try:
+            from anthropic import AsyncAnthropic
+            r = await AsyncAnthropic(api_key=self.api_key).messages.create(
+                model=self.model, max_tokens=max_tokens, temperature=temp,
+                system=system or "You are a security analysis assistant.",
+                messages=[{"role": "user", "content": prompt}]
+            )
+            return r.content[0].text
+        except Exception as e:
+            error_msg = str(e).lower()
+            if "api key" in error_msg or "authentication" in error_msg or "unauthorized" in error_msg:
+                raise ValueError(f"Anthropic API key invalid or missing: {e}")
+            elif "connection" in error_msg or "network" in error_msg or "timeout" in error_msg:
+                raise ConnectionError(f"Cannot connect to Anthropic API: {e}")
+            else:
+                raise RuntimeError(f"Anthropic API error: {e}")
 
 
 class OpenRouterProvider(LLMProvider):
@@ -125,12 +181,21 @@ class OpenRouterProvider(LLMProvider):
         self.api_key, self.model = api_key, model
     
     async def generate(self, prompt: str, system: str = None, temp: float = 0.7, max_tokens: int = 2000) -> str:
-        from openai import AsyncOpenAI
-        client = AsyncOpenAI(api_key=self.api_key, base_url="https://openrouter.ai/api/v1")
-        msgs = ([{"role": "system", "content": system}] if system else []) + [{"role": "user", "content": prompt}]
-        r = await client.chat.completions.create(model=self.model, messages=msgs, temperature=temp, max_tokens=max_tokens,
-            extra_headers={"HTTP-Referer": "https://padmavue.ai"})
-        return r.choices[0].message.content
+        try:
+            from openai import AsyncOpenAI
+            client = AsyncOpenAI(api_key=self.api_key, base_url="https://openrouter.ai/api/v1")
+            msgs = ([{"role": "system", "content": system}] if system else []) + [{"role": "user", "content": prompt}]
+            r = await client.chat.completions.create(model=self.model, messages=msgs, temperature=temp, max_tokens=max_tokens,
+                extra_headers={"HTTP-Referer": "https://padmavue.ai"})
+            return r.choices[0].message.content
+        except Exception as e:
+            error_msg = str(e).lower()
+            if "api key" in error_msg or "authentication" in error_msg or "unauthorized" in error_msg:
+                raise ValueError(f"OpenRouter API key invalid or missing: {e}")
+            elif "connection" in error_msg or "network" in error_msg or "timeout" in error_msg:
+                raise ConnectionError(f"Cannot connect to OpenRouter API: {e}")
+            else:
+                raise RuntimeError(f"OpenRouter API error: {e}")
 
 
 class GeminiProvider(LLMProvider):
@@ -183,12 +248,41 @@ class OllamaProvider(LLMProvider):
         self.url, self.model = base_url.rstrip("/"), model
     
     async def generate(self, prompt: str, system: str = None, temp: float = 0.7, max_tokens: int = 2000) -> str:
-        async with httpx.AsyncClient(timeout=120) as c:
-            r = await c.post(f"{self.url}/api/generate", json={
-                "model": self.model, "prompt": f"{system}\n\n{prompt}" if system else prompt,
-                "stream": False, "options": {"temperature": temp, "num_predict": max_tokens}
-            })
-            return r.json()["response"]
+        try:
+            async with httpx.AsyncClient(timeout=180) as c:  # Increased timeout for slow models
+                payload = {
+                    "model": self.model, 
+                    "prompt": f"{system}\n\n{prompt}" if system else prompt,
+                    "stream": False, 
+                    "options": {"temperature": temp, "num_predict": max_tokens}
+                }
+                r = await c.post(f"{self.url}/api/generate", json=payload)
+                r.raise_for_status()
+                
+                response_data = r.json()
+                response_text = response_data.get("response", "")
+                
+                # If response is empty, check if there's an error or context
+                if not response_text or len(response_text.strip()) == 0:
+                    # Check for common issues in the response
+                    if response_data.get("done") == False:
+                        raise RuntimeError(f"Model '{self.model}' did not complete generation")
+                    if "error" in response_data:
+                        raise RuntimeError(f"Ollama error: {response_data['error']}")
+                    # Return a placeholder to indicate connection works but model gave empty response
+                    raise RuntimeError(f"Model '{self.model}' returned empty response. Try: 'ollama run {self.model}' to warm up the model.")
+                
+                return response_text
+        except httpx.ConnectError as e:
+            raise ConnectionError(f"Cannot connect to Ollama at {self.url}. Is Ollama running?") from e
+        except httpx.TimeoutException as e:
+            raise TimeoutError(f"Ollama request timed out after 180s. Try a smaller/faster model or check if the model is loaded.") from e
+        except httpx.HTTPStatusError as e:
+            raise RuntimeError(f"Ollama API error: {e.response.status_code} - {e.response.text}") from e
+        except RuntimeError:
+            raise  # Re-raise RuntimeErrors as-is
+        except Exception as e:
+            raise RuntimeError(f"Ollama request failed: {str(e)}") from e
     
     async def list_models(self) -> List[str]:
         try:

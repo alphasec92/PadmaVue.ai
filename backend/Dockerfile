@@ -45,17 +45,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
+# Create app directory with proper ownership (needed for multiprocessing chdir)
+RUN mkdir -p /app && chown appuser:appgroup /app && chmod 755 /app
+
 # Set working directory
 WORKDIR /app
 
 # Copy application code
 COPY --chown=appuser:appgroup . .
 
+# Ensure all files are owned by appuser (explicit ownership)
+RUN chown -R appuser:appgroup /app
+
 # Create uploads directory with proper permissions
 RUN mkdir -p /app/uploads && chown appuser:appgroup /app/uploads
 
 # Security: Set proper permissions
-RUN chmod -R 750 /app \
+# u+rwX gives user read/write/execute (X only applies execute to directories)
+# go-rwx removes all group/other permissions
+RUN chmod -R u+rwX,go-rwx /app \
     && chmod 700 /app/uploads
 
 # Security: Remove unnecessary files

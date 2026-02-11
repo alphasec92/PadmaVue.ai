@@ -37,6 +37,8 @@ build/
 frontend/.next/
 frontend/out/
 frontend/public/generated/
+frontend/tsconfig.tsbuildinfo
+*.tsbuildinfo
 
 # Logs
 logs/
@@ -66,6 +68,15 @@ uploads/
 
 # Claude Code
 .claude/
+
+# Cursor IDE
+.cursor/
+
+# Local configuration (user-specific)
+backend/.env
+frontend/.env
+llm-config.json
+mcp-config.json
 
 # Docker data volumes
 infra/docker/compose/searxng-data/

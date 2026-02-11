@@ -20,12 +20,22 @@ class STRIDECategory(str, Enum):
 
 @dataclass
 class STRIDEThreat:
-    """Represents a STRIDE threat"""
+    """Represents a STRIDE threat with enhanced schema"""
     category: STRIDECategory
     description: str
     affected_property: str
     typical_mitigations: List[str]
     examples: List[str]
+    # Enhanced fields for scenario-driven threat modeling
+    scenario: str = ""  # PadmaVue.ai-specific attack narrative
+    specific_mitigations: List[str] = None  # Technical, prescriptive fixes
+    references: List[str] = None  # OWASP/CWE markdown links
+    
+    def __post_init__(self):
+        if self.specific_mitigations is None:
+            self.specific_mitigations = []
+        if self.references is None:
+            self.references = []
 
 
 class STRIDEEngine:
@@ -59,6 +69,19 @@ class STRIDEEngine:
                 "Credential theft",
                 "Man-in-the-middle attacks",
                 "Phishing attacks"
+            ],
+            scenario="An attacker intercepts a valid JWT from the PadmaVue.ai /api/auth/login response using a MITM attack on an unsecured network. They decode the token, modify the 'role' claim from 'user' to 'admin', and re-sign it with a weak HS256 secret obtained from a misconfigured .env file exposed via directory traversal. With the forged token, they access /api/admin/settings and disable security logging.",
+            specific_mitigations=[
+                "Use RS256 asymmetric JWT signing instead of HS256 symmetric",
+                "Store JWT secrets in AWS Secrets Manager or HashiCorp Vault, never in .env files",
+                "Implement token binding to client fingerprint (IP + User-Agent hash)",
+                "Set short token expiration (15min access tokens, 7-day refresh with rotation)",
+                "Enable MFA via TOTP (Google Authenticator) for all admin accounts"
+            ],
+            references=[
+                "[OWASP A07:2021 - Identification and Authentication Failures](https://owasp.org/Top10/A07_2021-Identification_and_Authentication_Failures/)",
+                "[CWE-287: Improper Authentication](https://cwe.mitre.org/data/definitions/287.html)",
+                "[CWE-347: Improper Verification of Cryptographic Signature](https://cwe.mitre.org/data/definitions/347.html)"
             ]
         ),
         STRIDECategory.TAMPERING: STRIDEThreat(
@@ -78,6 +101,19 @@ class STRIDEEngine:
                 "Parameter tampering",
                 "Cookie manipulation",
                 "Binary patching"
+            ],
+            scenario="An attacker submits the payload `'; UPDATE users SET role='admin' WHERE username='attacker';--` into the PadmaVue.ai 'Search threats' input field. The backend concatenates this input directly into a SQL query without parameterization, allowing the attacker to escalate their privileges to admin. They then modify threat severity scores to hide critical vulnerabilities from the exported reports.",
+            specific_mitigations=[
+                "Use SQLAlchemy ORM with bound parameters exclusively (no raw SQL queries)",
+                "Validate all search inputs against allowlist regex: ^[a-zA-Z0-9\\s\\-_]+$",
+                "Implement Content-Security-Policy header with script-src 'self' to block XSS",
+                "Enable PostgreSQL query logging for injection attempt forensics",
+                "Deploy AWS WAF or Cloudflare WAF with OWASP CRS 3.x ruleset"
+            ],
+            references=[
+                "[OWASP A03:2021 - Injection](https://owasp.org/Top10/A03_2021-Injection/)",
+                "[CWE-89: SQL Injection](https://cwe.mitre.org/data/definitions/89.html)",
+                "[CWE-79: Cross-site Scripting (XSS)](https://cwe.mitre.org/data/definitions/79.html)"
             ]
         ),
         STRIDECategory.REPUDIATION: STRIDEThreat(
@@ -96,6 +132,19 @@ class STRIDEEngine:
                 "Log tampering",
                 "Timestamp manipulation",
                 "Audit trail deletion"
+            ],
+            scenario="A malicious insider with database access exports all threat intelligence data via the /api/export endpoint, including proprietary STRIDE and PASTA analysis results. They then connect to the PostgreSQL database directly and execute `DELETE FROM audit_logs WHERE user_id='insider_id'` to remove evidence of their actions. Without tamper-evident logging, the data theft goes undetected until customers report seeing their threat models on a competitor's platform.",
+            specific_mitigations=[
+                "Ship logs to immutable storage (AWS CloudWatch Logs with retention lock or S3 Object Lock)",
+                "Implement cryptographic log signing using ed25519 signatures per log entry",
+                "Use separate database credentials for audit log writes (append-only, no DELETE permission)",
+                "Enable row-level security in PostgreSQL with audit triggers on sensitive tables",
+                "Set up real-time alerting via PagerDuty/Opsgenie for bulk export operations"
+            ],
+            references=[
+                "[OWASP A09:2021 - Security Logging and Monitoring Failures](https://owasp.org/Top10/A09_2021-Security_Logging_and_Monitoring_Failures/)",
+                "[CWE-778: Insufficient Logging](https://cwe.mitre.org/data/definitions/778.html)",
+                "[CWE-779: Logging of Excessive Data](https://cwe.mitre.org/data/definitions/779.html)"
             ]
         ),
         STRIDECategory.INFORMATION_DISCLOSURE: STRIDEThreat(
@@ -115,6 +164,19 @@ class STRIDEEngine:
                 "Directory traversal",
                 "Eavesdropping",
                 "Memory dumps"
+            ],
+            scenario="An attacker sends a malformed JSON payload `{\"project_id\": null, \"__proto__\": {\"admin\": true}}` to the /api/analyze endpoint. The FastAPI backend raises an unhandled exception, and with DEBUG=True still enabled in production, the full Python traceback is returned to the client. The traceback reveals the DATABASE_URL containing PostgreSQL credentials, the OPENAI_API_KEY, and internal file paths showing the deployment structure.",
+            specific_mitigations=[
+                "Set DEBUG=False and configure custom error handlers returning only error codes (no stack traces)",
+                "Use python-dotenv with .env files excluded from Docker images via .dockerignore",
+                "Implement structured JSON error responses: {\"error\": \"code\", \"request_id\": \"uuid\"} only",
+                "Enable TLS 1.3 for all API endpoints with HSTS header (max-age=31536000)",
+                "Encrypt sensitive fields in database using application-level encryption (AWS KMS or age)"
+            ],
+            references=[
+                "[OWASP A01:2021 - Broken Access Control](https://owasp.org/Top10/A01_2021-Broken_Access_Control/)",
+                "[CWE-200: Exposure of Sensitive Information](https://cwe.mitre.org/data/definitions/200.html)",
+                "[CWE-209: Error Message Information Leak](https://cwe.mitre.org/data/definitions/209.html)"
             ]
         ),
         STRIDECategory.DENIAL_OF_SERVICE: STRIDEThreat(
@@ -134,6 +196,19 @@ class STRIDEEngine:
                 "Application-level DoS",
                 "Algorithmic complexity attacks",
                 "Connection pool exhaustion"
+            ],
+            scenario="An attacker scripts 10,000 concurrent POST requests to /api/analyze, each uploading a 50MB malformed PDF document. The FastAPI worker pool (4 Uvicorn workers) becomes saturated processing the uploads. Simultaneously, the attacker sends ReDoS payloads to the search endpoint with patterns like `(a+)+$` that cause exponential regex backtracking. Within 60 seconds, all workers are blocked, memory usage spikes to 95%, and legitimate users receive 503 Service Unavailable errors.",
+            specific_mitigations=[
+                "Implement rate limiting: 100 requests/minute per IP using FastAPI-Limiter with Redis backend",
+                "Set maximum upload size to 10MB via nginx client_max_body_size directive",
+                "Use non-backtracking regex or RE2 library for user-supplied pattern matching",
+                "Deploy behind Cloudflare or AWS Shield for volumetric DDoS protection",
+                "Configure Uvicorn with --limit-concurrency 100 and --timeout-keep-alive 5"
+            ],
+            references=[
+                "[OWASP - Denial of Service](https://owasp.org/www-community/attacks/Denial_of_Service)",
+                "[CWE-400: Uncontrolled Resource Consumption](https://cwe.mitre.org/data/definitions/400.html)",
+                "[CWE-1333: Inefficient Regular Expression Complexity](https://cwe.mitre.org/data/definitions/1333.html)"
             ]
         ),
         STRIDECategory.ELEVATION_OF_PRIVILEGE: STRIDEThreat(
@@ -153,6 +228,19 @@ class STRIDEEngine:
                 "Insecure direct object references",
                 "Role manipulation",
                 "Permission bypass"
+            ],
+            scenario="A standard user discovers that PadmaVue.ai stores their role in localStorage as `{\"userRole\": \"user\"}`. Using browser DevTools, they modify this to `{\"userRole\": \"admin\"}` and refresh the page. The React frontend now renders admin UI components. When they access /api/admin/users, the backend trusts the role from the JWT without server-side verification, granting them access to view all users, modify threat models, and delete projects belonging to other organizations.",
+            specific_mitigations=[
+                "Validate user roles server-side on EVERY request using JWT claims verified against database",
+                "Implement RBAC middleware that denies by default: @require_role(['admin']) decorator",
+                "Never trust client-side role storage; treat localStorage/sessionStorage as attacker-controlled",
+                "Use signed JWTs with RS256 where role claims cannot be modified without private key",
+                "Implement organization-scoped access: users can only access resources where org_id matches"
+            ],
+            references=[
+                "[OWASP A01:2021 - Broken Access Control](https://owasp.org/Top10/A01_2021-Broken_Access_Control/)",
+                "[CWE-269: Improper Privilege Management](https://cwe.mitre.org/data/definitions/269.html)",
+                "[CWE-284: Improper Access Control](https://cwe.mitre.org/data/definitions/284.html)"
             ]
         )
     }
@@ -228,7 +316,7 @@ class STRIDEEngine:
             properties: Additional properties to consider
         
         Returns:
-            List of potential threats with mitigations
+            List of potential threats with mitigations and enhanced fields
         """
         threats = []
         applicable_categories = self.get_threats_for_component(component_type)
@@ -243,7 +331,11 @@ class STRIDEEngine:
                 "description": f"{threat_info.description} affecting {component_name}",
                 "affected_property": threat_info.affected_property,
                 "mitigations": threat_info.typical_mitigations,
-                "examples": threat_info.examples
+                "examples": threat_info.examples,
+                # Enhanced fields
+                "scenario": threat_info.scenario,
+                "specific_mitigations": threat_info.specific_mitigations,
+                "references": threat_info.references
             })
         
         return threats
@@ -313,8 +405,23 @@ class STRIDEEngine:
         
         return threats
     
+    def get_references(self, category: STRIDECategory) -> List[str]:
+        """Get OWASP/CWE references for a STRIDE category"""
+        threat = self.STRIDE_DEFINITIONS.get(category)
+        return threat.references if threat else []
+    
+    def get_scenario(self, category: STRIDECategory) -> str:
+        """Get PadmaVue.ai-specific attack scenario for a STRIDE category"""
+        threat = self.STRIDE_DEFINITIONS.get(category)
+        return threat.scenario if threat else ""
+    
+    def get_specific_mitigations(self, category: STRIDECategory) -> List[str]:
+        """Get technical, prescriptive mitigations for a STRIDE category"""
+        threat = self.STRIDE_DEFINITIONS.get(category)
+        return threat.specific_mitigations if threat else []
+    
     def get_stride_summary(self) -> Dict[str, Any]:
-        """Get a summary of the STRIDE methodology"""
+        """Get a summary of the STRIDE methodology with enhanced fields"""
         return {
             "name": "STRIDE",
             "description": "Threat modeling methodology developed by Microsoft",
@@ -323,7 +430,10 @@ class STRIDEEngine:
                     "name": cat.value,
                     "initial": cat.value[0],
                     "description": self.STRIDE_DEFINITIONS[cat].description,
-                    "affected_property": self.STRIDE_DEFINITIONS[cat].affected_property
+                    "affected_property": self.STRIDE_DEFINITIONS[cat].affected_property,
+                    "scenario": self.STRIDE_DEFINITIONS[cat].scenario,
+                    "specific_mitigations": self.STRIDE_DEFINITIONS[cat].specific_mitigations,
+                    "references": self.STRIDE_DEFINITIONS[cat].references
                 }
                 for cat in STRIDECategory
             ],

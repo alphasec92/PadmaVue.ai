@@ -27,10 +27,15 @@ services:
       - LOG_DIR=/app/logs
       - UPLOAD_DIR=/app/uploads
       - DEBUG=false
+      # Override Ollama URL to use host.docker.internal for Docker access to host
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
     volumes:
       - ../../../data:/app/data
       - ../../../logs:/app/logs
       - ../../../uploads:/app/uploads
+    # Enable access to host machine (Windows/Mac Docker Desktop)
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - padmavue-network
     restart: unless-stopped
@@ -60,7 +65,7 @@ services:
       - padmavue-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000', (r) => { process.exit(r.statusCode === 200 ? 0 : 1) }).on('error', () => process.exit(1))"]
       interval: 30s
       timeout: 10s
       retries: 3

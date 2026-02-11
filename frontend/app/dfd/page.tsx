@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, Suspense, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import mermaid from 'mermaid';
 import {
   GitBranch,
@@ -20,7 +20,11 @@ import {
   Shield,
   ArrowLeft,
   FileText,
-  AlertTriangle
+  AlertTriangle,
+  ChevronDown,
+  Folder,
+  Clock,
+  Filter
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useProjectStore } from '@/store/project-store';
@@ -86,6 +90,15 @@ interface AnalysisInfo {
   status: string;
   created_at?: string;
   threat_count?: number;
+  project_name?: string;
+}
+
+interface ProjectInfo {
+  id: string;
+  name: string;
+  status: string;
+  files_count?: number;
+  created_at?: string;
 }
 
 function DFDContent() {
@@ -104,12 +117,25 @@ function DFDContent() {
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [analysisInfo, setAnalysisInfo] = useState<AnalysisInfo | null>(null);
   const [mermaidReady, setMermaidReady] = useState(false);
+  
+  // Project/Analysis selection state
+  const [analyses, setAnalyses] = useState<AnalysisInfo[]>([]);
+  const [projects, setProjects] = useState<ProjectInfo[]>([]);
+  const [showAnalysisDropdown, setShowAnalysisDropdown] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState<'all' | string>('all');
+  const [loadingList, setLoadingList] = useState(false);
 
   // Generate unique render ID to prevent mermaid conflicts
   const renderIdRef = useRef(0);
 
   // Determine if we should use dark theme
   const isDark = theme === 'dark' || (theme === 'system' && typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+  // Load analyses list and projects on mount
+  useEffect(() => {
+    loadAnalysesList();
+    loadProjectsList();
+  }, []);
 
   // Load DFD from analysis
   useEffect(() => {
@@ -127,6 +153,41 @@ function DFDContent() {
       loadRecentAnalysis();
     }
   }, [searchParams, currentAnalysis]);
+
+  const loadAnalysesList = async () => {
+    try {
+      setLoadingList(true);
+      const response = await api.request<{ analyses: AnalysisInfo[] }>('/api/analyze/list?limit=50&include_project_info=true');
+      if (response.analyses) {
+        setAnalyses(response.analyses);
+      }
+    } catch (e) {
+      console.error('Failed to load analyses list:', e);
+    } finally {
+      setLoadingList(false);
+    }
+  };
+
+  const loadProjectsList = async () => {
+    try {
+      const response = await api.request<ProjectInfo[]>('/api/ingest');
+      if (response) {
+        setProjects(response);
+      }
+    } catch (e) {
+      console.error('Failed to load projects list:', e);
+    }
+  };
+
+  const handleSelectAnalysis = (analysis: AnalysisInfo) => {
+    setShowAnalysisDropdown(false);
+    setCurrentAnalysis(analysis.id);
+    router.push(`/dfd?analysis_id=${analysis.id}`);
+  };
+
+  const filteredAnalyses = selectedFilter === 'all' 
+    ? analyses 
+    : analyses.filter(a => a.project_id === selectedFilter);
 
   const loadRecentAnalysis = async () => {
     try {
@@ -306,14 +367,146 @@ function DFDContent() {
   return (
     <div className="min-h-screen pt-20 px-4 sm:px-6 lg:px-8 py-8">
       <div className="mx-auto max-w-7xl">
-        {/* Header with Analysis Context */}
+        {/* Header with Analysis Context and Project Selector */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div>
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+            <div className="flex-1">
+              {/* Project/Analysis Selector Dropdown */}
+              <div className="relative mb-4">
+                <button
+                  onClick={() => setShowAnalysisDropdown(!showAnalysisDropdown)}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-3 rounded-xl glass hover:bg-muted/50 transition-all w-full max-w-xl",
+                    showAnalysisDropdown && "ring-2 ring-primary/50"
+                  )}
+                >
+                  <Folder className="w-5 h-5 text-primary" />
+                  <div className="flex-1 text-left">
+                    <div className="font-medium">
+                      {analysisInfo?.project_name || analysisInfo?.project_id || 'Select Analysis'}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {analysisInfo 
+                        ? `${analysisInfo.methodology} • ${analysisInfo.threat_count || 0} threats`
+                        : 'Choose a project to view its flow map'}
+                    </div>
+                  </div>
+                  <ChevronDown className={cn(
+                    "w-5 h-5 transition-transform",
+                    showAnalysisDropdown && "rotate-180"
+                  )} />
+                </button>
+
+                {/* Dropdown Menu */}
+                <AnimatePresence>
+                  {showAnalysisDropdown && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute z-50 mt-2 w-full max-w-xl rounded-xl glass border border-border shadow-xl overflow-hidden"
+                    >
+                      {/* Filter by Project */}
+                      <div className="p-3 border-b border-border">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Filter className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm font-medium">Filter by Project</span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            onClick={() => setSelectedFilter('all')}
+                            className={cn(
+                              "px-3 py-1 text-xs rounded-lg transition-colors",
+                              selectedFilter === 'all' 
+                                ? "bg-primary text-white" 
+                                : "bg-muted hover:bg-muted/80"
+                            )}
+                          >
+                            All Projects
+                          </button>
+                          {projects.slice(0, 5).map(project => (
+                            <button
+                              key={project.id}
+                              onClick={() => setSelectedFilter(project.id)}
+                              className={cn(
+                                "px-3 py-1 text-xs rounded-lg transition-colors truncate max-w-[150px]",
+                                selectedFilter === project.id 
+                                  ? "bg-primary text-white" 
+                                  : "bg-muted hover:bg-muted/80"
+                              )}
+                              title={project.name}
+                            >
+                              {project.name}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Analyses List */}
+                      <div className="max-h-80 overflow-y-auto">
+                        {loadingList ? (
+                          <div className="flex items-center justify-center py-8">
+                            <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                          </div>
+                        ) : filteredAnalyses.length === 0 ? (
+                          <div className="py-8 text-center text-muted-foreground">
+                            <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                            <p>No analyses found</p>
+                            <p className="text-xs mt-1">Upload documents and run an analysis first</p>
+                          </div>
+                        ) : (
+                          filteredAnalyses.map(analysis => (
+                            <button
+                              key={analysis.id}
+                              onClick={() => handleSelectAnalysis(analysis)}
+                              className={cn(
+                                "w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/50 transition-colors text-left border-b border-border/50 last:border-0",
+                                analysis.id === analysisInfo?.id && "bg-primary/10"
+                              )}
+                            >
+                              <div className={cn(
+                                "w-2 h-2 rounded-full",
+                                analysis.status === 'completed' ? "bg-green-500" :
+                                analysis.status === 'in_progress' ? "bg-amber-500" : "bg-slate-500"
+                              )} />
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium truncate">
+                                  {analysis.project_name || analysis.project_id}
+                                </div>
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                  <span className={cn(
+                                    "px-1.5 py-0.5 rounded",
+                                    analysis.methodology === 'STRIDE' ? "bg-blue-500/20 text-blue-500" : "bg-purple-500/20 text-purple-500"
+                                  )}>
+                                    {analysis.methodology}
+                                  </span>
+                                  {analysis.threat_count !== undefined && (
+                                    <span>{analysis.threat_count} threats</span>
+                                  )}
+                                  {analysis.created_at && (
+                                    <span className="flex items-center gap-1">
+                                      <Clock className="w-3 h-3" />
+                                      {new Date(analysis.created_at).toLocaleDateString()}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                              {analysis.id === analysisInfo?.id && (
+                                <Check className="w-4 h-4 text-primary" />
+                              )}
+                            </button>
+                          ))
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
               {/* Analysis Context Badge */}
               {analysisInfo ? (
                 <div className="flex items-center gap-3 mb-4">
@@ -342,7 +535,7 @@ function DFDContent() {
               )}
               
               <h1 className="heading-lg">
-                {analysisInfo?.project_id ? analysisInfo.project_id : 'System Architecture'}
+                {analysisInfo?.project_name || analysisInfo?.project_id || 'System Architecture'}
               </h1>
               <p className="text-muted-foreground mt-2">
                 {analysisInfo 
@@ -395,6 +588,14 @@ function DFDContent() {
             </div>
           </div>
         </motion.div>
+        
+        {/* Click outside to close dropdown */}
+        {showAnalysisDropdown && (
+          <div 
+            className="fixed inset-0 z-40" 
+            onClick={() => setShowAnalysisDropdown(false)}
+          />
+        )}
 
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Diagram Panel */}
