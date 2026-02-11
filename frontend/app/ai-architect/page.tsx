@@ -503,19 +503,30 @@ export default function AIArchitectPage() {
                               Sources
                             </p>
                             <ul className="space-y-2">
-                              {msg.sources.map((source, i) => (
-                                <li key={i} className="text-sm">
-                                  <a 
-                                    href={source.url} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="flex items-start gap-2 text-primary hover:underline"
-                                  >
-                                    <ExternalLink className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
-                                    <span>[{source.citation_id || i + 1}] {source.title}</span>
-                                  </a>
-                                </li>
-                              ))}
+                              {msg.sources.map((source, i) => {
+                                // Sanitize URL: only allow http/https protocols to prevent XSS via javascript: URIs
+                                const safeUrl = (() => {
+                                  try {
+                                    const parsed = new URL(source.url);
+                                    return ['http:', 'https:'].includes(parsed.protocol) ? parsed.href : '#';
+                                  } catch {
+                                    return '#';
+                                  }
+                                })();
+                                return (
+                                  <li key={i} className="text-sm">
+                                    <a 
+                                      href={safeUrl} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="flex items-start gap-2 text-primary hover:underline"
+                                    >
+                                      <ExternalLink className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                                      <span>[{source.citation_id || i + 1}] {source.title}</span>
+                                    </a>
+                                  </li>
+                                );
+                              })}
                             </ul>
                           </div>
                         )}

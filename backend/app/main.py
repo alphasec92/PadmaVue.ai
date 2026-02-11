@@ -68,6 +68,8 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
         response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+        # HSTS - enforce HTTPS (1 year, include subdomains)
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload"
         
         # Content Security Policy - prevents XSS and injection attacks
         # Note: 'unsafe-inline' needed for React/Next.js inline styles and scripts

@@ -100,18 +100,18 @@ export function ExportModal({
       // Get the blob
       const blob = await response.blob();
       
-      // Create download link
+      // Create download link (using programmatic click without DOM insertion to avoid XSS surface)
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
+      a.style.display = 'none';
       a.href = url;
       
       const timestamp = new Date().toISOString().slice(0, 10);
-      const filename = `security_report_${projectName?.replace(/\s+/g, '_') || analysisId}_${timestamp}.${format}`;
+      const sanitizedName = (projectName || '').replace(/[^a-zA-Z0-9_-]/g, '_') || analysisId;
+      const filename = `security_report_${sanitizedName}_${timestamp}.${format}`;
       a.download = filename;
       
-      document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
 
       setSuccess(true);
