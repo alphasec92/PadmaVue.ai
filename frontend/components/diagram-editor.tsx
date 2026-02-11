@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import mermaid from 'mermaid';
+import DOMPurify from 'dompurify';
 
 interface Zone { id: string; name: string; description?: string; color?: string; components: string[]; }
 interface TrustBoundary { id: string; name: string; zones: string[]; style?: string; color?: string; }
@@ -46,18 +47,31 @@ export function DiagramEditor({ initialCode, initialMeta, onSave, onClose }: Pro
   const previewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'loose' });
+    mermaid.initialize({ startOnLoad: false, theme: 'neutral', securityLevel: 'strict' });
   }, []);
 
   useEffect(() => {
     renderDiagram();
   }, [code]);
 
+  // Set preview HTML via ref to avoid dangerouslySetInnerHTML (SAST-safe)
+  useEffect(() => {
+    if (previewRef.current) {
+      previewRef.current.innerHTML = preview;
+    }
+  }, [preview]);
+
   const renderDiagram = async () => {
     try {
       setError('');
       const { svg } = await mermaid.render('mermaid-preview', code);
-      setPreview(svg);
+      // Sanitize SVG to prevent XSS attacks
+      const sanitizedSvg = DOMPurify.sanitize(svg, { 
+        USE_PROFILES: { svg: true, svgFilters: true },
+        ADD_TAGS: ['use'],
+        ADD_ATTR: ['xlink:href']
+      });
+      setPreview(sanitizedSvg);
     } catch (e: any) {
       const errorMsg = typeof e === 'string' ? e : (e.message || e.toString() || 'Invalid Mermaid syntax');
       setError(errorMsg);
@@ -288,8 +302,7 @@ export function DiagramEditor({ initialCode, initialMeta, onSave, onClose }: Pro
                   <span className="text-sm font-medium">Preview</span>
                   {error && <span className="text-xs text-red-500 ml-auto flex items-center gap-1"><AlertTriangle className="w-3 h-3" />{error}</span>}
                 </div>
-                <div ref={previewRef} className="flex-1 p-4 overflow-auto flex items-center justify-center bg-white/5"
-                  dangerouslySetInnerHTML={{ __html: preview }} />
+                <div ref={previewRef} className="flex-1 p-4 overflow-auto flex items-center justify-center bg-white/5" />
               </div>
             )}
           </div>

@@ -6,7 +6,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Shield, AlertTriangle, CheckCircle2, XCircle, ChevronDown, ChevronRight,
   FileSearch, Target, Zap, Users, Eye, RotateCcw, Edit3, Plus, Download,
-  Layers, RefreshCw, Filter, Search, BarChart3, GitBranch, Network, Calendar, Clock
+  Layers, RefreshCw, Filter, Search, BarChart3, GitBranch, Network, Calendar, Clock,
+  MapPin, ArrowRight, Link2, ShieldCheck, ShieldAlert, Activity, Info, HelpCircle,
+  Play, Pause, CheckSquare, User, ExternalLink
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { api, Threat, AnalysisResponse } from '@/lib/api';
@@ -46,6 +48,151 @@ const SEVERITY_CONFIG: Record<string, { color: string; bg: string; icon: any }> 
   medium: { color: 'text-yellow-500', bg: 'bg-yellow-500/10', icon: AlertTriangle },
   low: { color: 'text-green-500', bg: 'bg-green-500/10', icon: CheckCircle2 },
 };
+
+const MITIGATION_TYPE_CONFIG = {
+  prevent: { color: 'bg-blue-500', textColor: 'text-blue-500', bgLight: 'bg-blue-500/10', icon: ShieldCheck, label: 'Prevent' },
+  detect: { color: 'bg-amber-500', textColor: 'text-amber-500', bgLight: 'bg-amber-500/10', icon: Activity, label: 'Detect' },
+  respond: { color: 'bg-purple-500', textColor: 'text-purple-500', bgLight: 'bg-purple-500/10', icon: Play, label: 'Respond' },
+};
+
+const MITIGATION_STATUS_CONFIG = {
+  planned: { color: 'bg-slate-500', label: 'Planned', icon: Pause },
+  in_progress: { color: 'bg-amber-500', label: 'In Progress', icon: Play },
+  implemented: { color: 'bg-green-500', label: 'Implemented', icon: CheckSquare },
+};
+
+// Component chip for navigating to flow map
+function ComponentChip({ componentId, name, onClick }: { componentId: string; name?: string; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-500 text-xs font-medium hover:bg-blue-500/20 transition-colors"
+    >
+      <MapPin className="w-3 h-3" />
+      {name || componentId}
+      <ExternalLink className="w-3 h-3 opacity-60" />
+    </button>
+  );
+}
+
+// Flow chip for navigating to flow map with focus
+function FlowChip({ flowId, name, onClick }: { flowId: string; name?: string; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-500/10 text-purple-500 text-xs font-medium hover:bg-purple-500/20 transition-colors"
+    >
+      <ArrowRight className="w-3 h-3" />
+      {name || flowId}
+      <ExternalLink className="w-3 h-3 opacity-60" />
+    </button>
+  );
+}
+
+// Structured mitigation display
+function StructuredMitigationCard({ mitigation }: { mitigation: any }) {
+  const typeConfig = MITIGATION_TYPE_CONFIG[mitigation.mitigation_type as keyof typeof MITIGATION_TYPE_CONFIG] || MITIGATION_TYPE_CONFIG.prevent;
+  const statusConfig = MITIGATION_STATUS_CONFIG[mitigation.status as keyof typeof MITIGATION_STATUS_CONFIG] || MITIGATION_STATUS_CONFIG.planned;
+  
+  return (
+    <div className="p-3 rounded-lg bg-muted/50 space-y-2">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex items-start gap-2 flex-1">
+          <typeConfig.icon className={cn("w-4 h-4 mt-0.5 shrink-0", typeConfig.textColor)} />
+          <span className="text-sm">{mitigation.text}</span>
+        </div>
+        <span className={cn("px-2 py-0.5 rounded text-xs font-medium text-white shrink-0", statusConfig.color)}>
+          {statusConfig.label}
+        </span>
+      </div>
+      {(mitigation.owner || (mitigation.verification && mitigation.verification.length > 0)) && (
+        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground pl-6">
+          {mitigation.owner && (
+            <span className="flex items-center gap-1">
+              <User className="w-3 h-3" />
+              {mitigation.owner}
+            </span>
+          )}
+          {mitigation.verification && mitigation.verification.length > 0 && (
+            <span className="flex items-center gap-1">
+              <CheckSquare className="w-3 h-3" />
+              {mitigation.verification.length} verification{mitigation.verification.length !== 1 ? 's' : ''}
+            </span>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Mitigations grouped by type
+function GroupedMitigations({ mitigations }: { mitigations: any[] }) {
+  const grouped = {
+    prevent: mitigations.filter(m => m.mitigation_type === 'prevent'),
+    detect: mitigations.filter(m => m.mitigation_type === 'detect'),
+    respond: mitigations.filter(m => m.mitigation_type === 'respond'),
+  };
+  
+  return (
+    <div className="space-y-4">
+      {Object.entries(grouped).map(([type, mits]) => {
+        if (mits.length === 0) return null;
+        const config = MITIGATION_TYPE_CONFIG[type as keyof typeof MITIGATION_TYPE_CONFIG];
+        return (
+          <div key={type}>
+            <h5 className={cn("text-sm font-medium mb-2 flex items-center gap-2", config.textColor)}>
+              <config.icon className="w-4 h-4" />
+              {config.label} ({mits.length})
+            </h5>
+            <div className="space-y-2">
+              {mits.map((m, i) => (
+                <StructuredMitigationCard key={m.id || i} mitigation={m} />
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// Scoring explanation tooltip/accordion
+function ScoringExplanation({ threat }: { threat: Threat }) {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  if (!threat.scoring_explanation) return null;
+  
+  return (
+    <div className="mt-2">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <HelpCircle className="w-3 h-3" />
+        How score is calculated
+        <ChevronDown className={cn("w-3 h-3 transition-transform", isOpen && "rotate-180")} />
+      </button>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="mt-2 p-3 rounded-lg bg-muted/50 text-xs">
+              <div className="flex items-center gap-2 mb-1 text-muted-foreground">
+                <Info className="w-3 h-3" />
+                <span className="font-medium">{threat.scoring_model || 'DREAD_AVG_V1'}</span>
+              </div>
+              <p className="text-muted-foreground leading-relaxed">{threat.scoring_explanation}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 // Main page wrapper with Suspense for useSearchParams
 export default function ReviewPage() {
@@ -451,101 +598,255 @@ function ReviewPageContent() {
                     {isExpanded && (
                       <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
                         className="border-t border-border/50">
-                        <div className="p-4 grid md:grid-cols-2 gap-6">
-                          <div>
-                            <h4 className="font-medium mb-2">Description</h4>
-                            <p className="text-sm text-muted-foreground">{threat.description}</p>
+                        <div className="p-4 space-y-6">
+                          
+                          {/* NEW: Where This Happens Section */}
+                          <div className="p-4 rounded-xl bg-gradient-to-r from-blue-500/5 to-purple-500/5 border border-blue-500/10">
+                            <h4 className="font-medium mb-3 flex items-center gap-2">
+                              <MapPin className="w-4 h-4 text-blue-500" />
+                              Where This Happens
+                            </h4>
+                            <div className="flex flex-wrap gap-2">
+                              {/* Components */}
+                              {threat.affected_component_ids && threat.affected_component_ids.length > 0 ? (
+                                threat.affected_component_ids.map(compId => (
+                                  <ComponentChip
+                                    key={compId}
+                                    componentId={compId}
+                                    onClick={() => router.push(`/dfd?analysis_id=${analysis?.analysis_id}&focusComponent=${compId}`)}
+                                  />
+                                ))
+                              ) : threat.affected_component ? (
+                                <ComponentChip
+                                  componentId={threat.affected_component}
+                                  name={threat.affected_component}
+                                  onClick={() => router.push(`/dfd?analysis_id=${analysis?.analysis_id}`)}
+                                />
+                              ) : null}
+                              
+                              {/* Flows */}
+                              {threat.impacted_flow_ids && threat.impacted_flow_ids.length > 0 && (
+                                threat.impacted_flow_ids.map(flowId => (
+                                  <FlowChip
+                                    key={flowId}
+                                    flowId={flowId}
+                                    onClick={() => router.push(`/dfd?analysis_id=${analysis?.analysis_id}&focus=${flowId}`)}
+                                  />
+                                ))
+                              )}
+                              
+                              {/* Trust Boundaries */}
+                              {threat.trust_boundaries && threat.trust_boundaries.length > 0 && (
+                                threat.trust_boundaries.map(tb => (
+                                  <span key={tb} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-500 text-xs font-medium">
+                                    <Shield className="w-3 h-3" />
+                                    {tb}
+                                  </span>
+                                ))
+                              )}
+                              
+                              {/* None linked message */}
+                              {(!threat.affected_component_ids || threat.affected_component_ids.length === 0) &&
+                               (!threat.impacted_flow_ids || threat.impacted_flow_ids.length === 0) &&
+                               !threat.affected_component && (
+                                <span className="text-sm text-muted-foreground flex items-center gap-2">
+                                  <Link2 className="w-4 h-4" />
+                                  No components/flows linked yet
+                                  <button 
+                                    onClick={(e) => { e.stopPropagation(); setEditingThreat(threat); }}
+                                    className="text-primary hover:underline"
+                                  >
+                                    Link now
+                                  </button>
+                                </span>
+                              )}
+                            </div>
                             
-                            <h4 className="font-medium mt-4 mb-2">Attack Vector</h4>
-                            <p className="text-sm text-muted-foreground">{threat.attack_vector || 'Not specified'}</p>
-
-                            {threat.zone && (
-                              <div className="mt-4">
-                                <h4 className="font-medium mb-2">Zone</h4>
-                                <span className="px-2 py-1 rounded bg-amber-500/20 text-amber-500 text-sm">{zones.find(z => z.id === threat.zone)?.name || threat.zone}</span>
+                            {/* Assets Impacted */}
+                            {threat.assets_impacted && threat.assets_impacted.length > 0 && (
+                              <div className="mt-3 pt-3 border-t border-border/50">
+                                <span className="text-xs text-muted-foreground mr-2">Assets at risk:</span>
+                                {threat.assets_impacted.map(asset => (
+                                  <span key={asset} className="inline-flex items-center px-2 py-0.5 rounded bg-red-500/10 text-red-500 text-xs font-medium mr-1">
+                                    {asset}
+                                  </span>
+                                ))}
                               </div>
                             )}
                           </div>
-                          <div>
-                            <h4 className="font-medium mb-2">DREAD Score</h4>
-                            <div className="grid grid-cols-5 gap-2 mb-4">
-                              {[
-                                { key: 'damage', label: 'D', icon: Target },
-                                { key: 'reproducibility', label: 'R', icon: RotateCcw },
-                                { key: 'exploitability', label: 'E', icon: Zap },
-                                { key: 'affected_users', label: 'A', icon: Users },
-                                { key: 'discoverability', label: 'D', icon: Eye },
-                              ].map(d => (
-                                <div key={d.key} className="text-center p-2 rounded-lg bg-muted">
-                                  <d.icon className="w-4 h-4 mx-auto mb-1 text-muted-foreground" />
-                                  <div className="text-lg font-bold">{threat.dread_score?.[d.key] || '-'}</div>
-                                </div>
-                              ))}
-                            </div>
 
-                            {/* Attack Scenario Section */}
-                            {threat.scenario && (
-                              <div className="mb-4">
-                                <h4 className="font-medium mb-2 flex items-center gap-2">
-                                  <Target className="w-4 h-4 text-red-500" />
-                                  Attack Scenario
-                                </h4>
-                                <div className="p-3 rounded-lg bg-red-500/5 border border-red-500/20">
-                                  <p className="text-sm text-muted-foreground leading-relaxed">{threat.scenario}</p>
+                          {/* NEW: Attack Scenario Section */}
+                          {(threat.preconditions?.length > 0 || threat.attack_scenario_steps?.length > 0 || threat.impact_narrative || threat.scenario) && (
+                            <div className="p-4 rounded-xl bg-gradient-to-r from-red-500/5 to-orange-500/5 border border-red-500/10">
+                              <h4 className="font-medium mb-3 flex items-center gap-2">
+                                <Target className="w-4 h-4 text-red-500" />
+                                Attack Scenario
+                              </h4>
+                              
+                              {/* Preconditions */}
+                              {threat.preconditions && threat.preconditions.length > 0 && (
+                                <div className="mb-3">
+                                  <h5 className="text-xs font-medium text-muted-foreground uppercase mb-2">Preconditions</h5>
+                                  <ul className="space-y-1">
+                                    {threat.preconditions.map((pre, i) => (
+                                      <li key={i} className="flex items-start gap-2 text-sm">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-2 shrink-0" />
+                                        {pre}
+                                      </li>
+                                    ))}
+                                  </ul>
                                 </div>
-                              </div>
-                            )}
-
-                            {/* Technical Mitigations Section */}
-                            <h4 className="font-medium mb-2">
-                              {threat.specific_mitigations?.length ? 'Technical Mitigations' : 'Mitigations'} ({(threat.specific_mitigations || threat.mitigations)?.length || 0})
-                            </h4>
-                            <div className="space-y-2">
-                              {(threat.specific_mitigations || threat.mitigations)?.map((m, i) => (
-                                <div key={i} className="flex items-start gap-2 text-sm">
-                                  <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
-                                  <span className={threat.specific_mitigations ? 'font-mono text-xs bg-muted px-1 py-0.5 rounded' : ''}>{m}</span>
+                              )}
+                              
+                              {/* Attack Steps */}
+                              {threat.attack_scenario_steps && threat.attack_scenario_steps.length > 0 && (
+                                <div className="mb-3">
+                                  <h5 className="text-xs font-medium text-muted-foreground uppercase mb-2">Attack Steps</h5>
+                                  <ol className="space-y-2">
+                                    {threat.attack_scenario_steps.map((step, i) => (
+                                      <li key={i} className="flex items-start gap-3 text-sm">
+                                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-red-500/20 text-red-500 text-xs font-bold shrink-0">
+                                          {i + 1}
+                                        </span>
+                                        {step}
+                                      </li>
+                                    ))}
+                                  </ol>
                                 </div>
-                              ))}
-                              {(!(threat.specific_mitigations || threat.mitigations) || (threat.specific_mitigations || threat.mitigations).length === 0) && (
-                                <p className="text-sm text-muted-foreground">No mitigations defined</p>
+                              )}
+                              
+                              {/* Legacy scenario field */}
+                              {threat.scenario && !threat.attack_scenario_steps?.length && (
+                                <p className="text-sm text-muted-foreground leading-relaxed mb-3">{threat.scenario}</p>
+                              )}
+                              
+                              {/* Impact Narrative */}
+                              {threat.impact_narrative && (
+                                <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+                                  <h5 className="text-xs font-medium text-red-500 uppercase mb-1">Impact</h5>
+                                  <p className="text-sm font-medium">{threat.impact_narrative}</p>
+                                </div>
                               )}
                             </div>
+                          )}
 
-                            {/* References Section */}
-                            {threat.references && threat.references.length > 0 && (
-                              <div className="mt-4">
-                                <h4 className="font-medium mb-2 flex items-center gap-2">
-                                  <FileSearch className="w-4 h-4 text-blue-500" />
-                                  Security References
-                                </h4>
-                                <div className="space-y-1">
-                                  {threat.references.map((ref, i) => {
-                                    // Parse markdown link format: [Title](URL)
-                                    const match = ref.match(/\[(.+?)\]\((.+?)\)/);
-                                    return match ? (
-                                      <a
-                                        key={i}
-                                        href={match[2]}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center gap-2 text-sm text-blue-500 hover:text-blue-400 hover:underline transition-colors"
-                                      >
-                                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                                        {match[1]}
-                                      </a>
-                                    ) : (
-                                      <span key={i} className="text-sm text-muted-foreground">{ref}</span>
-                                    );
-                                  })}
-                                </div>
+                          <div className="grid md:grid-cols-2 gap-6">
+                            {/* Left Column: Description & Details */}
+                            <div className="space-y-4">
+                              <div>
+                                <h4 className="font-medium mb-2">Description</h4>
+                                <p className="text-sm text-muted-foreground">{threat.description}</p>
                               </div>
-                            )}
+                              
+                              <div>
+                                <h4 className="font-medium mb-2">Attack Vector</h4>
+                                <p className="text-sm text-muted-foreground">{threat.attack_vector || 'Not specified'}</p>
+                              </div>
+
+                              {threat.zone && (
+                                <div>
+                                  <h4 className="font-medium mb-2">Zone</h4>
+                                  <span className="px-2 py-1 rounded bg-amber-500/20 text-amber-500 text-sm">
+                                    {zones.find(z => z.id === threat.zone)?.name || threat.zone}
+                                  </span>
+                                </div>
+                              )}
+                              
+                              {/* References Section */}
+                              {threat.references && threat.references.length > 0 && (
+                                <div>
+                                  <h4 className="font-medium mb-2 flex items-center gap-2">
+                                    <FileSearch className="w-4 h-4 text-blue-500" />
+                                    Security References
+                                  </h4>
+                                  <div className="space-y-1">
+                                    {threat.references.map((ref, i) => {
+                                      const match = ref.match(/\[(.+?)\]\((.+?)\)/);
+                                      return match ? (
+                                        <a
+                                          key={i}
+                                          href={match[2]}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="flex items-center gap-2 text-sm text-blue-500 hover:text-blue-400 hover:underline transition-colors"
+                                        >
+                                          <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                                          {match[1]}
+                                        </a>
+                                      ) : (
+                                        <span key={i} className="text-sm text-muted-foreground">{ref}</span>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {/* OWASP Mappings */}
+                              {threat.owasp_mappings && (
+                                <OWASPBadge mappings={threat.owasp_mappings} />
+                              )}
+                            </div>
                             
-                            {/* OWASP Mappings Section */}
-                            {threat.owasp_mappings && (
-                              <OWASPBadge mappings={threat.owasp_mappings} />
-                            )}
+                            {/* Right Column: Risk & Mitigations */}
+                            <div className="space-y-4">
+                              {/* DREAD Score with Explanation */}
+                              <div>
+                                <h4 className="font-medium mb-2 flex items-center gap-2">
+                                  DREAD Score
+                                  {threat.confidence && (
+                                    <span className={cn(
+                                      "px-2 py-0.5 rounded text-xs font-medium",
+                                      threat.confidence === 'high' ? 'bg-green-500/20 text-green-500' :
+                                      threat.confidence === 'low' ? 'bg-red-500/20 text-red-500' :
+                                      'bg-amber-500/20 text-amber-500'
+                                    )}>
+                                      {threat.confidence} confidence
+                                    </span>
+                                  )}
+                                </h4>
+                                <div className="grid grid-cols-5 gap-2">
+                                  {[
+                                    { key: 'damage', label: 'D', icon: Target, title: 'Damage' },
+                                    { key: 'reproducibility', label: 'R', icon: RotateCcw, title: 'Reproducibility' },
+                                    { key: 'exploitability', label: 'E', icon: Zap, title: 'Exploitability' },
+                                    { key: 'affected_users', label: 'A', icon: Users, title: 'Affected Users' },
+                                    { key: 'discoverability', label: 'D', icon: Eye, title: 'Discoverability' },
+                                  ].map(d => (
+                                    <div key={d.key} className="text-center p-2 rounded-lg bg-muted" title={d.title}>
+                                      <d.icon className="w-4 h-4 mx-auto mb-1 text-muted-foreground" />
+                                      <div className="text-lg font-bold">{threat.dread_score?.[d.key] || '-'}</div>
+                                    </div>
+                                  ))}
+                                </div>
+                                <ScoringExplanation threat={threat} />
+                              </div>
+
+                              {/* Mitigations Section - Structured or Legacy */}
+                              <div>
+                                <h4 className="font-medium mb-3 flex items-center gap-2">
+                                  <ShieldCheck className="w-4 h-4 text-green-500" />
+                                  Mitigations
+                                </h4>
+                                
+                                {/* Use structured mitigations if available */}
+                                {threat.structured_mitigations && threat.structured_mitigations.length > 0 ? (
+                                  <GroupedMitigations mitigations={threat.structured_mitigations} />
+                                ) : (
+                                  /* Fall back to legacy mitigations */
+                                  <div className="space-y-2">
+                                    {(threat.specific_mitigations || threat.mitigations)?.map((m, i) => (
+                                      <div key={i} className="flex items-start gap-2 text-sm p-2 rounded-lg bg-muted/50">
+                                        <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
+                                        <span className={threat.specific_mitigations ? 'font-mono text-xs' : ''}>{m}</span>
+                                      </div>
+                                    ))}
+                                    {(!(threat.specific_mitigations || threat.mitigations) || (threat.specific_mitigations || threat.mitigations).length === 0) && (
+                                      <p className="text-sm text-muted-foreground">No mitigations defined</p>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </motion.div>

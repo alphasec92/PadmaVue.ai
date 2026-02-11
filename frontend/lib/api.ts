@@ -186,6 +186,52 @@ interface OWASPMapping {
   agentic_ai?: string[];
 }
 
+// ===========================================
+// Enhanced Threat Schema v2.0
+// ===========================================
+
+type MitigationType = 'prevent' | 'detect' | 'respond';
+type MitigationStatus = 'planned' | 'in_progress' | 'implemented';
+type ConfidenceLevel = 'low' | 'medium' | 'high';
+
+interface StructuredMitigation {
+  id: string;
+  text: string;
+  mitigation_type: MitigationType;
+  status: MitigationStatus;
+  owner?: string;
+  verification: string[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+interface FlowMapComponent {
+  id: string;
+  name: string;
+  type: string;
+  trust_boundary?: string;
+  description?: string;
+  layer?: string;
+}
+
+interface FlowMapFlow {
+  id: string;
+  name: string;
+  source: string;
+  target: string;
+  protocol?: string;
+  auth?: string;
+  data_classification?: string;
+  crosses_trust_boundary: boolean;
+  encrypted: boolean;
+}
+
+interface FlowMapData {
+  components: FlowMapComponent[];
+  flows: FlowMapFlow[];
+  trust_boundaries: any[];
+}
+
 interface Threat {
   id: string;
   category: string;
@@ -214,9 +260,28 @@ interface Threat {
   }>;
   trust_level?: 'high' | 'medium' | 'low';
   // Enhanced schema fields for scenario-driven threat modeling
-  scenario?: string;                    // PadmaVue.ai-specific attack narrative
-  specific_mitigations?: string[];      // Technical, prescriptive fixes
-  references?: string[];                // OWASP/CWE markdown-formatted links
+  scenario?: string;
+  specific_mitigations?: string[];
+  references?: string[];
+  
+  // NEW: Enhanced v2.0 fields - Location/Mapping
+  affected_component_ids?: string[];
+  impacted_flow_ids?: string[];
+  trust_boundaries?: string[];
+  assets_impacted?: string[];
+  
+  // NEW: Attack Scenario
+  preconditions?: string[];
+  attack_scenario_steps?: string[];
+  impact_narrative?: string;
+  
+  // NEW: Risk Transparency
+  scoring_model?: string;
+  scoring_explanation?: string;
+  confidence?: ConfidenceLevel;
+  
+  // NEW: Structured Mitigations
+  structured_mitigations?: StructuredMitigation[];
 }
 
 interface AnalysisResponse {
@@ -461,8 +526,13 @@ class ApiClient {
   // Threat Management API
   // ==========================================
 
-  async getThreats(analysisId: string): Promise<{ threats: Threat[]; count: number }> {
-    return this.request(`/api/threats/${analysisId}`);
+  async getThreats(analysisId: string, includeFlows: boolean = false): Promise<{ threats: Threat[]; count: number; flow_map?: FlowMapData }> {
+    const query = includeFlows ? '?include_flows=true' : '';
+    return this.request(`/api/threats/${analysisId}${query}`);
+  }
+
+  async getThreatDetail(analysisId: string, threatId: string): Promise<{ threat: Threat; components: FlowMapComponent[]; flows: FlowMapFlow[] }> {
+    return this.request(`/api/threats/${analysisId}/threat/${threatId}?include_flows=true`);
   }
 
   async createThreat(threat: ThreatCreate): Promise<{ id: string; threat: Threat }> {
@@ -491,6 +561,48 @@ class ApiClient {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ mitigations, status }),
     });
+  }
+
+  // ==========================================
+  // Structured Mitigation API (v2.0)
+  // ==========================================
+
+  async addStructuredMitigation(threatId: string, mitigation: Omit<StructuredMitigation, 'id' | 'created_at' | 'updated_at'>): Promise<{ mitigation: StructuredMitigation }> {
+    return this.request(`/api/threats/${threatId}/mitigations`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(mitigation),
+    });
+  }
+
+  async updateStructuredMitigation(threatId: string, mitigationId: string, mitigation: Partial<StructuredMitigation>): Promise<{ mitigation: StructuredMitigation }> {
+    return this.request(`/api/threats/${threatId}/mitigations/${mitigationId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(mitigation),
+    });
+  }
+
+  async deleteStructuredMitigation(threatId: string, mitigationId: string): Promise<void> {
+    return this.request(`/api/threats/${threatId}/mitigations/${mitigationId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // ==========================================
+  // Flow Map API (v2.0)
+  // ==========================================
+
+  async getFlowMap(analysisId: string): Promise<FlowMapData> {
+    return this.request(`/api/threats/${analysisId}/flow-map`);
+  }
+
+  async getFlowMapComponents(analysisId: string): Promise<{ components: FlowMapComponent[]; count: number }> {
+    return this.request(`/api/threats/${analysisId}/flow-map/components`);
+  }
+
+  async getFlowMapFlows(analysisId: string): Promise<{ flows: FlowMapFlow[]; count: number }> {
+    return this.request(`/api/threats/${analysisId}/flow-map/flows`);
   }
 
   // ==========================================
@@ -960,6 +1072,14 @@ export type {
   DiagramData,
   DiagramUpdate,
   ThreatModelExport,
+  // Enhanced v2.0 types
+  MitigationType,
+  MitigationStatus,
+  ConfidenceLevel,
+  StructuredMitigation,
+  FlowMapComponent,
+  FlowMapFlow,
+  FlowMapData,
   MCPServerResponse,
   MCPServerCreate,
   MCPServerUpdate,

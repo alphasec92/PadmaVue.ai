@@ -342,5 +342,322 @@ class Neo4jClient:
             async for record in result:
                 records.append(dict(record))
             return records
+    
+    # ===========================================
+    # Enhanced Threat Operations (v2.0)
+    # ===========================================
+    
+    async def create_threat_enhanced(
+        self,
+        threat_id: str,
+        properties: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Create an enhanced threat node with all v2.0 fields.
+        Includes attack scenario, confidence, and scoring explanation.
+        """
+        query = """
+        MERGE (t:Threat {id: $threat_id})
+        SET t.title = $title,
+            t.description = $description,
+            t.category = $category,
+            t.severity = $severity,
+            t.overall_risk = $overall_risk,
+            t.scoring_model = $scoring_model,
+            t.scoring_explanation = $scoring_explanation,
+            t.confidence = $confidence,
+            t.attack_vector = $attack_vector,
+            t.impact_narrative = $impact_narrative,
+            t.stride_category = $stride_category,
+            t.status = $status,
+            t.created_at = datetime(),
+            t.updated_at = datetime()
+        RETURN t
+        """
+        
+        async with self.driver.session() as session:
+            result = await session.run(
+                query,
+                threat_id=threat_id,
+                title=properties.get("title", ""),
+                description=properties.get("description", ""),
+                category=properties.get("category", ""),
+                severity=properties.get("severity", "medium"),
+                overall_risk=properties.get("overall_risk", 5.0),
+                scoring_model=properties.get("scoring_model", "DREAD_AVG_V1"),
+                scoring_explanation=properties.get("scoring_explanation", ""),
+                confidence=properties.get("confidence", "medium"),
+                attack_vector=properties.get("attack_vector", ""),
+                impact_narrative=properties.get("impact_narrative", ""),
+                stride_category=properties.get("stride_category", ""),
+                status=properties.get("status", "identified")
+            )
+            record = await result.single()
+            return dict(record["t"]) if record else {}
+    
+    async def create_mitigation(
+        self,
+        mitigation_id: str,
+        threat_id: str,
+        properties: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Create a mitigation node linked to a threat.
+        Supports structured mitigations with type, status, owner.
+        """
+        query = """
+        MATCH (t:Threat {id: $threat_id})
+        MERGE (m:Mitigation {id: $mitigation_id})
+        SET m.text = $text,
+            m.mitigation_type = $mitigation_type,
+            m.status = $status,
+            m.owner = $owner,
+            m.verification = $verification,
+            m.created_at = datetime(),
+            m.updated_at = datetime()
+        MERGE (t)-[:HAS_MITIGATION]->(m)
+        RETURN m
+        """
+        
+        async with self.driver.session() as session:
+            result = await session.run(
+                query,
+                mitigation_id=mitigation_id,
+                threat_id=threat_id,
+                text=properties.get("text", ""),
+                mitigation_type=properties.get("mitigation_type", "prevent"),
+                status=properties.get("status", "planned"),
+                owner=properties.get("owner", ""),
+                verification=str(properties.get("verification", []))
+            )
+            record = await result.single()
+            return dict(record["m"]) if record else {}
+    
+    async def update_mitigation(
+        self,
+        mitigation_id: str,
+        properties: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Update a mitigation node"""
+        query = """
+        MATCH (m:Mitigation {id: $mitigation_id})
+        SET m.text = COALESCE($text, m.text),
+            m.mitigation_type = COALESCE($mitigation_type, m.mitigation_type),
+            m.status = COALESCE($status, m.status),
+            m.owner = COALESCE($owner, m.owner),
+            m.verification = COALESCE($verification, m.verification),
+            m.updated_at = datetime()
+        RETURN m
+        """
+        
+        async with self.driver.session() as session:
+            result = await session.run(
+                query,
+                mitigation_id=mitigation_id,
+                text=properties.get("text"),
+                mitigation_type=properties.get("mitigation_type"),
+                status=properties.get("status"),
+                owner=properties.get("owner"),
+                verification=str(properties.get("verification")) if properties.get("verification") else None
+            )
+            record = await result.single()
+            return dict(record["m"]) if record else {}
+    
+    async def link_threat_to_flow(
+        self,
+        threat_id: str,
+        flow_id: str
+    ) -> bool:
+        """Link a threat to an impacted data flow"""
+        query = """
+        MATCH (t:Threat {id: $threat_id})
+        MATCH (s:Component)-[f:DATA_FLOW]->(e:Component)
+        WHERE f.id = $flow_id
+        MERGE (t)-[:IMPACTS_FLOW]->(f)
+        RETURN t, f
+        """
+        
+        async with self.driver.session() as session:
+            result = await session.run(
+                query,
+                threat_id=threat_id,
+                flow_id=flow_id
+            )
+            return await result.single() is not None
+    
+    async def create_flow(
+        self,
+        flow_id: str,
+        source_id: str,
+        target_id: str,
+        properties: Dict[str, Any]
+    ) -> bool:
+        """
+        Create a data flow with enhanced properties.
+        Includes protocol, auth, data classification, etc.
+        """
+        query = """
+        MATCH (s:Component {id: $source_id})
+        MATCH (t:Component {id: $target_id})
+        MERGE (s)-[f:DATA_FLOW {id: $flow_id}]->(t)
+        SET f.name = $name,
+            f.protocol = $protocol,
+            f.auth = $auth,
+            f.data_classification = $data_classification,
+            f.crosses_trust_boundary = $crosses_trust_boundary,
+            f.encrypted = $encrypted,
+            f.created_at = datetime()
+        RETURN f
+        """
+        
+        async with self.driver.session() as session:
+            result = await session.run(
+                query,
+                flow_id=flow_id,
+                source_id=source_id,
+                target_id=target_id,
+                name=properties.get("name", properties.get("label", "")),
+                protocol=properties.get("protocol", ""),
+                auth=properties.get("auth", ""),
+                data_classification=properties.get("data_classification", ""),
+                crosses_trust_boundary=properties.get("crosses_trust_boundary", False),
+                encrypted=properties.get("encrypted", False)
+            )
+            return await result.single() is not None
+    
+    async def get_threat_with_relationships(
+        self,
+        threat_id: str
+    ) -> Dict[str, Any]:
+        """
+        Get a threat with all its relationships:
+        - Affected components
+        - Impacted flows
+        - Mitigations
+        """
+        query = """
+        MATCH (t:Threat {id: $threat_id})
+        OPTIONAL MATCH (t)-[:AFFECTS]->(c:Component)
+        OPTIONAL MATCH (t)-[:IMPACTS_FLOW]->(f:DATA_FLOW)
+        OPTIONAL MATCH (t)-[:HAS_MITIGATION]->(m:Mitigation)
+        RETURN t,
+               collect(DISTINCT c) as components,
+               collect(DISTINCT f) as flows,
+               collect(DISTINCT m) as mitigations
+        """
+        
+        async with self.driver.session() as session:
+            result = await session.run(query, threat_id=threat_id)
+            record = await result.single()
+            
+            if not record:
+                return {}
+            
+            threat_data = dict(record["t"])
+            threat_data["affected_components"] = [
+                dict(c) for c in record["components"] if c
+            ]
+            threat_data["impacted_flows"] = [
+                dict(f) for f in record["flows"] if f
+            ]
+            threat_data["mitigations"] = [
+                dict(m) for m in record["mitigations"] if m
+            ]
+            
+            return threat_data
+    
+    async def get_threats_for_analysis(
+        self,
+        analysis_id: str
+    ) -> List[Dict[str, Any]]:
+        """Get all threats for an analysis with relationships"""
+        query = """
+        MATCH (t:Threat {analysis_id: $analysis_id})
+        OPTIONAL MATCH (t)-[:AFFECTS]->(c:Component)
+        OPTIONAL MATCH (t)-[:HAS_MITIGATION]->(m:Mitigation)
+        RETURN t,
+               collect(DISTINCT c.id) as component_ids,
+               collect(DISTINCT m) as mitigations
+        ORDER BY t.overall_risk DESC
+        """
+        
+        async with self.driver.session() as session:
+            result = await session.run(query, analysis_id=analysis_id)
+            threats = []
+            async for record in result:
+                threat_data = dict(record["t"])
+                threat_data["affected_component_ids"] = record["component_ids"]
+                threat_data["structured_mitigations"] = [
+                    dict(m) for m in record["mitigations"] if m
+                ]
+                threats.append(threat_data)
+            return threats
+    
+    async def sync_threat_from_storage(
+        self,
+        threat_data: Dict[str, Any]
+    ) -> bool:
+        """
+        Sync a threat from file storage to Neo4j graph.
+        Creates threat node and all relationships.
+        """
+        threat_id = threat_data.get("id")
+        if not threat_id:
+            return False
+        
+        # Create/update threat node
+        await self.create_threat_enhanced(threat_id, threat_data)
+        
+        # Link to components
+        for comp_id in threat_data.get("affected_component_ids", []):
+            await self.link_threat_to_component(threat_id, comp_id)
+        
+        # Link to flows
+        for flow_id in threat_data.get("impacted_flow_ids", []):
+            await self.link_threat_to_flow(threat_id, flow_id)
+        
+        # Create mitigations
+        for mit in threat_data.get("structured_mitigations", []):
+            mit_id = mit.get("id", f"{threat_id}_mit_{len(threat_data.get('structured_mitigations', []))}")
+            await self.create_mitigation(mit_id, threat_id, mit)
+        
+        logger.info("threat_synced_to_graph", threat_id=threat_id)
+        return True
+    
+    async def get_flow_map_data(
+        self,
+        project_id: str
+    ) -> Dict[str, Any]:
+        """
+        Get complete flow map data for UI rendering.
+        Returns components, flows, and trust boundaries.
+        """
+        query = """
+        MATCH (p:Project {id: $project_id})-[:HAS_COMPONENT]->(c:Component)
+        OPTIONAL MATCH (c)-[f:DATA_FLOW]->(c2:Component)
+        RETURN collect(DISTINCT c) as components,
+               collect(DISTINCT {
+                   id: f.id,
+                   source: c.id,
+                   target: c2.id,
+                   name: f.name,
+                   protocol: f.protocol,
+                   encrypted: f.encrypted,
+                   crosses_trust_boundary: f.crosses_trust_boundary
+               }) as flows
+        """
+        
+        async with self.driver.session() as session:
+            result = await session.run(query, project_id=project_id)
+            record = await result.single()
+            
+            if not record:
+                return {"components": [], "flows": [], "trust_boundaries": []}
+            
+            return {
+                "components": [dict(c) for c in record["components"] if c],
+                "flows": [f for f in record["flows"] if f.get("id")],
+                "trust_boundaries": []  # TODO: Add trust boundary query
+            }
 
 

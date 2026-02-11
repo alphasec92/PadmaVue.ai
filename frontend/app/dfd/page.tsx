@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, Suspense, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import mermaid from 'mermaid';
+import DOMPurify from 'dompurify';
 import {
   GitBranch,
   Download,
@@ -124,6 +125,10 @@ function DFDContent() {
   const [showAnalysisDropdown, setShowAnalysisDropdown] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<'all' | string>('all');
   const [loadingList, setLoadingList] = useState(false);
+  
+  // Focus state for highlighting flows/components from URL params
+  const [focusFlowId, setFocusFlowId] = useState<string | null>(null);
+  const [focusComponentId, setFocusComponentId] = useState<string | null>(null);
 
   // Generate unique render ID to prevent mermaid conflicts
   const renderIdRef = useRef(0);
@@ -137,10 +142,21 @@ function DFDContent() {
     loadProjectsList();
   }, []);
 
-  // Load DFD from analysis
+  // Load DFD from analysis and handle focus params
   useEffect(() => {
     const analysisIdFromUrl = searchParams.get('analysis_id');
     const analysisId = analysisIdFromUrl || currentAnalysis;
+    
+    // Handle focus params for deep linking
+    const focus = searchParams.get('focus');
+    const focusComponent = searchParams.get('focusComponent');
+    
+    if (focus) {
+      setFocusFlowId(focus);
+    }
+    if (focusComponent) {
+      setFocusComponentId(focusComponent);
+    }
     
     if (analysisIdFromUrl && analysisIdFromUrl !== currentAnalysis) {
       setCurrentAnalysis(analysisIdFromUrl);
@@ -300,7 +316,63 @@ function DFDContent() {
     if (mermaidReady && mermaidCode) {
     renderDiagram();
     }
-  }, [mermaidCode, renderKey, mermaidReady]);
+  }, [mermaidCode, renderKey, mermaidReady, focusFlowId, focusComponentId]);
+
+  // Apply highlight styles after rendering
+  const applyHighlights = useCallback((svgElement: SVGElement) => {
+    if (!focusFlowId && !focusComponentId) return;
+    
+    // Find and highlight focused elements
+    const allEdges = svgElement.querySelectorAll('.edgePath, .edge');
+    const allNodes = svgElement.querySelectorAll('.node');
+    
+    // Dim all elements first
+    allEdges.forEach(edge => {
+      (edge as SVGElement).style.opacity = '0.3';
+    });
+    allNodes.forEach(node => {
+      (node as SVGElement).style.opacity = '0.4';
+    });
+    
+    // Highlight focused flow (edge)
+    if (focusFlowId) {
+      // Try to find by ID or by label text
+      allEdges.forEach(edge => {
+        const edgeLabels = edge.querySelectorAll('text, tspan');
+        edgeLabels.forEach(label => {
+          if (label.textContent?.toLowerCase().includes(focusFlowId.toLowerCase())) {
+            (edge as SVGElement).style.opacity = '1';
+            (edge as SVGElement).style.filter = 'drop-shadow(0 0 8px rgba(139, 92, 246, 0.8))';
+            // Also highlight connected nodes
+            const path = edge.querySelector('path');
+            if (path) {
+              path.setAttribute('stroke', '#8b5cf6');
+              path.setAttribute('stroke-width', '3');
+            }
+          }
+        });
+      });
+    }
+    
+    // Highlight focused component (node)
+    if (focusComponentId) {
+      allNodes.forEach(node => {
+        const nodeTexts = node.querySelectorAll('text, tspan, .nodeLabel');
+        nodeTexts.forEach(text => {
+          if (text.textContent?.toLowerCase().includes(focusComponentId.toLowerCase())) {
+            (node as SVGElement).style.opacity = '1';
+            (node as SVGElement).style.filter = 'drop-shadow(0 0 12px rgba(59, 130, 246, 0.8))';
+            // Add pulsing animation
+            const rect = node.querySelector('rect, circle, polygon');
+            if (rect) {
+              rect.setAttribute('stroke', '#3b82f6');
+              rect.setAttribute('stroke-width', '3');
+            }
+          }
+        });
+      });
+    }
+  }, [focusFlowId, focusComponentId]);
 
   const renderDiagram = useCallback(async () => {
     if (!containerRef.current || !mermaidReady) return;
@@ -315,7 +387,13 @@ function DFDContent() {
       const uniqueId = `dfd-diagram-${Date.now()}-${renderIdRef.current}`;
       
       const { svg } = await mermaid.render(uniqueId, mermaidCode);
-      containerRef.current.innerHTML = svg;
+      // Sanitize SVG to prevent XSS attacks
+      const sanitizedSvg = DOMPurify.sanitize(svg, { 
+        USE_PROFILES: { svg: true, svgFilters: true },
+        ADD_TAGS: ['use'],
+        ADD_ATTR: ['xlink:href']
+      });
+      containerRef.current.innerHTML = sanitizedSvg;
       
       // Style the SVG
       const svgElement = containerRef.current.querySelector('svg');
@@ -324,6 +402,9 @@ function DFDContent() {
         svgElement.style.height = 'auto';
         svgElement.style.transform = `scale(${zoom})`;
         svgElement.style.transformOrigin = 'center';
+        
+        // Apply focus highlights if any
+        applyHighlights(svgElement);
       }
     } catch (error) {
       console.error('Mermaid render error:', error);
@@ -335,7 +416,7 @@ function DFDContent() {
       `;
     }
     setLoading(false);
-  }, [mermaidCode, zoom, mermaidReady]);
+  }, [mermaidCode, zoom, mermaidReady, applyHighlights]);
 
   const handleCopyCode = async () => {
     await navigator.clipboard.writeText(mermaidCode);
@@ -542,6 +623,38 @@ function DFDContent() {
                   ? `Analysis ID: ${analysisInfo.id.slice(0, 8)}... • ${analysisInfo.status}`
                   : 'AI-generated data flow diagram with threat annotations'}
               </p>
+              
+              {/* Focus indicator banner */}
+              {(focusFlowId || focusComponentId) && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-3 p-3 rounded-lg bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 flex items-center justify-between"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                    <span className="text-sm">
+                      Highlighting: <span className="font-medium text-blue-500">
+                        {focusComponentId ? `Component "${focusComponentId}"` : `Flow "${focusFlowId}"`}
+                      </span>
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setFocusFlowId(null);
+                      setFocusComponentId(null);
+                      // Update URL without focus params
+                      const params = new URLSearchParams(searchParams.toString());
+                      params.delete('focus');
+                      params.delete('focusComponent');
+                      router.replace(`/dfd?${params.toString()}`);
+                    }}
+                    className="text-xs px-2 py-1 rounded bg-muted hover:bg-muted/80 transition-colors"
+                  >
+                    Clear highlight
+                  </button>
+                </motion.div>
+              )}
               
               {fetchError && (
                 <p className="text-amber-500 text-sm mt-2 flex items-center gap-1">

@@ -380,5 +380,154 @@ class DREADEngine:
                               "affected_users", "discoverability"]
             }
         }
+    
+    def calculate_with_explanation(
+        self,
+        damage: float,
+        reproducibility: float,
+        exploitability: float,
+        affected_users: float,
+        discoverability: float
+    ) -> Dict[str, Any]:
+        """
+        Calculate DREAD score with human-readable explanation.
+        
+        Returns dict with score, level, and scoring_explanation.
+        """
+        result = self.calculate(
+            damage=damage,
+            reproducibility=reproducibility,
+            exploitability=exploitability,
+            affected_users=affected_users,
+            discoverability=discoverability
+        )
+        
+        # Generate explanation
+        result["scoring_model"] = "DREAD_AVG_V1"
+        result["scoring_explanation"] = self._generate_explanation(result)
+        
+        return result
+    
+    def calculate_from_dict_with_explanation(
+        self,
+        scores: Dict[str, float]
+    ) -> Dict[str, Any]:
+        """
+        Calculate DREAD score from dict with explanation.
+        """
+        return self.calculate_with_explanation(
+            damage=scores.get("damage", 5),
+            reproducibility=scores.get("reproducibility", 5),
+            exploitability=scores.get("exploitability", 5),
+            affected_users=scores.get("affected_users", 5),
+            discoverability=scores.get("discoverability", 5)
+        )
+    
+    def _generate_explanation(self, result: Dict[str, Any]) -> str:
+        """
+        Generate a human-readable explanation of the DREAD score.
+        
+        Highlights significant factors and shows the formula.
+        """
+        d = result.get("damage", 5)
+        r = result.get("reproducibility", 5)
+        e = result.get("exploitability", 5)
+        a = result.get("affected_users", 5)
+        disc = result.get("discoverability", 5)
+        score = result.get("score", 5.0)
+        level = result.get("level", "medium")
+        
+        factors = []
+        
+        # Highlight high factors (>=7)
+        if d >= 7:
+            factors.append(f"high damage potential ({d}/10)")
+        elif d <= 3:
+            factors.append(f"limited damage potential ({d}/10)")
+        
+        if e >= 7:
+            factors.append(f"easily exploitable ({e}/10)")
+        elif e <= 3:
+            factors.append(f"difficult to exploit ({e}/10)")
+        
+        if a >= 7:
+            factors.append(f"affects many users ({a}/10)")
+        elif a <= 3:
+            factors.append(f"affects few users ({a}/10)")
+        
+        if r >= 7:
+            factors.append(f"highly reproducible ({r}/10)")
+        elif r <= 3:
+            factors.append(f"hard to reproduce ({r}/10)")
+        
+        if disc >= 7:
+            factors.append(f"easily discoverable ({disc}/10)")
+        elif disc <= 3:
+            factors.append(f"hard to discover ({disc}/10)")
+        
+        # Build explanation text
+        level_text = level.upper() if level else "MEDIUM"
+        
+        if factors:
+            factor_text = ", ".join(factors)
+            explanation = f"{level_text} risk ({score}/10): {factor_text}. "
+        else:
+            explanation = f"{level_text} risk ({score}/10) based on balanced DREAD factors. "
+        
+        explanation += f"Calculated as (D:{d} + R:{r} + E:{e} + A:{a} + D:{disc}) / 5 = {score}"
+        
+        return explanation
+    
+    def get_risk_breakdown(self, scores: Dict[str, float]) -> Dict[str, Any]:
+        """
+        Get a detailed breakdown of risk factors for UI display.
+        
+        Returns dict with individual factor assessments and overall risk.
+        """
+        result = self.calculate_from_dict_with_explanation(scores)
+        
+        def assess_factor(value: float, factor_name: str) -> Dict[str, Any]:
+            """Assess a single factor"""
+            if value >= 8:
+                assessment = "critical"
+                text = "Very High"
+            elif value >= 6:
+                assessment = "high"
+                text = "High"
+            elif value >= 4:
+                assessment = "medium"
+                text = "Medium"
+            elif value >= 2:
+                assessment = "low"
+                text = "Low"
+            else:
+                assessment = "info"
+                text = "Very Low"
+            
+            desc = self.FACTOR_DESCRIPTIONS.get(factor_name, {})
+            
+            return {
+                "value": value,
+                "assessment": assessment,
+                "text": text,
+                "name": desc.get("name", factor_name.replace("_", " ").title()),
+                "question": desc.get("question", ""),
+            }
+        
+        return {
+            "overall": {
+                "score": result["score"],
+                "level": result["level"],
+                "scoring_model": result["scoring_model"],
+                "scoring_explanation": result["scoring_explanation"],
+            },
+            "factors": {
+                "damage": assess_factor(result["damage"], "damage"),
+                "reproducibility": assess_factor(result["reproducibility"], "reproducibility"),
+                "exploitability": assess_factor(result["exploitability"], "exploitability"),
+                "affected_users": assess_factor(result["affected_users"], "affected_users"),
+                "discoverability": assess_factor(result["discoverability"], "discoverability"),
+            }
+        }
 
 
