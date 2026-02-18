@@ -155,7 +155,7 @@ export default function UploadPage() {
   // Methodology settings with MAESTRO overlay support
   const [methodologySettings, setMethodologySettings] = useState<MethodologySettings>({
     primary: 'stride',
-    includeMaestro: false,
+    includeMaestro: true, // MAESTRO overlay enabled by default
     forceMaestro: false,
     maestroConfidenceThreshold: 0.6
   });
@@ -165,6 +165,7 @@ export default function UploadPage() {
   const [inputMode, setInputMode] = useState<'files' | 'chat'>('files');
   const [backendStatus, setBackendStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
   const [showSettings, setShowSettings] = useState(false);
+  const [progressInterval, setProgressInterval] = useState<NodeJS.Timeout | null>(null);
 
   // Check backend on mount
   useEffect(() => {
@@ -194,6 +195,13 @@ export default function UploadPage() {
 
   const removeFile = (index: number) => {
     setFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Helper function to get methodology label for display
+  const getMethodologyLabel = (settings: MethodologySettings) => {
+    if (settings.primary === 'maestro') return 'MAESTRO';
+    if (settings.includeMaestro) return `${settings.primary.toUpperCase()} + MAESTRO`;
+    return settings.primary.toUpperCase();
   };
 
   const handleSubmit = async () => {
@@ -246,7 +254,21 @@ export default function UploadPage() {
       setMethodology(baseMethodology);
 
       // Step 2: Run security analysis with MAESTRO overlay if enabled
+      // Start at 60% and simulate progress during analysis
       setUploadProgress(60);
+      
+      // Simulate realistic progress during analysis (60% -> 85%)
+      const interval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev >= 85) {
+            clearInterval(interval);
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 2000); // Increment every 2 seconds
+      setProgressInterval(interval);
+
       const analysisResponse = await api.analyze({
         project_id: ingestResponse.project_id,
         methodology: baseMethodology,
@@ -259,6 +281,9 @@ export default function UploadPage() {
         maestro_confidence_threshold: methodologySettings.maestroConfidenceThreshold,
       });
 
+      // Clear progress interval
+      if (interval) clearInterval(interval);
+
       setUploadProgress(100);
 
       // Navigate to review page with analysis_id
@@ -266,6 +291,11 @@ export default function UploadPage() {
     } catch (err: any) {
       setError(parseError(err));
     } finally {
+      // Clean up progress interval
+      if (progressInterval) {
+        clearInterval(progressInterval);
+        setProgressInterval(null);
+      }
       setUploading(false);
       setUploadProgress(0);
     }
@@ -702,7 +732,7 @@ export default function UploadPage() {
                     {uploadProgress < 50 
                       ? 'Uploading and ingesting your documents...' 
                       : uploadProgress < 90 
-                        ? `Running ${methodologySettings.primary.toUpperCase()} threat analysis...`
+                        ? `Running ${getMethodologyLabel(methodologySettings)} analysis...`
                         : 'Generating threat model and DFD...'}
                   </p>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">

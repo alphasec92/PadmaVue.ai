@@ -7,6 +7,7 @@ Supports both STRIDE and PASTA methodologies
 from typing import Dict, Any, List, Optional, TypedDict, Annotated
 from enum import Enum
 import json
+import os
 
 from langgraph.graph import StateGraph, END
 from langgraph.graph.message import add_messages
@@ -54,6 +55,12 @@ class AnalysisState(TypedDict):
     include_maestro: bool
     force_maestro: bool
     maestro_confidence_threshold: float
+    
+    # Retest: additional user-provided context
+    additional_context: Optional[str]
+    
+    # Cached parsed content (populated by elicitation, reused by threat modeling)
+    parsed_content: Optional[str]
     
     # Processing state
     current_phase: str
@@ -153,17 +160,95 @@ class SecurityOrchestrator:
     def _should_generate_devsecops(self, state: AnalysisState) -> bool:
         return state.get("include_devsecops", True)
     
+    def _get_parsed_content_from_files(self, project_data: Dict[str, Any]) -> Optional[str]:
+        """
+        Extract parsed content from project files.
+        
+        First checks for parsed_content stored during ingestion.
+        Falls back to reading text files from disk if parsed_content is missing.
+        """
+        parsed_content = None
+        files = project_data.get("files", [])
+        
+        for file_info in files:
+            # Check for parsed_content stored during ingestion
+            if file_info.get("parsed_content"):
+                parsed_content = (parsed_content or "") + "\n" + file_info["parsed_content"]
+                continue
+            
+            # Fallback: read text files from disk
+            file_path = file_info.get("path")
+            if not file_path:
+                continue
+            
+            original_name = file_info.get("original_name", "")
+            text_extensions = {'.txt', '.md', '.json', '.yaml', '.yml', '.xml', '.py', '.js', '.ts', '.tf'}
+            file_ext = os.path.splitext(original_name)[1].lower()
+            
+            if file_ext in text_extensions and os.path.exists(file_path):
+                try:
+                    with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
+                        content = f.read()
+                    # Limit to 100KB per file
+                    if len(content) > 100_000:
+                        content = content[:100_000] + "\n... [content truncated at 100KB]"
+                    parsed_content = (parsed_content or "") + "\n" + content
+                    logger.info("Read file content from disk",
+                               file=original_name,
+                               content_length=len(content))
+                except Exception as e:
+                    logger.warning("Could not read file content from disk",
+                                  file=original_name, error=str(e))
+            elif file_ext == '.pdf' and os.path.exists(file_path):
+                try:
+                    from pypdf import PdfReader
+                    reader = PdfReader(file_path)
+                    pages_text = []
+                    for page in reader.pages:
+                        text = page.extract_text()
+                        if text and text.strip():
+                            pages_text.append(text)
+                    if pages_text:
+                        content = "\n\n".join(pages_text)
+                        if len(content) > 100_000:
+                            content = content[:100_000] + "\n... [content truncated at 100KB]"
+                        parsed_content = (parsed_content or "") + "\n" + content
+                        logger.info("Parsed PDF from disk",
+                                   file=original_name,
+                                   pages=len(pages_text))
+                except ImportError:
+                    logger.warning("pypdf not installed, cannot parse PDF",
+                                  file=original_name)
+                except Exception as e:
+                    logger.warning("Could not parse PDF from disk",
+                                  file=original_name, error=str(e))
+        
+        return parsed_content
+    
     async def _run_elicitation(self, state: AnalysisState) -> Dict[str, Any]:
         """Run elicitation agent"""
         logger.info("Running elicitation agent", project_id=state["project_id"])
         
         try:
+            # Extract parsed content for the elicitation agent
+            project_data = state["project_data"]
+            parsed_content = self._get_parsed_content_from_files(project_data)
+            
+            # Append any additional user-provided context (from retest)
+            additional_context = state.get("additional_context")
+            if additional_context:
+                parsed_content = (parsed_content or "") + "\n\n## Additional User Context (Retest)\n" + additional_context
+                logger.info("Additional user context included for elicitation",
+                           context_length=len(additional_context))
+            
             results = await self.elicitation_agent.run(
-                project_data=state["project_data"]
+                project_data=project_data,
+                parsed_content=parsed_content
             )
             return {
                 "current_phase": AnalysisPhase.THREAT_MODELING,
                 "elicitation_results": results,
+                "parsed_content": parsed_content,  # Cache for reuse by threat_modeling
                 "messages": [{"role": "assistant", "content": f"Elicitation complete"}]
             }
         except Exception as e:
@@ -188,13 +273,21 @@ class SecurityOrchestrator:
         )
         
         try:
-            # Get parsed content from files if available
-            parsed_content = None
+            # Reuse parsed content cached by elicitation (avoids duplicate file I/O)
             project_data = state.get("project_data", {})
-            files = project_data.get("files", [])
-            for file in files:
-                if file.get("parsed_content"):
-                    parsed_content = (parsed_content or "") + "\n" + file["parsed_content"]
+            parsed_content = state.get("parsed_content")
+            if parsed_content is None:
+                # Fallback: read from files if not cached (shouldn't happen in normal flow)
+                parsed_content = self._get_parsed_content_from_files(project_data)
+                additional_context = state.get("additional_context")
+                if additional_context:
+                    parsed_content = (parsed_content or "") + "\n\n## Additional User Context (Retest)\n" + additional_context
+            
+            if parsed_content:
+                logger.info("Parsed content available for threat modeling",
+                           content_length=len(parsed_content))
+            else:
+                logger.warning("No parsed content available - MAESTRO evidence detection may be limited")
             
             results = await self.threat_agent.run(
                 project_data=project_data,
@@ -342,6 +435,10 @@ class SecurityOrchestrator:
                 "compliance_mappings": threat.get("compliance_mappings", {})
             }
             
+            # Include OWASP mappings if present (important for both STRIDE and MAESTRO)
+            if threat.get("owasp_mappings"):
+                formatted_threat["owasp_mappings"] = threat["owasp_mappings"]
+            
             # Add PASTA-specific fields
             if methodology == "pasta":
                 formatted_threat["threat_agent"] = threat.get("threat_agent")
@@ -349,6 +446,15 @@ class SecurityOrchestrator:
                 formatted_threat["likelihood"] = threat.get("likelihood")
                 formatted_threat["impact"] = threat.get("impact")
                 formatted_threat["business_impact"] = threat.get("business_impact")
+            
+            # Add MAESTRO-specific fields (for threats with methodology="maestro")
+            if threat.get("methodology") == "maestro":
+                formatted_threat["methodology"] = "maestro"
+                formatted_threat["scenario"] = threat.get("scenario", "")
+                formatted_threat["specific_mitigations"] = threat.get("specific_mitigations", [])
+                formatted_threat["references"] = threat.get("references", [])
+                formatted_threat["evidence"] = threat.get("evidence", [])
+                formatted_threat["trust_level"] = threat.get("trust_level", "medium")
             
             formatted_threats.append(formatted_threat)
         
@@ -364,6 +470,7 @@ class SecurityOrchestrator:
         maestro_threats = threat_results.get("maestro_threats", [])
         
         # Compile final results
+        diagram_results = state.get("diagram_results", {})
         final_results = {
             "methodology": methodology.upper(),
             "summary": {
@@ -378,8 +485,16 @@ class SecurityOrchestrator:
             },
             "threats": formatted_threats,
             "compliance_summary": state.get("compliance_results", {}),
-            "dfd_mermaid": state.get("diagram_results", {}).get("mermaid_code"),
+            "dfd_mermaid": diagram_results.get("mermaid_code"),
             "devsecops_rules": state.get("devsecops_results", {}),
+            # Store diagram metadata for the frontend
+            "metadata": {
+                "diagram": {
+                    "components": diagram_results.get("components", []),
+                    "flows": diagram_results.get("flows", []),
+                    "metadata": diagram_results.get("metadata", {})
+                }
+            },
             # MAESTRO (Agentic AI) results
             "maestro_applicability": maestro_applicability,
             "maestro_threats": maestro_threats
@@ -421,7 +536,9 @@ class SecurityOrchestrator:
         # MAESTRO (Agentic AI) overlay parameters
         include_maestro: bool = False,
         force_maestro: bool = False,
-        maestro_confidence_threshold: float = 0.6
+        maestro_confidence_threshold: float = 0.6,
+        # Retest: additional user context
+        additional_context: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Run the full security analysis workflow.
@@ -460,6 +577,10 @@ class SecurityOrchestrator:
             "include_maestro": include_maestro,
             "force_maestro": force_maestro,
             "maestro_confidence_threshold": maestro_confidence_threshold,
+            # Retest: additional user context
+            "additional_context": additional_context,
+            # Cached parsed content (populated by elicitation agent)
+            "parsed_content": None,
             # Processing state
             "current_phase": AnalysisPhase.ELICITATION,
             "messages": [],

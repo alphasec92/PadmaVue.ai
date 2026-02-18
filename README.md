@@ -4,6 +4,22 @@
 
 ---
 
+## 🪷 Name & Inspiration
+
+**Padma** (Sanskrit: *"Lotus"*) is a word deeply rooted in Indian heritage — see [Padma on Wikipedia](https://en.wikipedia.org/wiki/Padma_(given_name)).
+
+**PadmaVue.ai** draws its name from the **Padmavyuha** (Lotus Formation) — a legendary multi-layered military defense formation from the *Mahabharata*, one of the great ancient Indian epics. The Padmavyuha was an intricate, concentric arrangement of warriors that formed an almost impenetrable defense: attackers could enter, but the layers would close behind them, making escape nearly impossible. Only those who understood every layer of the formation could navigate through it.
+
+This is the philosophy behind PadmaVue.ai:
+
+- **Layered Defense** — Just as the Padmavyuha organized warriors in deliberate, concentric rings, PadmaVue.ai helps security architects build structured, layered defenses through systematic threat modeling (STRIDE, PASTA, MAESTRO).
+- **Visibility Into Complexity** — *Vue* means "view." The Padmavyuha was devastating because its structure was opaque to outsiders. PadmaVue.ai does the opposite — it gives you full visibility into your security architecture, data flows, trust boundaries, and threat landscape.
+- **Ancient Wisdom, Modern Application** — The Mahabharata teaches that understanding your defense architecture is the difference between resilience and defeat. PadmaVue.ai applies this principle to modern software systems, using AI to automatically analyze, map, and strengthen your security posture.
+
+> *"The lotus grows from mud but blooms untouched by it."* — Just as the lotus rises above, PadmaVue.ai elevates your security architecture above the complexity of modern threats.
+
+---
+
 ## 🚀 Quick Start
 
 ### Mac / Linux

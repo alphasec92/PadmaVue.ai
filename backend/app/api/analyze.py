@@ -62,6 +62,8 @@ class AnalysisRequest(BaseModel):
     include_devsecops: bool = Field(default=True)
     compliance_frameworks: List[str] = Field(default=["NIST_800_53", "OWASP_ASVS"])
     severity_threshold: str = Field(default="low")
+    # Retest: additional context from user for re-analysis
+    additional_context: Optional[str] = Field(default=None, description="Additional insights or context provided by user for re-analysis")
 
 
 class ThreatFinding(BaseModel):
@@ -109,6 +111,7 @@ class AnalysisResponse(BaseModel):
     dfd_mermaid: Optional[str] = None
     devsecops_rules: Optional[Dict[str, Any]] = None
     pasta_stages: Optional[Dict[str, Any]] = None
+    metadata: Optional[Dict[str, Any]] = None
     # MAESTRO (Agentic AI) results
     maestro_applicability: Optional[MaestroApplicabilityResponse] = None
     maestro_threats: Optional[List[Dict[str, Any]]] = None
@@ -264,7 +267,9 @@ async def analyze_project(
             # MAESTRO (Agentic AI) overlay parameters
             include_maestro=request.include_maestro,
             force_maestro=request.force_maestro,
-            maestro_confidence_threshold=request.maestro_confidence_threshold
+            maestro_confidence_threshold=request.maestro_confidence_threshold,
+            # Retest: additional user context
+            additional_context=request.additional_context
         )
         
         # Save threats individually for detailed tracking
@@ -412,6 +417,16 @@ async def get_analysis(analysis_id: str):
     if not analysis:
         raise HTTPException(status_code=404, detail="Analysis not found")
     
+    # Build MAESTRO applicability response if present
+    maestro_app_response = None
+    if analysis.maestro_applicability:
+        try:
+            maestro_app_response = MaestroApplicabilityResponse(
+                **analysis.maestro_applicability
+            )
+        except Exception:
+            maestro_app_response = None
+    
     return AnalysisResponse(
         analysis_id=analysis.id,
         project_id=analysis.project_id,
@@ -424,7 +439,10 @@ async def get_analysis(analysis_id: str):
         compliance_summary=analysis.compliance_summary,
         dfd_mermaid=analysis.dfd_mermaid,
         devsecops_rules=analysis.devsecops_rules,
-        pasta_stages=analysis.pasta_stages
+        pasta_stages=analysis.pasta_stages,
+        metadata=analysis.metadata,
+        maestro_applicability=maestro_app_response,
+        maestro_threats=analysis.maestro_threats if analysis.maestro_threats else None
     )
 
 

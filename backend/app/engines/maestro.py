@@ -657,6 +657,13 @@ class MAESTROEngine:
         # Determine which categories are relevant
         relevant_categories = self._determine_relevant_categories(signals, evidence)
         
+        # If applicability was forced and no categories were detected,
+        # generate threats for all core categories
+        if applicability and applicability.status == "forced" and not relevant_categories:
+            relevant_categories = list(self.categories.keys())
+            logger.info("Forced MAESTRO: generating threats for all categories",
+                       categories=relevant_categories)
+        
         project_name = project_data.get("name", "Unknown Project")
         
         for cat_id in relevant_categories:

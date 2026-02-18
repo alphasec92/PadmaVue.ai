@@ -133,13 +133,15 @@ Output valid JSON with comprehensive PASTA analysis."""
             result = await self._run_pasta_analysis(
                 project_data,
                 elicitation_results,
-                severity_threshold
+                severity_threshold,
+                parsed_content=parsed_content
             )
         else:
             result = await self._run_stride_analysis(
                 project_data,
                 elicitation_results,
-                severity_threshold
+                severity_threshold,
+                parsed_content=parsed_content
             )
         
         # Add OWASP compliance report
@@ -438,10 +440,11 @@ Output valid JSON with comprehensive PASTA analysis."""
         self,
         project_data: Dict[str, Any],
         elicitation_results: Dict[str, Any],
-        severity_threshold: str
+        severity_threshold: str,
+        parsed_content: Optional[str] = None
     ) -> Dict[str, Any]:
         """Run STRIDE-based threat analysis"""
-        context = self._build_context(project_data, elicitation_results)
+        context = self._build_context(project_data, elicitation_results, parsed_content)
         raw_threats = await self._generate_stride_threats(context)
         
         processed_threats = []
@@ -468,12 +471,18 @@ Output valid JSON with comprehensive PASTA analysis."""
         self,
         project_data: Dict[str, Any],
         elicitation_results: Dict[str, Any],
-        severity_threshold: str
+        severity_threshold: str,
+        parsed_content: Optional[str] = None
     ) -> Dict[str, Any]:
         """Run PASTA-based threat analysis"""
+        # Include parsed content in project data for PASTA engine
+        pasta_project_data = {**project_data}
+        if parsed_content:
+            pasta_project_data["parsed_content"] = parsed_content
+        
         # Run PASTA engine
         pasta_results = self.pasta_engine.analyze(
-            project_data=project_data,
+            project_data=pasta_project_data,
             business_objectives=elicitation_results.get("assumptions", [])
         )
         
@@ -501,12 +510,32 @@ Output valid JSON with comprehensive PASTA analysis."""
     def _build_context(
         self,
         project_data: Dict[str, Any],
-        elicitation_results: Dict[str, Any]
+        elicitation_results: Dict[str, Any],
+        parsed_content: Optional[str] = None
     ) -> str:
-        """Build context for threat analysis"""
+        """Build context for threat analysis including actual document content"""
         parts = []
         parts.append(f"## Project: {project_data.get('project_name', 'Unknown')}")
         parts.append(f"Description: {project_data.get('description', 'N/A')}")
+        
+        # Include actual document content for more accurate threat identification
+        if parsed_content:
+            # Limit to avoid token overflow (keep first 6000 chars for threat context)
+            content_preview = parsed_content[:6000]
+            if len(parsed_content) > 6000:
+                content_preview += "\n... [content truncated for analysis]"
+            parts.append(f"\n## System Documentation\n{content_preview}")
+        else:
+            # Fallback: try to get parsed_content from files in project_data
+            files = project_data.get("files", [])
+            for f in files[:3]:
+                fc = f.get("parsed_content", "")
+                if fc:
+                    content_preview = fc[:3000]
+                    if len(fc) > 3000:
+                        content_preview += "\n... [truncated]"
+                    name = f.get('original_name', f.get('filename', 'unknown'))
+                    parts.append(f"\n## Content from {name}\n{content_preview}")
         
         assumptions = elicitation_results.get("assumptions", [])
         if assumptions:

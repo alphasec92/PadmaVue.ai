@@ -207,7 +207,7 @@ class AnalysisRepository(Repository[AnalysisData]):
         return await self.update(id,
             status=Status.COMPLETED.value,
             completed_at=datetime.utcnow().isoformat(),
-            **{k: results.get(k) for k in ['summary', 'threats', 'compliance_summary', 'dfd_mermaid', 'devsecops_rules', 'pasta_stages'] if k in results}
+            **{k: results.get(k) for k in ['summary', 'threats', 'compliance_summary', 'dfd_mermaid', 'devsecops_rules', 'pasta_stages', 'metadata', 'maestro_applicability', 'maestro_threats'] if k in results}
         )
     
     async def add_log(self, id: str, agent: str, action: str, data: Dict) -> bool:

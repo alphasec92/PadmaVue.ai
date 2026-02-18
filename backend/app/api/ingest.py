@@ -138,6 +138,46 @@ async def ingest_documents(
             
             os.chmod(file_path, 0o640)
             
+            # Parse text content from files for downstream analysis (MAESTRO, STRIDE, etc.)
+            parsed_content = None
+            text_extensions = {'.txt', '.md', '.json', '.yaml', '.yml', '.xml', '.py', '.js', '.ts', '.tf'}
+            file_ext = os.path.splitext(original_name)[1].lower()
+            
+            if file_ext in text_extensions:
+                try:
+                    parsed_content = content.decode('utf-8', errors='replace')
+                    # Limit parsed content to prevent oversized storage (max 100KB of text)
+                    if len(parsed_content) > 100_000:
+                        parsed_content = parsed_content[:100_000] + "\n... [content truncated at 100KB]"
+                    logger.info("Parsed text content from file",
+                               file=original_name,
+                               content_length=len(parsed_content))
+                except Exception as parse_err:
+                    logger.warning("Could not parse text content",
+                                  file=original_name,
+                                  error=str(parse_err))
+            elif file_ext == '.pdf':
+                # Use DocumentParser for PDF files
+                try:
+                    from app.services.document_parser import DocumentParser
+                    parser = DocumentParser()
+                    chunks = await parser.parse_document(file_path)
+                    if chunks:
+                        parsed_content = "\n\n".join(
+                            chunk.get("content", "") for chunk in chunks
+                        )
+                        # Limit parsed content
+                        if len(parsed_content) > 100_000:
+                            parsed_content = parsed_content[:100_000] + "\n... [content truncated at 100KB]"
+                        logger.info("Parsed PDF content",
+                                   file=original_name,
+                                   chunks=len(chunks),
+                                   content_length=len(parsed_content))
+                except Exception as parse_err:
+                    logger.warning("Could not parse PDF content",
+                                  file=original_name,
+                                  error=str(parse_err))
+            
             # Record file info
             file_info = {
                 'original_name': original_name,
@@ -147,6 +187,10 @@ async def ingest_documents(
                 'mime_type': file.content_type,
                 'path': file_path
             }
+            
+            # Include parsed content for text-based files
+            if parsed_content:
+                file_info['parsed_content'] = parsed_content
             
             processed_files.append(file_info)
             

@@ -14,6 +14,7 @@ import {
   ZoomIn,
   ZoomOut,
   Maximize2,
+  Minimize2,
   Loader2,
   Code2,
   Image,
@@ -25,7 +26,8 @@ import {
   ChevronDown,
   Folder,
   Clock,
-  Filter
+  Filter,
+  X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useProjectStore } from '@/store/project-store';
@@ -92,6 +94,17 @@ interface AnalysisInfo {
   created_at?: string;
   threat_count?: number;
   project_name?: string;
+  metadata?: {
+    diagram?: {
+      components?: Array<{ id: string; name: string; type: string; has_threats?: boolean }>;
+      flows?: Array<{ id: string; source: string; target: string; label: string }>;
+    };
+    maestro_applicability?: {
+      applicable: boolean;
+      confidence: number;
+      status: string;
+    };
+  };
 }
 
 interface ProjectInfo {
@@ -118,6 +131,7 @@ function DFDContent() {
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [analysisInfo, setAnalysisInfo] = useState<AnalysisInfo | null>(null);
   const [mermaidReady, setMermaidReady] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false);
   
   // Project/Analysis selection state
   const [analyses, setAnalyses] = useState<AnalysisInfo[]>([]);
@@ -226,14 +240,15 @@ function DFDContent() {
       setLoading(true);
       const data = await api.getAnalysis(analysisId);
       
-      // Store analysis info for context
+      // Store analysis info for context including metadata
       setAnalysisInfo({
         id: data.analysis_id,
         project_id: data.project_id,
         methodology: data.methodology,
         status: data.status,
         created_at: data.created_at,
-        threat_count: data.threats?.length || 0
+        threat_count: data.threats?.length || 0,
+        metadata: data.metadata
       });
       
         if (data.dfd_mermaid) {
@@ -445,6 +460,22 @@ function DFDContent() {
     setRenderKey(k => k + 1);
   };
 
+  const handleMaximize = () => {
+    setIsMaximized(!isMaximized);
+  };
+
+  // Handle escape key to exit fullscreen
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isMaximized) {
+        setIsMaximized(false);
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isMaximized]);
+
   return (
     <div className="min-h-screen pt-20 px-4 sm:px-6 lg:px-8 py-8">
       <div className="mx-auto max-w-7xl">
@@ -597,10 +628,18 @@ function DFDContent() {
                   </div>
                   <span className={cn(
                     'px-2 py-1 rounded-lg text-xs font-medium',
-                    analysisInfo.methodology === 'STRIDE' ? 'bg-blue-500/20 text-blue-500' : 'bg-purple-500/20 text-purple-500'
+                    analysisInfo.methodology === 'STRIDE' ? 'bg-blue-500/20 text-blue-500' : 
+                    analysisInfo.methodology === 'PASTA' ? 'bg-purple-500/20 text-purple-500' :
+                    'bg-orange-500/20 text-orange-500'
                   )}>
                     {analysisInfo.methodology}
                   </span>
+                  {/* Show MAESTRO overlay indicator if applicable */}
+                  {analysisInfo.metadata?.maestro_applicability && (
+                    <span className="px-2 py-1 rounded-lg text-xs font-medium bg-watercolor-coral/20 text-watercolor-coral">
+                      + MAESTRO
+                    </span>
+                  )}
                   {analysisInfo.threat_count !== undefined && analysisInfo.threat_count > 0 && (
                     <span className="px-2 py-1 rounded-lg text-xs font-medium bg-orange-500/20 text-orange-500 flex items-center gap-1">
                       <AlertTriangle className="w-3 h-3" />
@@ -762,6 +801,15 @@ function DFDContent() {
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
+                  onClick={handleMaximize}
+                  className="p-2 rounded-lg hover:bg-muted transition-colors"
+                  title={isMaximized ? "Exit fullscreen" : "Maximize"}
+                >
+                  {isMaximized ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                   onClick={() => setRenderKey(k => k + 1)}
                   className="p-2 rounded-lg hover:bg-muted transition-colors"
                   title="Refresh"
@@ -862,29 +910,179 @@ function DFDContent() {
           transition={{ delay: 0.2 }}
           className="mt-6 grid sm:grid-cols-2 lg:grid-cols-4 gap-4"
         >
-          {[
-            { name: 'External Zone', count: 3, color: 'bg-slate-500' },
-            { name: 'DMZ Layer', count: 3, color: 'bg-purple-500' },
-            { name: 'Application Tier', count: 4, color: 'bg-blue-500' },
-            { name: 'Data Tier', count: 3, color: 'bg-green-500' },
-          ].map((zone, index) => (
-            <motion.div
-              key={zone.name}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 + index * 0.1 }}
-              className="p-4 rounded-xl glass"
-            >
-              <div className="flex items-center gap-3 mb-2">
-                <div className={cn('w-3 h-3 rounded', zone.color)} />
-                <span className="font-medium">{zone.name}</span>
-              </div>
-              <p className="text-2xl font-bold">{zone.count}</p>
-              <p className="text-xs text-muted-foreground">components</p>
-            </motion.div>
-          ))}
+          {(() => {
+            // Calculate component stats from metadata if available
+            const components = analysisInfo?.metadata?.diagram?.components || [];
+            
+            if (components.length > 0) {
+              // Group components by type
+              const externalEntities = components.filter(c => c.type === 'external_entity');
+              const processes = components.filter(c => c.type === 'process');
+              const dataStores = components.filter(c => c.type === 'data_store');
+              const threatenedComponents = components.filter(c => c.has_threats);
+              
+              const zones = [
+                { 
+                  name: 'External Entities', 
+                  count: externalEntities.length, 
+                  color: 'bg-slate-500',
+                  description: externalEntities.map(c => c.name).join(', ') || 'None'
+                },
+                { 
+                  name: 'Processes', 
+                  count: processes.length, 
+                  color: 'bg-blue-500',
+                  description: processes.map(c => c.name).join(', ') || 'None'
+                },
+                { 
+                  name: 'Data Stores', 
+                  count: dataStores.length, 
+                  color: 'bg-green-500',
+                  description: dataStores.map(c => c.name).join(', ') || 'None'
+                },
+                { 
+                  name: 'With Threats', 
+                  count: threatenedComponents.length, 
+                  color: 'bg-red-500',
+                  description: threatenedComponents.map(c => c.name).join(', ') || 'None'
+                },
+              ];
+              
+              return zones.map((zone, index) => (
+                <motion.div
+                  key={zone.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 + index * 0.1 }}
+                  className="p-4 rounded-xl glass"
+                  title={zone.description}
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className={cn('w-3 h-3 rounded', zone.color)} />
+                    <span className="font-medium">{zone.name}</span>
+                  </div>
+                  <p className="text-2xl font-bold">{zone.count}</p>
+                  <p className="text-xs text-muted-foreground">components</p>
+                </motion.div>
+              ));
+            } else {
+              // Fallback to hardcoded zones if no metadata
+              return [
+                { name: 'External Zone', count: 3, color: 'bg-slate-500' },
+                { name: 'DMZ Layer', count: 3, color: 'bg-purple-500' },
+                { name: 'Application Tier', count: 4, color: 'bg-blue-500' },
+                { name: 'Data Tier', count: 3, color: 'bg-green-500' },
+              ].map((zone, index) => (
+                <motion.div
+                  key={zone.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 + index * 0.1 }}
+                  className="p-4 rounded-xl glass"
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className={cn('w-3 h-3 rounded', zone.color)} />
+                    <span className="font-medium">{zone.name}</span>
+                  </div>
+                  <p className="text-2xl font-bold">{zone.count}</p>
+                  <p className="text-xs text-muted-foreground">components</p>
+                </motion.div>
+              ));
+            }
+          })()}
         </motion.div>
       </div>
+
+      {/* Fullscreen Mode Overlay */}
+      <AnimatePresence>
+        {isMaximized && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm"
+          >
+            <div className="h-full flex flex-col">
+              {/* Fullscreen Header */}
+              <div className="flex items-center justify-between p-4 border-b border-border">
+                <div className="flex items-center gap-3">
+                  <GitBranch className="w-6 h-6 text-primary" />
+                  <div>
+                    <h2 className="text-lg font-semibold">System Flow Map</h2>
+                    <p className="text-sm text-muted-foreground">
+                      {analysisInfo?.project_name || analysisInfo?.project_id || 'Diagram'}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  {/* Zoom controls */}
+                  <div className="flex items-center gap-1 mr-4">
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => handleZoom('out')}
+                      className="p-2 rounded-lg hover:bg-muted transition-colors"
+                      title="Zoom out"
+                    >
+                      <ZoomOut className="w-4 h-4" />
+                    </motion.button>
+                    <span className="text-sm text-muted-foreground px-2">
+                      {Math.round(zoom * 100)}%
+                    </span>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => handleZoom('in')}
+                      className="p-2 rounded-lg hover:bg-muted transition-colors"
+                      title="Zoom in"
+                    >
+                      <ZoomIn className="w-4 h-4" />
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => handleZoom('reset')}
+                      className="p-2 rounded-lg hover:bg-muted transition-colors"
+                      title="Reset zoom"
+                    >
+                      <Maximize2 className="w-4 h-4" />
+                    </motion.button>
+                  </div>
+
+                  {/* Close button */}
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setIsMaximized(false)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-white hover:bg-primary/90 transition-colors"
+                  >
+                    <Minimize2 className="w-4 h-4" />
+                    <span>Exit Fullscreen</span>
+                    <span className="text-xs opacity-70">(ESC)</span>
+                  </motion.button>
+                </div>
+              </div>
+
+              {/* Fullscreen Diagram */}
+              <div className={cn(
+                "flex-1 p-8 overflow-auto",
+                isDark ? "bg-slate-900/50" : "bg-slate-50"
+              )}>
+                {loading && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm z-10">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                  </div>
+                )}
+                <div 
+                  ref={containerRef}
+                  className="flex items-center justify-center transition-transform duration-300 h-full"
+                />
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

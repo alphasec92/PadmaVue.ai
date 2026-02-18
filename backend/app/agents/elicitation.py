@@ -47,21 +47,24 @@ Output format: JSON with 'questions' and 'assumptions' arrays."""
     
     async def run(
         self,
-        project_data: Dict[str, Any]
+        project_data: Dict[str, Any],
+        parsed_content: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Run elicitation analysis on project data.
         
         Args:
             project_data: Project metadata and content
+            parsed_content: Optional parsed document content for richer context
         
         Returns:
             Questions and assumptions dict
         """
-        logger.info("Running elicitation analysis")
+        logger.info("Running elicitation analysis",
+                    has_parsed_content=parsed_content is not None)
         
         # Build context from project data
-        context = self._build_context(project_data)
+        context = self._build_context(project_data, parsed_content)
         
         # Generate prompt
         prompt = f"""Analyze the following system documentation and identify missing information 
@@ -102,8 +105,8 @@ Respond with valid JSON:
             logger.error("Elicitation failed", error=str(e))
             return self._get_default_results()
     
-    def _build_context(self, project_data: Dict[str, Any]) -> str:
-        """Build context string from project data"""
+    def _build_context(self, project_data: Dict[str, Any], parsed_content: Optional[str] = None) -> str:
+        """Build context string from project data and parsed file content"""
         parts = []
         
         # Add project metadata
@@ -115,7 +118,26 @@ Respond with valid JSON:
         if files:
             parts.append(f"\nDocuments analyzed: {len(files)}")
             for f in files[:5]:  # Limit to first 5
-                parts.append(f"  - {f.get('filename', 'unknown')}")
+                name = f.get('original_name', f.get('filename', 'unknown'))
+                parts.append(f"  - {name}")
+        
+        # Add actual document content if available
+        if parsed_content:
+            # Limit content to avoid token overflow (keep first 8000 chars)
+            content_preview = parsed_content[:8000]
+            if len(parsed_content) > 8000:
+                content_preview += "\n... [content truncated for analysis]"
+            parts.append(f"\n## Document Content\n{content_preview}")
+        else:
+            # Fallback: try to get parsed_content from individual files
+            for f in files[:3]:
+                fc = f.get('parsed_content', '')
+                if fc:
+                    content_preview = fc[:4000]
+                    if len(fc) > 4000:
+                        content_preview += "\n... [truncated]"
+                    name = f.get('original_name', f.get('filename', 'unknown'))
+                    parts.append(f"\n## Content from {name}\n{content_preview}")
         
         # Add chunk count
         parts.append(f"\nTotal content chunks: {project_data.get('total_chunks', 0)}")

@@ -8,7 +8,7 @@ import {
   FileSearch, Target, Zap, Users, Eye, RotateCcw, Edit3, Plus, Download,
   Layers, RefreshCw, Filter, Search, BarChart3, GitBranch, Network, Calendar, Clock,
   MapPin, ArrowRight, Link2, ShieldCheck, ShieldAlert, Activity, Info, HelpCircle,
-  Play, Pause, CheckSquare, User, ExternalLink
+  Play, Pause, CheckSquare, User, ExternalLink, FlaskConical, X, MessageSquarePlus, Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { api, Threat, AnalysisResponse } from '@/lib/api';
@@ -226,6 +226,13 @@ function ReviewPageContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [zones, setZones] = useState<Array<{ id: string; name: string }>>([]);
   const [projectName, setProjectName] = useState<string>('');
+  
+  // Retest state
+  const [showRetestModal, setShowRetestModal] = useState(false);
+  const [retestContext, setRetestContext] = useState('');
+  const [retestMethodology, setRetestMethodology] = useState<'stride' | 'pasta'>('stride');
+  const [retestIncludeMaestro, setRetestIncludeMaestro] = useState(true);
+  const [retestRunning, setRetestRunning] = useState(false);
 
   useEffect(() => {
     // Check URL params first, then store
@@ -354,6 +361,44 @@ function ReviewPageContent() {
     setShowExportModal(true);
   };
 
+  const handleOpenRetest = () => {
+    // Pre-fill methodology from current analysis
+    if (analysis) {
+      setRetestMethodology(
+        analysis.methodology?.toLowerCase() === 'pasta' ? 'pasta' : 'stride'
+      );
+      setRetestIncludeMaestro(!!analysis.maestro_applicability);
+    }
+    setRetestContext('');
+    setShowRetestModal(true);
+  };
+
+  const handleRetest = async () => {
+    if (!analysis) return;
+    setRetestRunning(true);
+    try {
+      const result = await api.analyze({
+        project_id: analysis.project_id,
+        methodology: retestMethodology,
+        include_maestro: retestIncludeMaestro,
+        force_maestro: false,
+        additional_context: retestContext.trim() || undefined,
+      });
+      
+      // Navigate to the new analysis
+      setShowRetestModal(false);
+      setRetestContext('');
+      setCurrentAnalysis(result.analysis_id);
+      router.push(`/review?analysis_id=${result.analysis_id}`);
+      loadAnalysis(result.analysis_id);
+    } catch (e) {
+      console.error('Retest failed:', e);
+      alert('Re-analysis failed. Please try again.');
+    } finally {
+      setRetestRunning(false);
+    }
+  };
+
   const filteredThreats = threats.filter(t => {
     if (filterSeverity !== 'all' && t.severity?.toLowerCase() !== filterSeverity) return false;
     if (filterCategory !== 'all' && t.category !== filterCategory) return false;
@@ -453,6 +498,10 @@ function ReviewPageContent() {
             <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleAddThreat}
                 className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border hover:bg-muted text-sm">
                 <Plus className="w-4 h-4" />Threat
+            </motion.button>
+            <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleOpenRetest}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl border border-orange-500/50 bg-orange-500/10 text-orange-600 dark:text-orange-400 hover:bg-orange-500/20 text-sm font-medium">
+              <FlaskConical className="w-4 h-4" />Retest
             </motion.button>
             <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleExport}
                 className="flex items-center gap-2 px-3 py-2 rounded-xl bg-primary text-white text-sm">
@@ -893,6 +942,158 @@ function ReviewPageContent() {
         methodology={analysis?.methodology}
         threatCount={threats.length}
       />
+
+      {/* Retest Modal */}
+      <AnimatePresence>
+        {showRetestModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+            onClick={() => !retestRunning && setShowRetestModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-lg rounded-2xl bg-background border border-border shadow-2xl overflow-hidden"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between p-5 border-b border-border">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-orange-500/10">
+                    <FlaskConical className="w-5 h-5 text-orange-500" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold">Re-run Analysis</h2>
+                    <p className="text-sm text-muted-foreground">
+                      Re-analyze {projectName || 'this project'} with updated settings
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => !retestRunning && setShowRetestModal(false)}
+                  className="p-2 rounded-lg hover:bg-muted transition-colors"
+                  disabled={retestRunning}
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="p-5 space-y-5">
+                {/* Methodology Selection */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">Methodology</label>
+                  <div className="flex gap-2">
+                    {(['stride', 'pasta'] as const).map((m) => (
+                      <button
+                        key={m}
+                        onClick={() => setRetestMethodology(m)}
+                        disabled={retestRunning}
+                        className={cn(
+                          'flex-1 px-4 py-2.5 rounded-xl text-sm font-medium border transition-all',
+                          retestMethodology === m
+                            ? m === 'stride'
+                              ? 'bg-blue-500/15 border-blue-500/50 text-blue-600 dark:text-blue-400'
+                              : 'bg-purple-500/15 border-purple-500/50 text-purple-600 dark:text-purple-400'
+                            : 'border-border hover:bg-muted'
+                        )}
+                      >
+                        {m.toUpperCase()}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* MAESTRO Toggle */}
+                <div className="flex items-center justify-between p-3 rounded-xl bg-muted/50 border border-border">
+                  <div className="flex items-center gap-2">
+                    <Bot className="w-4 h-4 text-watercolor-coral" />
+                    <span className="text-sm font-medium">Include MAESTRO (Agentic AI)</span>
+                  </div>
+                  <button
+                    onClick={() => setRetestIncludeMaestro(!retestIncludeMaestro)}
+                    disabled={retestRunning}
+                    className={cn(
+                      'relative w-10 h-5 rounded-full transition-colors',
+                      retestIncludeMaestro ? 'bg-watercolor-coral' : 'bg-muted-foreground/30'
+                    )}
+                  >
+                    <motion.div
+                      className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm"
+                      animate={{ left: retestIncludeMaestro ? '1.25rem' : '0.125rem' }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                    />
+                  </button>
+                </div>
+
+                {/* Additional Context */}
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium mb-2">
+                    <MessageSquarePlus className="w-4 h-4 text-muted-foreground" />
+                    Additional Insights
+                    <span className="text-xs text-muted-foreground font-normal">(optional)</span>
+                  </label>
+                  <textarea
+                    value={retestContext}
+                    onChange={(e) => setRetestContext(e.target.value)}
+                    disabled={retestRunning}
+                    placeholder="Add any additional context, architecture details, or specific areas to focus on...&#10;&#10;Examples:&#10;• The system uses MCP servers for tool access&#10;• Focus on authentication and data exfiltration risks&#10;• Include RAG poisoning scenarios"
+                    rows={5}
+                    className="w-full px-4 py-3 rounded-xl bg-background border border-border focus:border-primary outline-none transition-colors text-sm resize-none placeholder:text-muted-foreground/60"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1.5">
+                    This context will be combined with the original project documents for a more targeted analysis.
+                  </p>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="flex items-center justify-between p-5 border-t border-border bg-muted/30">
+                <p className="text-xs text-muted-foreground">
+                  A new analysis will be created. The current one won&apos;t be modified.
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setShowRetestModal(false)}
+                    disabled={retestRunning}
+                    className="px-4 py-2 rounded-xl text-sm border border-border hover:bg-muted transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <motion.button
+                    whileHover={!retestRunning ? { scale: 1.02 } : {}}
+                    whileTap={!retestRunning ? { scale: 0.98 } : {}}
+                    onClick={handleRetest}
+                    disabled={retestRunning}
+                    className={cn(
+                      'flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-medium text-white transition-colors',
+                      retestRunning
+                        ? 'bg-orange-500/60 cursor-not-allowed'
+                        : 'bg-orange-500 hover:bg-orange-600'
+                    )}
+                  >
+                    {retestRunning ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Running Analysis...
+                      </>
+                    ) : (
+                      <>
+                        <FlaskConical className="w-4 h-4" />
+                        Re-run Analysis
+                      </>
+                    )}
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

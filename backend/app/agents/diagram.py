@@ -91,163 +91,225 @@ Use clear, consistent styling for security visualization."""
         project_data: Dict[str, Any],
         threat_results: Dict[str, Any]
     ) -> List[Dict[str, Any]]:
-        """Extract system components"""
+        """Extract system components from threats and project data"""
         # Get affected components from threats
-        threat_components = set()
+        threat_components = {}  # component_name -> threat_count
+        zones = {}  # component_name -> zone
+        
         for threat in threat_results.get("threats", []):
             component = threat.get("affected_component", "")
             if component:
-                threat_components.add(component)
+                threat_components[component] = threat_components.get(component, 0) + 1
+                # Try to get zone info
+                if "zone" in threat:
+                    zones[component] = threat["zone"]
         
-        # Build component list
-        components = [
-            {
-                "id": "user",
-                "name": "User",
-                "type": "external_entity",
-                "trust_level": "untrusted",
-                "has_threats": "User" in threat_components or "External" in str(threat_components)
-            },
-            {
-                "id": "admin",
-                "name": "Admin",
-                "type": "external_entity",
-                "trust_level": "trusted",
-                "has_threats": "Admin" in threat_components
-            },
-            {
-                "id": "web_app",
-                "name": "Web Application",
-                "type": "process",
-                "trust_level": "semi-trusted",
-                "has_threats": any(c for c in threat_components if "web" in c.lower() or "frontend" in c.lower())
-            },
-            {
-                "id": "api_gateway",
-                "name": "API Gateway",
-                "type": "process",
-                "trust_level": "trusted",
-                "has_threats": any(c for c in threat_components if "api" in c.lower() or "gateway" in c.lower())
-            },
-            {
-                "id": "auth_service",
-                "name": "Auth Service",
-                "type": "process",
-                "trust_level": "trusted",
-                "has_threats": any(c for c in threat_components if "auth" in c.lower())
-            },
-            {
-                "id": "core_api",
-                "name": "Core API",
-                "type": "process",
-                "trust_level": "trusted",
-                "has_threats": any(c for c in threat_components if "core" in c.lower() or "service" in c.lower())
-            },
-            {
-                "id": "database",
-                "name": "Database",
-                "type": "data_store",
-                "trust_level": "trusted",
-                "has_threats": any(c for c in threat_components if "database" in c.lower() or "db" in c.lower())
-            },
-            {
-                "id": "cache",
-                "name": "Cache",
-                "type": "data_store",
-                "trust_level": "trusted",
-                "has_threats": any(c for c in threat_components if "cache" in c.lower())
-            },
-            {
-                "id": "external_api",
-                "name": "External API",
-                "type": "external_entity",
-                "trust_level": "untrusted",
-                "has_threats": any(c for c in threat_components if "external" in c.lower())
-            }
-        ]
+        # Build component list from actual threats
+        components = []
+        component_id_map = {}
         
+        # Process each unique component found in threats
+        for component_name in threat_components.keys():
+            component_id = component_name.lower().replace(" ", "_").replace("-", "_")
+            # Avoid duplicate IDs
+            if component_id in component_id_map:
+                component_id = f"{component_id}_{len(component_id_map)}"
+            component_id_map[component_id] = component_name
+            
+            # Infer component type and trust level from name
+            comp_lower = component_name.lower()
+            
+            if any(k in comp_lower for k in ["user", "client", "browser", "external", "third-party", "3rd party"]):
+                comp_type = "external_entity"
+                trust_level = "untrusted"
+            elif any(k in comp_lower for k in ["database", "db", "storage", "cache", "redis", "postgres", "mysql", "mongodb"]):
+                comp_type = "data_store"
+                trust_level = "trusted"
+            else:
+                comp_type = "process"
+                # Check if it's auth/admin related (higher trust)
+                if any(k in comp_lower for k in ["auth", "admin", "security"]):
+                    trust_level = "trusted"
+                elif any(k in comp_lower for k in ["frontend", "web", "ui", "client"]):
+                    trust_level = "semi-trusted"
+                else:
+                    trust_level = "trusted"
+            
+            components.append({
+                "id": component_id,
+                "name": component_name,
+                "type": comp_type,
+                "trust_level": trust_level,
+                "has_threats": True,
+                "threat_count": threat_components[component_name],
+                "zone": zones.get(component_name)
+            })
+        
+        # If no components found (shouldn't happen), use fallback minimal set
+        if not components:
+            logger.warning("No components extracted from threats, using minimal fallback")
+            components = [
+                {
+                    "id": "user",
+                    "name": "User",
+                    "type": "external_entity",
+                    "trust_level": "untrusted",
+                    "has_threats": False
+                },
+                {
+                    "id": "application",
+                    "name": "Application",
+                    "type": "process",
+                    "trust_level": "semi-trusted",
+                    "has_threats": False
+                },
+                {
+                    "id": "database",
+                    "name": "Database",
+                    "type": "data_store",
+                    "trust_level": "trusted",
+                    "has_threats": False
+                }
+            ]
+        
+        logger.info("Extracted components from threats", count=len(components), components=[c["name"] for c in components])
         return components
     
     async def _extract_flows(
         self,
         components: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
-        """Extract data flows between components"""
-        flows = [
-            {
-                "id": "f1",
-                "source": "user",
-                "target": "web_app",
-                "label": "HTTPS",
-                "data_type": "User Input",
-                "encrypted": True
-            },
-            {
-                "id": "f2",
-                "source": "admin",
-                "target": "web_app",
-                "label": "HTTPS + MFA",
-                "data_type": "Admin Commands",
-                "encrypted": True
-            },
-            {
-                "id": "f3",
-                "source": "web_app",
-                "target": "api_gateway",
-                "label": "API Calls",
-                "data_type": "JSON",
-                "encrypted": True
-            },
-            {
-                "id": "f4",
-                "source": "api_gateway",
-                "target": "auth_service",
-                "label": "Auth Check",
-                "data_type": "JWT",
-                "encrypted": True
-            },
-            {
-                "id": "f5",
-                "source": "api_gateway",
-                "target": "core_api",
-                "label": "Business Logic",
-                "data_type": "JSON",
-                "encrypted": True
-            },
-            {
-                "id": "f6",
-                "source": "auth_service",
-                "target": "database",
-                "label": "User Data",
-                "data_type": "Credentials",
-                "encrypted": True
-            },
-            {
-                "id": "f7",
-                "source": "core_api",
-                "target": "database",
-                "label": "CRUD",
-                "data_type": "App Data",
-                "encrypted": True
-            },
-            {
-                "id": "f8",
-                "source": "core_api",
-                "target": "cache",
-                "label": "Session",
-                "data_type": "Session Data",
-                "encrypted": False
-            },
-            {
-                "id": "f9",
-                "source": "core_api",
-                "target": "external_api",
-                "label": "External Call",
-                "data_type": "API Data",
-                "encrypted": True
-            }
-        ]
+        """Infer data flows between components based on typical architecture patterns"""
+        flows = []
+        flow_id = 1
         
+        # Create a mapping for quick lookup
+        comp_map = {c["id"]: c for c in components}
+        
+        # Get component IDs by type
+        external_entities = [c["id"] for c in components if c["type"] == "external_entity"]
+        processes = [c["id"] for c in components if c["type"] == "process"]
+        data_stores = [c["id"] for c in components if c["type"] == "data_store"]
+        
+        # Pattern 1: External entities -> Processes (frontend/gateway)
+        for ext in external_entities:
+            # Find frontend/web processes
+            frontends = [p for p in processes if any(k in comp_map[p]["name"].lower() for k in ["web", "frontend", "ui", "app", "client"])]
+            if frontends:
+                for frontend in frontends[:1]:  # Connect to first frontend
+                    flows.append({
+                        "id": f"f{flow_id}",
+                        "source": ext,
+                        "target": frontend,
+                        "label": "HTTPS",
+                        "data_type": "User Input",
+                        "encrypted": True
+                    })
+                    flow_id += 1
+            else:
+                # If no frontend, connect to first process (e.g., API)
+                if processes:
+                    flows.append({
+                        "id": f"f{flow_id}",
+                        "source": ext,
+                        "target": processes[0],
+                        "label": "HTTPS",
+                        "data_type": "User Input",
+                        "encrypted": True
+                    })
+                    flow_id += 1
+        
+        # Pattern 2: Frontend/Web -> Backend/API processes
+        frontends = [p for p in processes if any(k in comp_map[p]["name"].lower() for k in ["web", "frontend", "ui", "client"])]
+        backends = [p for p in processes if p not in frontends]
+        
+        for frontend in frontends:
+            # Connect to API/Gateway/Backend
+            apis = [b for b in backends if any(k in comp_map[b]["name"].lower() for k in ["api", "gateway", "backend", "service"])]
+            if apis:
+                flows.append({
+                    "id": f"f{flow_id}",
+                    "source": frontend,
+                    "target": apis[0],
+                    "label": "API Calls",
+                    "data_type": "JSON",
+                    "encrypted": True
+                })
+                flow_id += 1
+        
+        # Pattern 3: Processes -> Data Stores
+        for process in processes:
+            process_name = comp_map[process]["name"].lower()
+            
+            # Auth service -> Database
+            if "auth" in process_name and data_stores:
+                dbs = [d for d in data_stores if "database" in comp_map[d]["name"].lower() or "db" in comp_map[d]["name"].lower()]
+                if dbs:
+                    flows.append({
+                        "id": f"f{flow_id}",
+                        "source": process,
+                        "target": dbs[0],
+                        "label": "User Data",
+                        "data_type": "Credentials",
+                        "encrypted": True
+                    })
+                    flow_id += 1
+            
+            # API/Service -> Database
+            elif any(k in process_name for k in ["api", "service", "core", "backend"]) and data_stores:
+                dbs = [d for d in data_stores if "database" in comp_map[d]["name"].lower() or "db" in comp_map[d]["name"].lower()]
+                if dbs:
+                    flows.append({
+                        "id": f"f{flow_id}",
+                        "source": process,
+                        "target": dbs[0],
+                        "label": "CRUD",
+                        "data_type": "Application Data",
+                        "encrypted": True
+                    })
+                    flow_id += 1
+                
+                # Also connect to cache if available
+                caches = [d for d in data_stores if any(k in comp_map[d]["name"].lower() for k in ["cache", "redis", "memcache"])]
+                if caches:
+                    flows.append({
+                        "id": f"f{flow_id}",
+                        "source": process,
+                        "target": caches[0],
+                        "label": "Session/Cache",
+                        "data_type": "Session Data",
+                        "encrypted": False
+                    })
+                    flow_id += 1
+        
+        # Pattern 4: Process -> External entities (for external APIs, third-party services)
+        external_services = [e for e in external_entities if any(k in comp_map[e]["name"].lower() for k in ["api", "service", "third", "external"])]
+        for ext_svc in external_services:
+            # Connect from backend processes
+            backends = [p for p in processes if any(k in comp_map[p]["name"].lower() for k in ["api", "service", "backend", "core"])]
+            if backends:
+                flows.append({
+                    "id": f"f{flow_id}",
+                    "source": backends[0],
+                    "target": ext_svc,
+                    "label": "External API",
+                    "data_type": "API Data",
+                    "encrypted": True
+                })
+                flow_id += 1
+        
+        # Fallback: If no flows were created, create basic flow chain
+        if not flows and len(components) >= 2:
+            flows.append({
+                "id": "f1",
+                "source": components[0]["id"],
+                "target": components[1]["id"],
+                "label": "Data Flow",
+                "data_type": "Data",
+                "encrypted": True
+            })
+        
+        logger.info("Inferred data flows", count=len(flows))
         return flows
     
     def _generate_mermaid(
@@ -259,13 +321,13 @@ Use clear, consistent styling for security visualization."""
         """Generate Mermaid.js diagram code"""
         lines = ["flowchart TB"]
         
-        # Add styling
+        # Add styling with better contrast for both light and dark modes
         lines.append("")
         lines.append("    %% Styling")
-        lines.append("    classDef external fill:#e1f5fe,stroke:#0277bd,stroke-width:2px")
-        lines.append("    classDef process fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px")
-        lines.append("    classDef datastore fill:#fff3e0,stroke:#ef6c00,stroke-width:2px")
-        lines.append("    classDef threat fill:#ffebee,stroke:#c62828,stroke-width:3px")
+        lines.append("    classDef external fill:#dbeafe,stroke:#1e40af,stroke-width:2px,color:#1e3a8a")
+        lines.append("    classDef process fill:#dcfce7,stroke:#15803d,stroke-width:2px,color:#14532d")
+        lines.append("    classDef datastore fill:#fef3c7,stroke:#b45309,stroke-width:2px,color:#78350f")
+        lines.append("    classDef threat fill:#fee2e2,stroke:#991b1b,stroke-width:3px,color:#7f1d1d")
         lines.append("")
         
         # External entities subgraph

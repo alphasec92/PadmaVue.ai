@@ -160,6 +160,8 @@ interface AnalysisRequest {
   include_maestro?: boolean;
   force_maestro?: boolean;
   maestro_confidence_threshold?: number;
+  // Retest: additional user context
+  additional_context?: string;
 }
 
 // MAESTRO Applicability result
@@ -306,9 +308,16 @@ interface AnalysisResponse {
     components?: any[];
     data_flows?: any[];
     diagram?: {
+      components?: Array<{ id: string; name: string; type: string; has_threats?: boolean }>;
+      flows?: Array<{ id: string; source: string; target: string; label: string }>;
       mermaid_code?: string;
       zones?: Zone[];
       trust_boundaries?: TrustBoundary[];
+    };
+    maestro_applicability?: {
+      applicable: boolean;
+      confidence: number;
+      status: string;
     };
   };
 }
@@ -433,6 +442,8 @@ class ApiClient {
         include_maestro: request.include_maestro ?? false,
         force_maestro: request.force_maestro ?? false,
         maestro_confidence_threshold: request.maestro_confidence_threshold ?? 0.6,
+        // Retest: additional user context
+        ...(request.additional_context ? { additional_context: request.additional_context } : {}),
       }),
     });
   }
